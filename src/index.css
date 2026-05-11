@@ -33,6 +33,12 @@ body {
   margin: 0 auto;
 }
 
+@media (max-width: 640px) {
+  .section {
+    padding: 64px 20px;
+  }
+}
+
 .section-label {
   font-size: 0.75rem;
   font-weight: 600;

@@ -386,3 +386,49 @@
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
+
+@media (max-width: 640px) {
+  .learn-h3 {
+    font-size: 1.15rem;
+  }
+  .learn-p {
+    font-size: 0.92rem;
+    line-height: 1.8;
+  }
+  .highlight-block {
+    padding: 22px 18px;
+  }
+  .phase-row {
+    padding: 18px 18px;
+    gap: 14px;
+  }
+  .phase-num {
+    width: 32px;
+    height: 32px;
+    font-size: 0.95rem;
+  }
+  .formula-box {
+    padding: 20px 16px;
+  }
+  .formula {
+    font-size: 1.2rem;
+  }
+  .parallel-cell {
+    padding: 10px 12px;
+    font-size: 0.8rem;
+  }
+  .flow-step {
+    font-size: 0.82rem;
+    padding: 9px 16px;
+    max-width: 100%;
+  }
+  .tnm-item {
+    padding: 14px 16px;
+  }
+  .tnm-letter {
+    font-size: 1.8rem;
+  }
+  .subtype-card {
+    padding: 16px;
+  }
+}
