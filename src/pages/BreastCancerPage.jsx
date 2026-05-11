@@ -2,32 +2,36 @@ import './LearnPage.css'
 
 const subtypes = [
   {
-    name: 'Luminal A',
-    ratio: '약 40%',
-    profile: 'HR+ / HER2− / 낮은 Ki-67',
-    desc: '가장 흔하고 예후가 좋은 유형. 호르몬 수용체(에스트로겐·프로게스테론)가 활성화되어 있어 호르몬치료에 잘 반응한다.',
+    name: 'HR+ / HER2−',
+    altName: '루미날 A·B',
+    ratio: '72.7%',
+    profile: 'ER/PR 양성 · HER2 음성',
+    desc: '가장 큰 비중을 차지하며 호르몬치료에 잘 반응한다. Ki-67 수치에 따라 Luminal A(예후 양호)와 Luminal B(증식 빠름)로 세분화된다.',
     color: '#00c9b1',
   },
   {
-    name: 'Luminal B',
-    ratio: '약 20%',
-    profile: 'HR+ / HER2± / 높은 Ki-67',
-    desc: '호르몬 양성이지만 증식 속도가 빠르다. 호르몬치료에 더해 항암화학요법이 추가되는 경우가 많다.',
-    color: '#3b82f6',
+    name: 'Triple Negative',
+    altName: 'TNBC',
+    ratio: '12.2%',
+    profile: 'ER/PR 음성 · HER2 음성',
+    desc: '세 수용체 모두 음성이라 표적이 없다. 항암화학요법이 주된 치료이며 재발 위험과 예후 부담이 가장 크다.',
+    color: '#f87171',
   },
   {
-    name: 'HER2 양성',
-    ratio: '약 15~20%',
-    profile: 'HR± / HER2+',
-    desc: 'HER2 단백질이 과발현된 공격적 유형. 트라스투주맙(허셉틴) 같은 표적치료제 등장 이후 예후가 크게 개선되었다.',
+    name: 'HR+ / HER2+',
+    altName: '루미날 HER2',
+    ratio: '10.3%',
+    profile: 'ER/PR 양성 · HER2 양성',
+    desc: '호르몬치료와 HER2 표적치료(트라스투주맙 등)를 모두 받을 수 있다. 치료 옵션이 가장 다양한 유형.',
     color: '#a78bfa',
   },
   {
-    name: '삼중 음성 (TNBC)',
-    ratio: '약 15~20%',
-    profile: 'HR− / HER2−',
-    desc: '호르몬 수용체와 HER2 모두 음성. 표적이 없어 항암화학요법이 주된 치료이며 재발 위험이 가장 높다.',
-    color: '#f87171',
+    name: 'HR− / HER2+',
+    altName: 'HER2-enriched',
+    ratio: '4.6%',
+    profile: 'ER/PR 음성 · HER2 양성',
+    desc: '공격적이지만 HER2 표적치료제 등장 이후 예후가 크게 개선되었다. 표적치료가 치료의 중심.',
+    color: '#3b82f6',
   },
 ]
 
@@ -68,13 +72,25 @@ export default function BreastCancerPage() {
           {subtypes.map((s) => (
             <div key={s.name} className="subtype-card" style={{ borderTopColor: s.color }}>
               <div className="subtype-header">
-                <h4 className="subtype-name">{s.name}</h4>
+                <div>
+                  <h4 className="subtype-name">{s.name}</h4>
+                  <p className="subtype-alt">{s.altName}</p>
+                </div>
                 <span className="subtype-ratio" style={{ color: s.color }}>{s.ratio}</span>
               </div>
               <p className="subtype-profile" style={{ color: s.color }}>{s.profile}</p>
               <p className="subtype-desc">{s.desc}</p>
             </div>
           ))}
+        </div>
+
+        <div className="strategy-box">
+          <div className="strategy-label">본 동아리의 연구 전략</div>
+          <p className="strategy-text">
+            데이터 가용성이 가장 높은 <strong style={{ color: '#00c9b1' }}>HR+/HER2− (72.7%)</strong> 아형부터 모델링을 시작하고,
+            가이드라인 개선 여지가 큰 <strong style={{ color: '#f87171' }}>Triple Negative (12.2%)</strong>로 확장한다.
+            희귀 아형은 충분한 표본을 확보하기 어려우므로 후속 연구로 분리한다.
+          </p>
         </div>
 
         <div className="learn-block">
