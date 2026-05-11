@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import './Hero.css'
 
 export default function Hero() {
@@ -21,8 +22,8 @@ export default function Hero() {
           <span className="tag">의사결정 모델링</span>
         </div>
         <div className="hero-cta">
-          <a href="#research" className="btn-primary">연구 보기</a>
-          <a href="#team" className="btn-secondary">팀 소개</a>
+          <Link to="/research" className="btn-primary">연구 보기</Link>
+          <Link to="/team" className="btn-secondary">팀 소개</Link>
         </div>
       </div>
     </section>

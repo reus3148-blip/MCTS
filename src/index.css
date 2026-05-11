@@ -60,3 +60,12 @@ body {
 section + section {
   border-top: 1px solid var(--border);
 }
+
+.main-content {
+  padding-top: 60px;
+  min-height: calc(100vh - 60px);
+}
+
+.page {
+  min-height: calc(100vh - 60px);
+}

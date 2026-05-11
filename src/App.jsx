@@ -1,18 +1,25 @@
-import Hero from './components/Hero'
-import Research from './components/Research'
-import Roadmap from './components/Roadmap'
-import Team from './components/Team'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import Navbar from './components/Navbar'
 import Footer from './components/Footer'
+import Home from './pages/Home'
+import ResearchPage from './pages/ResearchPage'
+import RoadmapPage from './pages/RoadmapPage'
+import TeamPage from './pages/TeamPage'
 
 function App() {
   return (
-    <div className="app">
-      <Hero />
-      <Research />
-      <Roadmap />
-      <Team />
+    <BrowserRouter>
+      <Navbar />
+      <main className="main-content">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/research" element={<ResearchPage />} />
+          <Route path="/roadmap" element={<RoadmapPage />} />
+          <Route path="/team" element={<TeamPage />} />
+        </Routes>
+      </main>
       <Footer />
-    </div>
+    </BrowserRouter>
   )
 }
 
