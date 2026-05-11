@@ -36,23 +36,25 @@ export default function MCTSPage() {
         <p className="section-desc">
           MCTS(Monte Carlo Tree Search)는 가능한 선택지가 너무 많아 전부 따져볼 수 없을 때,
           "무작위 시뮬레이션을 영리하게 반복"하여 최선의 결정을 찾아내는 알고리즘이다.
-          AlphaGo가 이세돌을 이긴 핵심 엔진이 바로 이 알고리즘이다.
+          DeepMind의 AlphaZero가 단 4시간 학습만으로 세계 챔피언 체스 엔진 Stockfish를 꺾었을 때 사용한 핵심 엔진이 바로 이것이다.
         </p>
 
         <div className="learn-block">
           <h3 className="learn-h3">1. 왜 필요한가? — 결정 트리의 문제</h3>
           <p className="learn-p">
-            바둑에서 한 수마다 평균 250개의 선택지가 있고, 한 게임은 약 150수로 끝난다.
-            가능한 모든 경기 경로의 수는 약 <strong>10<sup>360</sup></strong> — 우주 원자 수(약 10<sup>80</sup>)보다도 압도적으로 많다.
+            체스에서 한 수마다 평균 약 35개의 합법 수가 존재하고, 한 경기는 평균 80수(40턴) 정도로 끝난다.
+            가능한 모든 경기 경로의 수는 약 <strong>10<sup>120</sup></strong> — 이를
+            <strong> 섀넌 수(Shannon Number)</strong>라 부르며, 관측 가능한 우주의 원자 수(약 10<sup>80</sup>)보다도 압도적으로 많다.
             전부 계산하는 것은 불가능하다.
           </p>
           <p className="learn-p">
-            기존 알고리즘들은 <strong>"모든 가능성을 깊이 탐색"</strong> 하려다 폭발하거나,
-            <strong>"평가 함수로 점수 매기기"</strong> 에 의존했지만 좋은 평가 함수를 만들기가 어려웠다.
+            전통적인 체스 엔진(Stockfish 등)은 <strong>"가능한 수를 가지치기하며 깊이 탐색"</strong>하고
+            <strong> "사람이 손수 만든 평가 함수"</strong>로 점수를 매겨왔다. 강력하지만, 좋은 평가 함수를 설계하는 데 수십 년의 인간 노하우가 필요했다.
           </p>
           <p className="learn-p">
-            <strong>MCTS의 발상</strong>은 다르다 — "유망해 보이는 가지만 골라서, 끝까지 무작위로 시뮬레이션해보자."
+            <strong>MCTS의 발상</strong>은 다르다 — "유망해 보이는 가지만 골라서, 끝까지 시뮬레이션해보자."
             그리고 그 결과를 통계적으로 누적하면, 자연스럽게 좋은 선택지가 부각된다.
+            손으로 만든 규칙 없이 게임의 승패 정보만으로도 최선의 수를 찾을 수 있다.
           </p>
         </div>
 
@@ -104,18 +106,22 @@ export default function MCTSPage() {
         </div>
 
         <div className="learn-block">
-          <h3 className="learn-h3">4. AlphaGo는 어떻게 이것을 발전시켰나</h3>
+          <h3 className="learn-h3">4. AlphaZero는 어떻게 이것을 발전시켰나</h3>
           <p className="learn-p">
             전통적인 MCTS의 약점은 시뮬레이션 단계의 "무작위 플레이"가 너무 단순하다는 점이다.
-            AlphaGo는 여기에 <strong>두 개의 신경망</strong>을 결합했다:
+            DeepMind의 AlphaZero(2017)는 여기에 <strong>두 개의 신경망</strong>을 결합해 체스·쇼기·체스을 모두 정복했다:
           </p>
           <ul className="learn-ul">
             <li><strong>정책망(Policy Network)</strong> — Selection 단계에서 "어떤 수가 그럴듯한가"를 추천해, 무작위가 아닌 똑똑한 탐색이 가능하게 함</li>
             <li><strong>가치망(Value Network)</strong> — Simulation을 끝까지 돌리지 않고도 "이 국면의 승률"을 추정해 시간을 절약</li>
           </ul>
           <p className="learn-p">
-            이 조합 덕분에 AlphaGo는 인간 직관(=정책망)과 깊은 계산(=MCTS)을 동시에 갖춘 첫 시스템이 되었고,
-            이후 AlphaZero, MuZero로 발전하며 게임을 넘어 단백질 구조 예측·로봇 제어·핵융합 제어 등으로 확장되었다.
+            놀라운 점은 AlphaZero가 <strong>체스의 규칙만 알려준 상태에서 자기 자신과의 대국만으로 학습</strong>했다는 것이다.
+            단 4시간 만에 세계 챔피언 엔진 Stockfish를 압도했고, 인간이 수백 년간 쌓아온 정석을 뛰어넘는 새로운 전략을 스스로 발견했다.
+          </p>
+          <p className="learn-p">
+            이후 MuZero는 게임의 규칙조차 모른 채로 학습하는 단계까지 발전했고,
+            이 기술은 게임을 넘어 단백질 구조 예측(AlphaFold)·로봇 제어·핵융합 플라즈마 제어 등으로 확장되었다.
           </p>
         </div>
 
@@ -126,7 +132,7 @@ export default function MCTSPage() {
           </p>
           <div className="parallel-table">
             <div className="parallel-row">
-              <div className="parallel-cell parallel-head">바둑</div>
+              <div className="parallel-cell parallel-head">체스</div>
               <div className="parallel-cell parallel-head">유방암 치료</div>
             </div>
             <div className="parallel-row">
@@ -157,8 +163,9 @@ export default function MCTSPage() {
           <p className="sources-title">참고 자료</p>
           <ul>
             <li>Browne et al. (2012) — A Survey of Monte Carlo Tree Search Methods</li>
-            <li>Silver et al. (2016) — Mastering the game of Go with deep neural networks and tree search (Nature)</li>
-            <li>Silver et al. (2017) — Mastering Chess and Shogi by Self-Play (AlphaZero)</li>
+            <li>Silver et al. (2017) — Mastering Chess and Shogi by Self-Play with a General Reinforcement Learning Algorithm (AlphaZero)</li>
+            <li>Silver et al. (2018) — A general reinforcement learning algorithm that masters chess, shogi, and Go through self-play (Science)</li>
+            <li>Shannon, C. E. (1950) — Programming a Computer for Playing Chess</li>
             <li>Wikipedia — Monte Carlo tree search</li>
           </ul>
         </div>
