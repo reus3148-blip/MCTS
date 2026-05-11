@@ -1,0 +1,142 @@
+.about-page .section {
+  max-width: 880px;
+}
+
+.about-block {
+  margin-top: 56px;
+}
+
+.about-h3 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.about-p {
+  font-size: 0.98rem;
+  color: var(--text-secondary);
+  line-height: 1.9;
+  margin-bottom: 14px;
+}
+
+.about-p strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* === 기본 정보 표 === */
+
+.info-table {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.info-row {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  padding: 14px 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--bg-card2);
+  border-right: 1px solid var(--border);
+}
+
+.info-value {
+  padding: 14px 20px;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+/* === 링크 그리드 === */
+
+.link-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.link-card {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 22px;
+  text-decoration: none;
+  transition: border-color 0.2s, transform 0.2s;
+  display: block;
+}
+
+.link-card:hover {
+  border-color: rgba(0, 201, 177, 0.35);
+  transform: translateY(-2px);
+}
+
+.link-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.link-desc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.link-arrow {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  font-size: 1rem;
+  color: var(--accent);
+}
+
+/* === 푸터 === */
+
+.about-footer {
+  margin-top: 72px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+
+.about-footer p {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+/* === 모바일 === */
+
+@media (max-width: 640px) {
+  .about-h3 {
+    font-size: 1.15rem;
+  }
+  .info-row {
+    grid-template-columns: 1fr;
+  }
+  .info-label {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    padding: 10px 16px;
+  }
+  .info-value {
+    padding: 12px 16px;
+  }
+  .about-p {
+    font-size: 0.92rem;
+  }
+}
