@@ -2,10 +2,12 @@ import { NavLink } from 'react-router-dom'
 import './Navbar.css'
 
 const links = [
-  { to: '/',         label: 'Home' },
-  { to: '/research', label: 'Research' },
-  { to: '/roadmap',  label: 'Roadmap' },
-  { to: '/team',     label: 'Team' },
+  { to: '/',              label: 'Home' },
+  { to: '/breast-cancer', label: '유방암' },
+  { to: '/mcts',          label: 'MCTS' },
+  { to: '/research',      label: 'Research' },
+  { to: '/roadmap',       label: 'Roadmap' },
+  { to: '/team',          label: 'Team' },
 ]
 
 export default function Navbar() {
