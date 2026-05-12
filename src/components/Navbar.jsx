@@ -8,6 +8,7 @@ const links = [
   { to: '/mcts',          label: 'MCTS' },
   { to: '/research',      label: 'Research' },
   { to: '/roadmap',       label: 'Roadmap' },
+  { to: '/checklist',     label: 'Checklist' },
   { to: '/team',          label: 'Team' },
   { to: '/about',         label: 'About' },
 ]

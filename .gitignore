@@ -4,3 +4,4 @@ dist
 *.local
 *.pdf
 팀_내부_노트.md
+.claude/

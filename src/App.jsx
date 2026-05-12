@@ -5,6 +5,7 @@ import BreastCancerPage from './pages/BreastCancerPage'
 import MCTSPage from './pages/MCTSPage'
 import ResearchPage from './pages/ResearchPage'
 import RoadmapPage from './pages/RoadmapPage'
+import ChecklistPage from './pages/ChecklistPage'
 import TeamPage from './pages/TeamPage'
 import AboutPage from './pages/AboutPage'
 
@@ -19,6 +20,7 @@ function App() {
           <Route path="/mcts" element={<MCTSPage />} />
           <Route path="/research" element={<ResearchPage />} />
           <Route path="/roadmap" element={<RoadmapPage />} />
+          <Route path="/checklist" element={<ChecklistPage />} />
           <Route path="/team" element={<TeamPage />} />
           <Route path="/about" element={<AboutPage />} />
         </Routes>
