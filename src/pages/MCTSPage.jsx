@@ -27,6 +27,63 @@ const phases = [
   },
 ]
 
+const engines = [
+  {
+    era: '1세대',
+    years: '1950',
+    name: '섀넌의 청사진',
+    approach:
+      '클로드 섀넌이 "체스 두는 기계"를 처음 정식화했다. 일정 깊이까지 모든 수를 탐색하는 Type A와, 유망한 수만 골라 탐색하는 Type B를 제안 — 오늘날 모든 엔진의 출발점이다.',
+    search: '미니맥스 전수 탐색',
+    eval: '단순 기물 점수',
+  },
+  {
+    era: '2세대',
+    years: '1997',
+    name: 'Deep Blue',
+    approach:
+      'IBM의 전용 하드웨어가 세계 챔피언 카스파로프를 꺾었다. 알파베타 가지치기로 탐색량을 줄이고, 그랜드마스터의 지식을 사람이 직접 코드로 옮긴 평가 함수를 사용했다.',
+    search: '알파베타 가지치기',
+    eval: '사람이 튜닝한 휴리스틱',
+  },
+  {
+    era: '3세대',
+    years: '2008~',
+    name: '고전 Stockfish',
+    approach:
+      '오픈소스 협업으로 탐색 기법(널 무브, 후기 수 축소 등)을 극한까지 정교화했다. 그러나 평가 함수는 여전히 사람이 설계한 수백 개의 규칙과 가중치였다.',
+    search: '고도화된 선택적 알파베타',
+    eval: '수작업 평가 함수',
+  },
+  {
+    era: '3.5세대',
+    years: '2020~',
+    name: 'Stockfish + NNUE',
+    approach:
+      'Stockfish 12부터 평가 함수를 얕은 신경망(NNUE)으로 교체했다. 탐색은 그대로 알파베타지만, "국면을 보는 눈"을 처음으로 사람이 아닌 데이터로 학습했다.',
+    search: '알파베타 가지치기',
+    eval: '학습된 신경망 (NNUE)',
+  },
+  {
+    era: '4세대',
+    years: '2017~',
+    name: 'AlphaZero · Leela Chess Zero',
+    approach:
+      '규칙만 알려준 채 자기 자신과의 대국만으로 학습한다. 정책망·가치망을 결합한 MCTS(PUCT)로, 무작위 롤아웃 대신 학습된 직관이 탐색을 이끈다.',
+    search: 'MCTS (PUCT)',
+    eval: '자가학습 정책망·가치망',
+  },
+  {
+    era: '5세대',
+    years: '2019~',
+    name: 'MuZero',
+    approach:
+      '게임의 규칙조차 주지 않는다. 환경이 어떻게 작동하는지(다음 상태·보상)까지 스스로 학습해, 체스·바둑·아타리 게임을 하나의 알고리즘으로 정복했다.',
+    search: 'MCTS + 학습된 환경 모델',
+    eval: '자가학습 정책망·가치망',
+  },
+]
+
 export default function MCTSPage() {
   return (
     <div className="page learn-page">
@@ -109,7 +166,7 @@ export default function MCTSPage() {
           <h3 className="learn-h3">4. AlphaZero는 어떻게 이것을 발전시켰나</h3>
           <p className="learn-p">
             전통적인 MCTS의 약점은 시뮬레이션 단계의 "무작위 플레이"가 너무 단순하다는 점이다.
-            DeepMind의 AlphaZero(2017)는 여기에 <strong>두 개의 신경망</strong>을 결합해 체스·쇼기·체스을 모두 정복했다:
+            DeepMind의 AlphaZero(2017)는 여기에 <strong>두 개의 신경망</strong>을 결합해 체스·쇼기·바둑을 모두 정복했다:
           </p>
           <ul className="learn-ul">
             <li><strong>정책망(Policy Network)</strong> — Selection 단계에서 "어떤 수가 그럴듯한가"를 추천해, 무작위가 아닌 똑똑한 탐색이 가능하게 함</li>
@@ -159,6 +216,48 @@ export default function MCTSPage() {
           </p>
         </div>
 
+        <div className="learn-block">
+          <h3 className="learn-h3">부록 · 체스 엔진의 계보 — 탐색과 평가는 어떻게 진화했나</h3>
+          <p className="learn-p">
+            "AlphaZero가 Stockfish를 이겼다"는 한 문장 뒤에는 70여 년에 걸친 컴퓨터 체스의 역사가 있다.
+            체스 엔진은 줄곧 두 가지 질문에 답하며 발전해 왔다 —
+            <strong> "수많은 수 중 무엇을 탐색할까"</strong>(탐색)와
+            <strong> "그 국면이 얼마나 좋은지 어떻게 평가할까"</strong>(평가).
+            아래 계보에서 이 두 축이 어떻게 변해왔는지 보면, 본 연구의 구도가 한눈에 들어온다.
+          </p>
+          <div className="engine-list">
+            {engines.map((e) => (
+              <div key={e.era} className="engine-card">
+                <div className="engine-top">
+                  <span className="engine-era">{e.era}</span>
+                  <span className="engine-name">{e.name}</span>
+                  <span className="engine-years">{e.years}</span>
+                </div>
+                <p className="engine-approach">{e.approach}</p>
+                <div className="engine-meta">
+                  <div className="engine-meta-item">
+                    <div className="engine-meta-label">탐색 방식</div>
+                    <div className="engine-meta-value">{e.search}</div>
+                  </div>
+                  <div className="engine-meta-item">
+                    <div className="engine-meta-label">평가 방식</div>
+                    <div className="engine-meta-value">{e.eval}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <p className="learn-p">
+            진화의 방향이 핵심이다. <strong>평가</strong>는 사람이 손으로 짜던 휴리스틱에서
+            데이터로 학습하는 신경망으로, <strong>탐색</strong>은 전수에 가까운 알파베타에서
+            유망한 가지만 통계적으로 키우는 MCTS로 옮겨갔다. 본 연구에 대입하면 —
+            표준 치료 가이드라인(NCCN 등)은 2~3세대 엔진의 <strong>"사람이 만든 평가 함수"</strong>에 해당하고,
+            본 동아리가 만들려는 RL 기반 MCTS 모형은 <strong>4세대 엔진의 접근법을 유방암 치료 의사결정으로 옮긴 것</strong>이다.
+            "학습한 모델이 전문가가 만든 규칙보다 더 나은 경로를 찾는가?"라는 본 연구의 질문은,
+            그래서 "AlphaZero가 Stockfish를 이겼는가?"와 정확히 같은 구조의 물음이다.
+          </p>
+        </div>
+
         <div className="learn-sources">
           <p className="sources-title">참고 자료</p>
           <ul>
@@ -166,7 +265,9 @@ export default function MCTSPage() {
             <li>Silver et al. (2017) — Mastering Chess and Shogi by Self-Play with a General Reinforcement Learning Algorithm (AlphaZero)</li>
             <li>Silver et al. (2018) — A general reinforcement learning algorithm that masters chess, shogi, and Go through self-play (Science)</li>
             <li>Shannon, C. E. (1950) — Programming a Computer for Playing Chess</li>
-            <li>Wikipedia — Monte Carlo tree search</li>
+            <li>Campbell, Hoane &amp; Hsu (2002) — Deep Blue (Artificial Intelligence)</li>
+            <li>Schrittwieser et al. (2020) — Mastering Atari, Go, Chess and Shogi by Planning with a Learned Model (MuZero)</li>
+            <li>Wikipedia — Monte Carlo tree search · Stockfish (chess) · Efficiently updatable neural network</li>
           </ul>
         </div>
       </div>
