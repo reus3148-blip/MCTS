@@ -24,16 +24,17 @@
 }
 
 .minutes-card:hover {
-  border-color: var(--accent);
+  border-color: var(--text-primary);
   background: var(--bg-card2);
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
 .minutes-card-date {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
-  letter-spacing: 0.1em;
-  color: var(--accent);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
   margin-bottom: 8px;
 }
 
@@ -62,7 +63,7 @@
 }
 
 .minutes-card:hover .minutes-card-arrow {
-  color: var(--accent);
+  color: var(--text-primary);
   transform: translateY(-50%) translateX(4px);
 }
 
@@ -81,14 +82,14 @@
 }
 
 .minutes-back:hover {
-  color: var(--accent);
+  color: var(--text-primary);
 }
 
 .minutes-detail-date {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.15em;
-  color: var(--accent);
+  color: var(--text-secondary);
   text-transform: uppercase;
   margin-bottom: 8px;
 }
@@ -156,7 +157,7 @@
 .markdown-body a {
   color: var(--accent);
   text-decoration: none;
-  border-bottom: 1px solid rgba(0, 201, 177, 0.3);
+  border-bottom: 1px solid rgba(37, 99, 235, 0.25);
 }
 
 .markdown-body a:hover {
@@ -165,9 +166,9 @@
 
 .markdown-body blockquote {
   margin: 20px 0;
-  padding: 16px 20px;
+  padding: 14px 20px;
   background: var(--bg-card);
-  border-left: 3px solid var(--accent);
+  border-left: 3px solid var(--text-primary);
   border-radius: 0 8px 8px 0;
   color: var(--text-secondary);
 }
@@ -185,9 +186,10 @@
   font-family: 'JetBrains Mono', 'Consolas', monospace;
   font-size: 0.88em;
   padding: 2px 6px;
-  background: var(--bg-card2);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   border-radius: 4px;
-  color: var(--accent);
+  color: var(--text-primary);
 }
 
 .markdown-body pre {

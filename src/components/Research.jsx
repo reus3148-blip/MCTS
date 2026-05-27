@@ -38,10 +38,10 @@ const actionVars = [
 ]
 
 const rewards = [
-  { sign: '+', label: '종양 크기 감소', color: '#00c9b1' },
-  { sign: '+', label: '무재발 생존 기간 연장', color: '#00c9b1' },
-  { sign: '−', label: '치료 부작용 발생', color: '#f87171' },
-  { sign: '−', label: '약물 내성 발현', color: '#f87171' },
+  { sign: '+', label: '종양 크기 감소', color: '#16a34a' },
+  { sign: '+', label: '무재발 생존 기간 연장', color: '#16a34a' },
+  { sign: '−', label: '치료 부작용 발생', color: '#dc2626' },
+  { sign: '−', label: '약물 내성 발현', color: '#dc2626' },
 ]
 
 const dataSources = [
@@ -121,7 +121,7 @@ export default function Research() {
 
           <div className="mdp-block">
             <div className="mdp-header">
-              <span className="mdp-tag" style={{ background: 'rgba(0,201,177,0.12)', color: '#00c9b1' }}>STATE</span>
+              <span className="mdp-tag" style={{ background: 'rgba(8,145,178,0.1)', color: '#0891b2', border: '1px solid rgba(8,145,178,0.2)' }}>STATE</span>
               <h4 className="mdp-title">상태 변수</h4>
             </div>
             <div className="state-groups">
@@ -138,7 +138,7 @@ export default function Research() {
 
           <div className="mdp-block">
             <div className="mdp-header">
-              <span className="mdp-tag" style={{ background: 'rgba(59,130,246,0.12)', color: '#3b82f6' }}>ACTION</span>
+              <span className="mdp-tag" style={{ background: 'rgba(37,99,235,0.1)', color: '#2563eb', border: '1px solid rgba(37,99,235,0.2)' }}>ACTION</span>
               <h4 className="mdp-title">행동 (치료 선택)</h4>
             </div>
             <div className="action-grid">
@@ -153,7 +153,7 @@ export default function Research() {
 
           <div className="mdp-block">
             <div className="mdp-header">
-              <span className="mdp-tag" style={{ background: 'rgba(167,139,250,0.12)', color: '#a78bfa' }}>REWARD</span>
+              <span className="mdp-tag" style={{ background: 'rgba(124,58,237,0.1)', color: '#7c3aed', border: '1px solid rgba(124,58,237,0.2)' }}>REWARD</span>
               <h4 className="mdp-title">보상 함수</h4>
             </div>
             <div className="reward-row">

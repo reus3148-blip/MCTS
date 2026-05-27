@@ -19,19 +19,18 @@
 }
 
 .roadmap-dot {
-  width: 16px;
-  height: 16px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #00c9b1, #3b82f6);
+  background: var(--text-primary);
   flex-shrink: 0;
-  margin-top: 6px;
-  box-shadow: 0 0 12px rgba(0, 201, 177, 0.4);
+  margin-top: 10px;
 }
 
 .roadmap-line {
   flex: 1;
   width: 2px;
-  background: linear-gradient(to bottom, rgba(0, 201, 177, 0.3), rgba(59, 130, 246, 0.1));
+  background: var(--border);
   margin: 8px 0;
   min-height: 32px;
 }
@@ -47,7 +46,7 @@
 }
 
 .roadmap-card:hover {
-  border-color: rgba(0, 201, 177, 0.25);
+  border-color: var(--text-primary);
 }
 
 .roadmap-meta {
@@ -58,12 +57,13 @@
 }
 
 .roadmap-phase {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--accent);
-  background: rgba(0, 201, 177, 0.1);
-  border: 1px solid rgba(0, 201, 177, 0.2);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   border-radius: 999px;
   padding: 3px 12px;
 }
@@ -99,7 +99,7 @@
   content: '–';
   position: absolute;
   left: 0;
-  color: var(--accent);
+  color: var(--text-secondary);
 }
 
 @media (max-width: 640px) {

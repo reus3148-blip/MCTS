@@ -4,7 +4,6 @@ import './Hero.css'
 export default function Hero() {
   return (
     <section className="hero">
-      <div className="hero-bg" />
       <div className="hero-content">
         <div className="hero-badge">경북대학교 의과대학 · 융합형 의사과학자 양성사업</div>
         <h1 className="hero-title">

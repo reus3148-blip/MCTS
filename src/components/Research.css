@@ -14,8 +14,8 @@
 }
 
 .research-card:hover {
-  border-color: rgba(0, 201, 177, 0.3);
-  transform: translateY(-4px);
+  border-color: var(--text-primary);
+  transform: translateY(-2px);
 }
 
 .research-card-icon {
@@ -38,9 +38,9 @@
 
 .research-thesis {
   margin-top: 48px;
-  background: var(--bg-card2);
-  border: 1px solid rgba(0, 201, 177, 0.15);
-  border-left: 3px solid var(--accent);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--text-primary);
   border-radius: 12px;
   padding: 24px 28px;
 }
@@ -50,7 +50,7 @@
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--text-secondary);
   margin-bottom: 10px;
 }
 
@@ -114,8 +114,8 @@
 }
 
 .compare-col-ours {
-  background: linear-gradient(135deg, rgba(0,201,177,0.06), rgba(59,130,246,0.04));
-  border-color: rgba(0,201,177,0.25);
+  background: var(--bg-card2);
+  border-color: var(--text-secondary);
 }
 
 .compare-tag {
@@ -125,15 +125,17 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-secondary);
-  background: rgba(255,255,255,0.05);
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
   border-radius: 999px;
   padding: 3px 12px;
   margin-bottom: 12px;
 }
 
 .compare-tag.accent {
-  color: var(--accent);
-  background: rgba(0, 201, 177, 0.12);
+  color: var(--text-primary);
+  background: var(--bg-dark);
+  border-color: var(--text-primary);
 }
 
 .compare-title {
@@ -148,7 +150,7 @@
 }
 
 .compare-title .accent {
-  color: var(--accent);
+  color: var(--text-primary);
 }
 
 .compare-list {
@@ -168,7 +170,7 @@
   content: '–';
   position: absolute;
   left: 0;
-  color: var(--accent);
+  color: var(--text-secondary);
 }
 
 .compare-list li strong {
@@ -180,7 +182,7 @@
   align-items: center;
   justify-content: center;
   font-size: 1.6rem;
-  color: var(--accent);
+  color: var(--text-secondary);
 }
 
 /* === MDP 블록 === */
@@ -223,7 +225,7 @@
 .state-group-name {
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--accent);
+  color: var(--text-primary);
   margin-bottom: 10px;
 }
 
@@ -243,7 +245,7 @@
   content: '•';
   position: absolute;
   left: 0;
-  color: var(--accent);
+  color: var(--text-secondary);
 }
 
 .action-grid {
@@ -262,7 +264,7 @@
 .action-name {
   font-size: 0.92rem;
   font-weight: 600;
-  color: #3b82f6;
+  color: var(--text-primary);
   margin-bottom: 4px;
 }
 
@@ -340,7 +342,7 @@
 }
 
 .data-head > div {
-  color: var(--accent);
+  color: var(--text-primary);
 }
 
 .data-name {
@@ -375,7 +377,7 @@
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--text-primary);
   margin-bottom: 4px;
 }
 
