@@ -11,6 +11,7 @@ const links = [
   { to: '/checklist',     label: 'Checklist' },
   { to: '/team',          label: 'Team' },
   { to: '/about',         label: 'About' },
+  { to: '/minutes',       label: 'Minutes' },
 ]
 
 export default function Navbar() {
