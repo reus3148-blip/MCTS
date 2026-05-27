@@ -213,6 +213,16 @@
   margin: 40px 0;
 }
 
+.markdown-body img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 20px auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
 /* 표는 모바일에서 가로 스크롤 */
 .markdown-body table {
   display: block;
