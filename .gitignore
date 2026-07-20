@@ -5,6 +5,8 @@ dist
 *.pdf
 팀_내부_노트.md
 .claude/
+__pycache__/
+*.py[cod]
 
 # 연구 데이터 (대용량, 저장소 외부 보관)
 data/
