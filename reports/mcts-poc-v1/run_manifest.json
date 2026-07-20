@@ -1,0 +1,22 @@
+{
+  "run_date": "2026-07-11",
+  "generated_at": "2026-07-11T13:49:48+09:00",
+  "git_commit_before_run": "e5c8a241ba3668c8e23df783e4c0d640e1e7f729",
+  "input": {
+    "path": "data/processed/patients_with_nccn.csv",
+    "sha256": "23e76e584ebb3a308583e1f278df4b4befba19f7d6175361483149f5b17cab8f"
+  },
+  "entry_point": "analysis/06_run_mcts_poc.py",
+  "seed": 20260711,
+  "outputs": [
+    "reports/mcts-poc-v1/tables/cohort_split.csv",
+    "reports/mcts-poc-v1/tables/cox_coefficients.csv",
+    "reports/mcts-poc-v1/tables/patient_policy_decisions.csv",
+    "reports/mcts-poc-v1/tables/penalizer_tuning.csv",
+    "reports/mcts-poc-v1/tables/policy_agreement.csv",
+    "reports/mcts-poc-v1/tables/policy_summary.csv",
+    "reports/mcts-poc-v1/tables/search_convergence.csv",
+    "reports/mcts-poc-v1/tables/search_convergence_detail.csv",
+    "reports/mcts-poc-v1/tables/subtype_summary.csv"
+  ]
+}

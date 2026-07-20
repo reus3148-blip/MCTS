@@ -1,0 +1,97 @@
+{
+  "run_date": "2026-07-11",
+  "analysis_label": "dynamic-mcts-poc-v0.2",
+  "interpretation": "METABRIC-backed baseline risk plus synthetic transitions; not causal and not clinical",
+  "cohort": {
+    "input_rows": 2509,
+    "os_model_rows": 1955,
+    "rfs_model_rows": 1951,
+    "dynamic_test_patients": 40,
+    "episodes_per_policy_patient": 100
+  },
+  "models": {
+    "os_selected_penalizer": 0.1,
+    "os_test_c_index": 0.6765157547491752,
+    "rfs_selected_penalizer": 1.0,
+    "rfs_test_c_index": 0.648828541001065
+  },
+  "environment": {
+    "horizon_years": 5,
+    "minimum_max_decision_trajectories": 18,
+    "maximum_max_decision_trajectories": 135,
+    "assumption_status": "Synthetic teaching assumptions; not clinical effect estimates"
+  },
+  "search": {
+    "primary_simulations_per_decision": 256,
+    "reference_simulations": 1024,
+    "exploration_weight": 1.4142135623730951,
+    "seed": 20260711
+  },
+  "policy_summary": [
+    {
+      "policy": "MCTS",
+      "patients": 40,
+      "episodes": 4000,
+      "mean_utility": 0.8055343333333332,
+      "survived_5y_pct": 75.4,
+      "recurred_by_5y_pct": 5.225,
+      "mean_toxicity_count": 0.2375,
+      "neoadjuvant_rate_pct": 20.0,
+      "bcs_rate_pct": 59.25,
+      "intensified_chemo_rate_pct": 25.0,
+      "extended_endocrine_rate_pct": 15.225,
+      "regional_radiation_rate_pct": 18.675
+    },
+    {
+      "policy": "NCCN",
+      "patients": 40,
+      "episodes": 4000,
+      "mean_utility": 0.7848783333333332,
+      "survived_5y_pct": 74.2,
+      "recurred_by_5y_pct": 6.825,
+      "mean_toxicity_count": 0.27475,
+      "neoadjuvant_rate_pct": 0.0,
+      "bcs_rate_pct": 90.0,
+      "intensified_chemo_rate_pct": 0.0,
+      "extended_endocrine_rate_pct": 0.0,
+      "regional_radiation_rate_pct": 5.5
+    }
+  ],
+  "search_stability": [
+    {
+      "simulations": 16,
+      "patients": 40,
+      "reference_action_match_pct": 52.5,
+      "reference_near_tie_pct": 27.500000000000004,
+      "match_or_near_tie_pct": 65.0
+    },
+    {
+      "simulations": 32,
+      "patients": 40,
+      "reference_action_match_pct": 47.5,
+      "reference_near_tie_pct": 27.500000000000004,
+      "match_or_near_tie_pct": 60.0
+    },
+    {
+      "simulations": 64,
+      "patients": 40,
+      "reference_action_match_pct": 67.5,
+      "reference_near_tie_pct": 27.500000000000004,
+      "match_or_near_tie_pct": 70.0
+    },
+    {
+      "simulations": 128,
+      "patients": 40,
+      "reference_action_match_pct": 60.0,
+      "reference_near_tie_pct": 27.500000000000004,
+      "match_or_near_tie_pct": 67.5
+    },
+    {
+      "simulations": 256,
+      "patients": 40,
+      "reference_action_match_pct": 72.5,
+      "reference_near_tie_pct": 27.500000000000004,
+      "match_or_near_tie_pct": 85.0
+    }
+  ]
+}

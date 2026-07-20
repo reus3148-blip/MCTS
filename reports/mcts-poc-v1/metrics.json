@@ -1,0 +1,63 @@
+{
+  "run_date": "2026-07-11",
+  "analysis_label": "mcts-poc-v1",
+  "interpretation": "predictive association only; not causal treatment effect",
+  "cohort": {
+    "input_rows": 2509,
+    "model_rows": 1955,
+    "train_rows": 1174,
+    "validation_rows": 391,
+    "test_rows": 390,
+    "test_rows_with_complete_nccn": 284
+  },
+  "reward_model": {
+    "type": "L2-regularized Cox proportional hazards",
+    "horizon_months": 60.0,
+    "penalizer_candidates": [
+      0.01,
+      0.1,
+      1.0
+    ],
+    "selected_penalizer": 0.1,
+    "train_validation_c_index": 0.6822890954315878,
+    "held_out_test_c_index": 0.6765157547491752,
+    "held_out_observed_km_5y_os": 0.7967000598769176,
+    "held_out_mean_predicted_5y_os_actual_treatment": 0.7662631623348395,
+    "encoder": {
+      "medians": {
+        "age": 61.8,
+        "tumor_size_mm": 22.0,
+        "lymph_pos": 0.0
+      },
+      "means": {
+        "age": 60.897188498402556,
+        "log_tumor": 3.17843712279339,
+        "log_lymph": 0.6196666926373099
+      },
+      "standard_deviations": {
+        "age": 13.029782243855646,
+        "log_tumor": 0.49510824603560327,
+        "log_lymph": 0.8242198690634569
+      }
+    }
+  },
+  "search": {
+    "algorithm": "UCT with random rollouts and receding horizon",
+    "exploration_weight": 1.4142135623730951,
+    "simulation_budgets_per_step": [
+      16,
+      32,
+      64,
+      128,
+      256,
+      512
+    ],
+    "primary_simulations_per_step": 512,
+    "max_action_space_size": 16,
+    "min_action_space_size": 8,
+    "seed": 20260711,
+    "primary_exact_plan_match_pct": 97.94871794871794,
+    "primary_mean_regret": 8.426569140539664e-06,
+    "primary_max_regret": 0.0014780196458504813
+  }
+}
