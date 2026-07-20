@@ -38,6 +38,28 @@ src/
 
 각 컴포넌트는 동일 이름의 `.css` 파일을 함께 둠 (예: `Hero.jsx` + `Hero.css`).
 
+## 연구 코드 (Python) — 웹사이트와 별개
+
+이 저장소는 **역할이 둘**이다. 위 `src/`(React 블로그, `mcts.blundermate.app`으로 배포)와,
+아래 `analysis/`의 **MCTS 연구 파이프라인**(로컬에서 `py`로 실행, 배포되지 않음).
+
+```
+analysis/
+├── 01~05_*.py       # METABRIC 전처리·시각화·NCCN 정책 일치율
+├── 06~07_*.py       # MCTS 정적 PoC v1 (Cox 보상모형 + UCT 탐색)
+├── 08~09_*.py       # 동적 확률환경 v0.2 (chance-aware UCT)
+├── mcts/            # 치료환경·보상모형·UCT 탐색 모듈
+└── dynamic/         # 공통 스키마·확률 전이·stochastic MCTS
+tests/               # 단위 테스트 (py -m unittest discover -s tests -v)
+reports/             # 재현 가능한 기술 리포트 (metrics·manifest·표·figure)
+```
+
+- **현재 상태·실행법·다음 단계·해석 경계**는 `README.md`, `PROJECT_TIMELINE.md`,
+  `reports/*/README.md`, `src/minutes/`(날짜별 회의록)에 정리되어 있음 — 연구 작업 전 반드시 참고.
+- **데이터**(`data/`)는 대용량이라 git 제외. 이 PC엔 `data/processed/*.csv`가 있어 바로 실행됨.
+  새 환경에서는 `analysis/01~02`로 재생성 필요.
+- 연구 코드 초안은 주로 Codex/Claude로 작성했고, 임상 규칙·인과추론·결과 해석은 사람 검토 대상(회의록에 명시).
+
 ## 디자인 시스템
 
 CSS 변수는 `src/index.css`의 `:root`에 정의:
