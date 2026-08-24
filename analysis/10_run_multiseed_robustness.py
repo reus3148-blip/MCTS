@@ -48,7 +48,7 @@ CONFIG_PATH = ROOT / "configs" / "dynamic_poc_v0_2.json"
 REPORT_DIR = ROOT / "reports" / "robustness-v0.3"
 TABLE_DIR = REPORT_DIR / "tables"
 
-RUN_DATE = "2026-07-20"
+RUN_DATE = "2026-08-24"
 BASE_SEED = 20_260_720
 PENALIZERS = (0.01, 0.1, 1.0)
 PATIENTS_PER_SUBTYPE = 3          # 12 patients keeps the multi-seed cost tractable

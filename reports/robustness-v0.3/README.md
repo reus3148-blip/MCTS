@@ -1,6 +1,6 @@
 # 다중 시드 강건성 분석 v0.3 기술 보고서
 
-- 실행일: 2026-07-20
+- 실행일: 2026-08-24
 - 입력: `data/processed/patients_with_nccn.csv` + `configs/dynamic_poc_v0_2.json`
 - 핵심 코드: `analysis/10_run_multiseed_robustness.py`
 - 용도: v0.2 동적 비교 결과가 **난수 시드에 얼마나 안정적인가**를 정량화

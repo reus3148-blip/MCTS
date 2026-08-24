@@ -1,5 +1,5 @@
 {
-  "run_date": "2026-07-20",
+  "run_date": "2026-08-24",
   "analysis_label": "robustness-v0.3",
   "interpretation": "Stochastic stability of the v0.2 comparison across seeds; same synthetic environment, not causal, not clinical.",
   "design": {

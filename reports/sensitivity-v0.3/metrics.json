@@ -1,5 +1,5 @@
 {
-  "run_date": "2026-07-20",
+  "run_date": "2026-08-24",
   "analysis_label": "sensitivity-v0.3",
   "interpretation": "How the MCTS-vs-NCCN gap responds to each synthetic assumption; identifies which assumptions most need real K-CURE estimates.",
   "design": {

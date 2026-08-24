@@ -12,10 +12,10 @@
 | 2026-07-11 | Cox 보상모형 + UCT-MCTS PoC v0.1 | `analysis/mcts`, `analysis/06~07`, Figure 10~13 | 완료 |
 | 2026-07-11 | 확률적 동적환경 + MCTS PoC v0.2 | `analysis/dynamic`, `analysis/08~09`, Figure 14~17 | 완료 |
 | 2026-07-11 | K-CURE 이행 데이터 계약 | `docs/k-cure-adaptation.md` | 초안 완료 |
-| 2026-07-20 | 다중 시드 강건성 분석 v0.3 | `analysis/10`, `reports/robustness-v0.3` | 완료 |
-| 2026-07-20 | 합성 가정 민감도 분석 v0.3 | `analysis/11`, `reports/sensitivity-v0.3` | 완료 |
-| 2026-07-20 | Target trial 인과 명세 초안 | `docs/target-trial-protocol.md` | 초안 완료 |
-| 2026-07-20 | K-CURE 변수 요청·매핑 명세 | `docs/k-cure-variable-dictionary.md` | 초안 완료 |
+| 2026-08-24 | 다중 시드 강건성 분석 v0.3 | `analysis/10`, `reports/robustness-v0.3` | 완료 |
+| 2026-08-24 | 합성 가정 민감도 분석 v0.3 | `analysis/11`, `reports/sensitivity-v0.3` | 완료 |
+| 2026-08-24 | Target trial 인과 명세 초안 | `docs/target-trial-protocol.md` | 초안 완료 |
+| 2026-08-24 | K-CURE 변수 요청·매핑 명세 | `docs/k-cure-variable-dictionary.md` | 초안 완료 |
 | 다음 단계 | 인과추정 시제품·상호작용 민감도·K-CURE 확보 | IPW/g-방법, 2D 민감도, 코드북 매핑, 임상 검토 | 예정 |
 
 ## 2026-07-11 기준 현재 위치

@@ -1,6 +1,6 @@
 # 합성 가정 민감도 분석 v0.3 기술 보고서
 
-- 실행일: 2026-07-20
+- 실행일: 2026-08-24
 - 입력: `data/processed/patients_with_nccn.csv` + `configs/dynamic_poc_v0_2.json`
 - 핵심 코드: `analysis/11_run_sensitivity_analysis.py`
 - 용도: v0.2 결과가 **어떤 합성 가정에 얼마나 민감한가**를 정량화
