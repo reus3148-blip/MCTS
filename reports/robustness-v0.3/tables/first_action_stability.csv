@@ -1,0 +1,13 @@
+patient_id,subtype,modal_first_action,modal_agreement_pct,distinct_actions
+MB-3614,HR+/HER2-,neoadjuvant,50.0,2
+MB-0294,TNBC,surgery_first,55.00000000000001,2
+MB-4276,HR+/HER2+,neoadjuvant,55.00000000000001,2
+MB-0469,HR+/HER2-,surgery_first,60.0,2
+MB-3028,HR+/HER2+,surgery_first,60.0,2
+MB-2513,HR-/HER2+,neoadjuvant,60.0,2
+MB-2994,HR+/HER2+,neoadjuvant,60.0,2
+MB-4750,HR+/HER2-,surgery_first,60.0,2
+MB-5058,TNBC,surgery_first,60.0,2
+MB-5008,TNBC,neoadjuvant,60.0,2
+MB-6100,HR-/HER2+,surgery_first,85.0,2
+MB-0113,HR-/HER2+,surgery_first,90.0,2
