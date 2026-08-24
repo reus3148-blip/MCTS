@@ -3,7 +3,7 @@
 공개 유방암 코호트로 치료 의사결정 환경을 만들고, 단순화한 NCCN 정책과
 Monte Carlo Tree Search(MCTS) 정책을 비교하는 학부 연구 프로젝트입니다.
 
-> 현재 단계: **동적 MCTS PoC v0.2 완료 (2026-07-11)**  
+> 현재 단계: **강건성·민감도 분석 v0.3 완료 (2026-07-20)**  
 > 연구용 예측 실험이며 실제 환자의 치료 권고 도구가 아닙니다.
 
 ## 지금까지 한 일
@@ -16,8 +16,16 @@ Monte Carlo Tree Search(MCTS) 정책을 비교하는 학부 연구 프로젝트�
 5. 고정 테스트셋 390명에서 MCTS를 완전탐색과 검증하고 NCCN과 비교했습니다.
 6. OS/RFS를 사용해 반응·독성·재발 상태가 변하는 5년 확률환경을 만들었습니다.
 7. 환자별 의사결정 궤적을 18~135개로 확장하고 동적 MCTS를 8,000회 평가했습니다.
+8. **v0.3**: 20개 시드로 강건성을 검증해 MCTS 우세가 작고(생존 +1.9%p) 개별 결정은
+   시드에 민감함을(첫 결정 평균 63% 일치) 확인했습니다.
+9. **v0.3**: 합성 가정 민감도 분석으로 결론을 가장 크게 좌우하는 요인이 임상 효과가
+   아니라 **보상 가중치(가치판단)** 임을 밝히고, target trial 인과 명세와 K-CURE 변수
+   요청 명세를 초안했습니다.
 
-핵심 결과와 해석은 [동적 MCTS PoC v0.2 기술 보고서](reports/dynamic-mcts-poc-v0.2/README.md),
+핵심 결과와 해석은 [동적 MCTS PoC v0.2 보고서](reports/dynamic-mcts-poc-v0.2/README.md),
+[강건성 v0.3 보고서](reports/robustness-v0.3/README.md),
+[민감도 v0.3 보고서](reports/sensitivity-v0.3/README.md),
+[Target trial 프로토콜](docs/target-trial-protocol.md),
 날짜별 작업 근거는 [프로젝트 타임라인](PROJECT_TIMELINE.md)에 정리되어 있습니다.
 
 ## 저장소 구조
@@ -58,6 +66,8 @@ py analysis\06_run_mcts_poc.py
 py analysis\07_visualize_mcts_poc.py
 py analysis\08_run_dynamic_mcts_poc.py
 py analysis\09_visualize_dynamic_mcts_poc.py
+py analysis\10_run_multiseed_robustness.py
+py analysis\11_run_sensitivity_analysis.py
 py -m unittest discover -s tests -v
 ```
 
