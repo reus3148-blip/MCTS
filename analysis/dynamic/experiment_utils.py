@@ -7,7 +7,9 @@ tests exercise them directly.
 
 from __future__ import annotations
 
+from collections import Counter
 import math
+import statistics
 from typing import Mapping, Sequence
 
 
@@ -57,4 +59,62 @@ def rescale_response_major(block: Mapping[str, float], major: float) -> dict[str
         "major": major,
         "partial": remainder * (float(block["partial"]) / old_rest),
         "none": remainder * (float(block["none"]) / old_rest),
+    }
+
+
+def summarize_decision_replicates(
+    records: Sequence[tuple[str, Mapping[str, float]]],
+) -> dict[str, object]:
+    """Agreement, estimator noise and best-vs-runner-up gap over repeat searches.
+
+    ``records`` is one ``(chosen_action, action_values)`` pair per independent
+    replicate of the same search at the same state and budget. The three numbers
+    that matter are:
+
+    * ``agreement_pct`` - how often the replicates picked the same action;
+    * ``value_noise_sd`` - the replicate-to-replicate spread of the top two
+      actions' estimated values, i.e. pure Monte-Carlo noise, which must shrink
+      as the budget grows;
+    * ``value_gap`` - the distance between those two actions' mean estimates,
+      a property of the environment that no amount of budget changes.
+
+    ``separation`` divides the gap by the noise: below about 1 the ordering
+    cannot be resolved from the replicate spread, which is the signature of
+    genuine equipoise rather than an under-powered search.
+    """
+    if not records:
+        raise ValueError("summarize_decision_replicates requires at least one replicate")
+
+    counts = Counter(action for action, _ in records)
+    modal, modal_count = min(
+        counts.items(), key=lambda item: (-item[1], item[0])
+    )
+
+    actions = sorted({action for _, values in records for action in values})
+    means: dict[str, float] = {}
+    sds: dict[str, float] = {}
+    for action in actions:
+        series = [
+            float(values[action]) for _, values in records if action in values
+        ]
+        means[action] = sum(series) / len(series)
+        sds[action] = statistics.stdev(series) if len(series) > 1 else 0.0
+
+    ranked = sorted(actions, key=lambda action: (-means[action], action))
+    if len(ranked) > 1:
+        gap = means[ranked[0]] - means[ranked[1]]
+        noise = (sds[ranked[0]] + sds[ranked[1]]) / 2
+    else:
+        gap, noise = float("nan"), 0.0
+    separation = gap / noise if noise > 0 else float("nan")
+
+    return {
+        "modal_action": modal,
+        "agreement_pct": modal_count / len(records) * 100,
+        "distinct_actions_chosen": len(counts),
+        "n_legal_actions": len(actions),
+        "best_action": ranked[0],
+        "value_gap": gap,
+        "value_noise_sd": noise,
+        "separation": separation,
     }
