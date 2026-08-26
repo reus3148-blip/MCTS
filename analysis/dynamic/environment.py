@@ -215,7 +215,6 @@ class DynamicBreastCancerEnvironment:
         recurrence_hazard = max(total_rfs_hazard - death_hazard, 0.0)
 
         for group, action in [
-            ("response", state.response),
             ("chemo", state.chemo),
             ("endocrine", state.endocrine),
             ("radiation", state.radiation),
@@ -223,6 +222,33 @@ class DynamicBreastCancerEnvironment:
             modifier = self.config.hazard_multipliers[group][action]
             death_hazard *= float(modifier["death"])
             recurrence_hazard *= float(modifier["recurrence"])
+
+        # Timing is an explicit, declarable channel. Any real advantage of
+        # neoadjuvant belongs here, where sensitivity analysis can see it -
+        # not smuggled in through the response channel below.
+        timing_table = self.config.hazard_multipliers.get("timing", {})
+        timing_modifier = timing_table.get(
+            state.timing, {"death": 1.0, "recurrence": 1.0}
+        )
+        death_hazard *= float(timing_modifier["death"])
+        recurrence_hazard *= float(timing_modifier["recurrence"])
+
+        # Only a neoadjuvant patient ever draws a response, so the response
+        # channel is asymmetric by construction: surgery-first stays at
+        # not_applicable = 1.0 forever. Dividing by the channel's expectation
+        # under the response distribution that produced it keeps the *relative*
+        # ordering (major beats none) while making the channel mean-neutral, so
+        # choosing neoadjuvant no longer buys an undeclared hazard advantage.
+        if state.response != "not_applicable":
+            modifier = self.config.hazard_multipliers["response"][state.response]
+            death_scale = recurrence_scale = 1.0
+            if self.config.response_channel_neutralised:
+                death_scale = self.config.response_multiplier_mean(
+                    state.chemo, "death")
+                recurrence_scale = self.config.response_multiplier_mean(
+                    state.chemo, "recurrence")
+            death_hazard *= float(modifier["death"]) / death_scale
+            recurrence_hazard *= float(modifier["recurrence"]) / recurrence_scale
 
         if state.recurred:
             death_hazard *= float(
@@ -277,7 +303,10 @@ class DynamicBreastCancerEnvironment:
             year=year,
             recurred=recurred,
         )
-        return next_state, self.config.normalized(raw_reward), {
+        discounted = self.config.normalized(raw_reward) * (
+            self.config.discount_factor(year)
+        )
+        return next_state, discounted, {
             "event": "recurrence" if recurrence_now else "no_event",
             "death_probability": death_probability,
             "recurrence_probability": recurrence_probability,

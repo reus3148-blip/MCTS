@@ -20,6 +20,18 @@ class DynamicConfig:
     treatment_burden: Mapping[str, Mapping[str, float]]
     hazard_multipliers: Mapping[str, Any]
     reward: Mapping[str, float]
+    #: Annual discount rate applied to follow-up rewards. 0.0 reproduces the
+    #: v0.2/v0.3/v0.4 behaviour, where a life-year in year 5 counts exactly as
+    #: much as one in year 1. Health-economic convention is 0.03. Declared
+    #: explicitly so it becomes a sensitivity parameter instead of a silent
+    #: default.
+    discount_rate_annual: float = 0.0
+    #: Divide the response hazard channel by its own expectation. Only a
+    #: neoadjuvant patient ever draws a response, so without this the channel
+    #: hands that arm an undeclared hazard advantage. True is the correct
+    #: default; v0.2-v0.4 ran with it off, and the impact of that is measured in
+    #: ``reports/environment-fix-v0.5``.
+    response_channel_neutralised: bool = True
 
     @property
     def max_followup_reward(self) -> float:
@@ -30,6 +42,30 @@ class DynamicConfig:
 
     def normalized(self, raw_reward: float) -> float:
         return raw_reward / self.max_followup_reward
+
+    def discount_factor(self, year: int) -> float:
+        """Present-value weight of a reward accrued at the end of ``year``."""
+        if self.discount_rate_annual == 0.0:
+            return 1.0
+        return 1.0 / ((1.0 + float(self.discount_rate_annual)) ** int(year))
+
+    def response_multiplier_mean(self, intensity: str, outcome: str) -> float:
+        """E[hazard multiplier] of the response channel under ``intensity``.
+
+        Only a patient who chose neoadjuvant ever draws a response, so only they
+        ever pick up a response hazard multiplier; a surgery-first patient stays
+        at ``not_applicable`` = 1.0. If this expectation is not 1.0, choosing
+        neoadjuvant buys a hazard advantage that no assumption ever declared.
+        The environment divides by this value to keep the channel neutral, which
+        preserves the *relative* ordering (major better than none) while moving
+        any real timing effect into an explicit, sensitivity-testable parameter.
+        """
+        probabilities = self.response_probabilities[intensity]
+        table = self.hazard_multipliers["response"]
+        return sum(
+            float(probability) * float(table[response][outcome])
+            for response, probability in probabilities.items()
+        )
 
 
 def _validate_probabilities(config: DynamicConfig) -> None:
@@ -56,6 +92,8 @@ def load_dynamic_config(path: str | Path) -> DynamicConfig:
         raise ValueError("horizon_years must be positive")
     if config.max_followup_reward <= 0:
         raise ValueError("maximum follow-up reward must be positive")
+    if not -1.0 < float(config.discount_rate_annual) < 1.0:
+        raise ValueError("discount_rate_annual must be in (-1, 1)")
     _validate_probabilities(config)
     return config
 
