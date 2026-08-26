@@ -3,7 +3,7 @@
 공개 유방암 코호트로 치료 의사결정 환경을 만들고, 단순화한 NCCN 정책과
 Monte Carlo Tree Search(MCTS) 정책을 비교하는 학부 연구 프로젝트입니다.
 
-> 현재 단계: **탐색 예산 스케일링 진단 v0.4 완료 (2026-08-26)**  
+> 현재 단계: **MCTS·MDP 개념 감사와 환경 편향 수정 v0.5 완료 (2026-08-27)**  
 > 연구용 예측 실험이며 실제 환자의 치료 권고 도구가 아닙니다.
 
 ## 지금까지 한 일
@@ -25,11 +25,15 @@ Monte Carlo Tree Search(MCTS) 정책을 비교하는 학부 연구 프로젝트�
     이론값대로 1/√N 로 줄었고(기울기 −0.508) 예산을 2048로 올리자 일치율이
     57.8% → 80.4%로 올랐지만, 49개 결정 지점 중 10개는 **어떤 예산에서도** 갈리지
     않았고 그 지점들은 호르몬치료·방사선에 몰려 있었습니다.
+11. **v0.5**: MCTS·MDP 구현을 형식적 정의에 대조해 감사했습니다. 알고리즘은 맞았으나
+    환경에서 **선행치료를 고르기만 하면 재발 위험이 6.5~8.6% 깎이는 미선언 이득**을
+    찾아 중립화했습니다. 할인율도 설정에 명시해 민감도 대상으로 만들었습니다.
 
 핵심 결과와 해석은 [동적 MCTS PoC v0.2 보고서](reports/dynamic-mcts-poc-v0.2/README.md),
 [강건성 v0.3 보고서](reports/robustness-v0.3/README.md),
 [민감도 v0.3 보고서](reports/sensitivity-v0.3/README.md),
 [예산 스케일링 v0.4 보고서](reports/budget-scaling-v0.4/README.md),
+[환경 편향 수정 v0.5 보고서](reports/environment-fix-v0.5/README.md),
 [Target trial 프로토콜](docs/target-trial-protocol.md),
 날짜별 작업 근거는 [프로젝트 타임라인](PROJECT_TIMELINE.md)에 정리되어 있습니다.
 
@@ -45,6 +49,7 @@ analysis/
   10_run_multiseed_robustness.py  다중 시드 강건성 (v0.3)
   11_run_sensitivity_analysis.py  합성 가정 민감도 (v0.3)
   12_run_budget_scaling.py        탐색 예산 스케일링 진단 (v0.4)
+  13_run_environment_fix_impact.py 환경 편향 수정의 영향 측정 (v0.5)
   mcts/                   환경·생존모형·UCT 탐색 모듈
   dynamic/                공통 스키마·확률 전이·stochastic MCTS
   dynamic/cohort.py       10~12가 공유하는 코호트·보상모형·매니페스트
@@ -61,6 +66,9 @@ reports/dynamic-mcts-poc-v0.2/
   assumptions_snapshot.json 실행 당시 합성 가정
 reports/budget-scaling-v0.4/
   tables/                 결정지점 × 예산 수렴, 예산별 효용 격차
+reports/environment-fix-v0.5/
+  tables/                 편향/수정 환경의 시드별 결과와 짝지은 차이
+configs/dynamic_v0_5.json 현재 환경 가정 (v0.2는 과거 리포트 재현용으로 보존)
 docs/k-cure-adaptation.md K-CURE 이행 데이터 계약
 src/minutes/              날짜별 연구 기록과 의사결정 근거
 tests/                    정책·환경·MCTS·특징변환 자동 검증
@@ -102,3 +110,6 @@ npm run dev
   수치는 탐색 해상도에 미달했으므로 그 단서와 함께 읽어야 합니다.
 - 호르몬치료·방사선 결정은 어떤 예산에서도 안정되지 않습니다. 이 결정에 대해서는
   "MCTS가 X를 권한다"가 아니라 **"우리 효용 아래 두 선택이 동률"** 로만 말할 수 있습니다.
+- **v0.2~v0.4의 수치는 응답 채널 편향이 있던 환경에서 나왔습니다.** v0.5에서 고쳤고 그
+  영향은 측정 한계 안이었지만(`reports/environment-fix-v0.5`), 아직 재실행하지
+  않았으므로 그 단서와 함께 읽어야 합니다.

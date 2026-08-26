@@ -17,6 +17,7 @@
 | 2026-08-24 | Target trial 인과 명세 초안 | `docs/target-trial-protocol.md` | 초안 완료 |
 | 2026-08-24 | K-CURE 변수 요청·매핑 명세 | `docs/k-cure-variable-dictionary.md` | 초안 완료 |
 | 2026-08-26 | 탐색 예산 스케일링 진단 v0.4 | `analysis/12`, `reports/budget-scaling-v0.4` | 완료 |
+| 2026-08-27 | MCTS·MDP 개념 감사와 환경 편향 수정 v0.5 | `analysis/13`, `configs/dynamic_v0_5.json`, `reports/environment-fix-v0.5` | 완료 |
 | 다음 단계 | 인과추정 시제품·상호작용 민감도·K-CURE 확보 | IPW/g-방법, 2D 민감도, utility 사전등록, 코드북 매핑, 임상 검토 | 예정 |
 
 ## 2026-07-11 기준 현재 위치
@@ -45,5 +46,10 @@ MCTS v0.1의 수치·방법·한계는
 
 v0.4 탐색 예산 진단은 [기술 보고서](reports/budget-scaling-v0.4/README.md)와
 `src/minutes/2026-08-26-budget-scaling-v04.md`에서 확인할 수 있습니다.
+
+v0.5 환경 감사는 [기술 보고서](reports/environment-fix-v0.5/README.md)와
+`src/minutes/2026-08-27-environment-audit-v05.md`에서 확인할 수 있습니다.
+**새 실험은 `configs/dynamic_v0_5.json`을 씁니다.** v0.2~v0.4 리포트 수치는
+편향이 있던 환경에서 나온 것이며, 아직 v0.5로 재실행하지 않았습니다.
 이 진단 이후 **기본 탐색 예산은 1024 이상**을 쓰며, 256으로 낸 v0.2·v0.3의
 결정 단위 수치는 탐색 해상도 미달이라는 단서와 함께 읽어야 합니다.

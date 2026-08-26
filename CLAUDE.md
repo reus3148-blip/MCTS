@@ -108,6 +108,10 @@ reports/             # 재현 가능한 기술 리포트 (metrics·manifest·표
   대상 로직은 `analysis/dynamic/`에 두고 스크립트는 얇게 유지한다. 새 실험은
   `reports/<label>/`에 `metrics.json`·`run_manifest.json`·`tables/`·`README.md`를 함께 낸다.
 - **탐색 예산**: v0.4 진단 이후 기본값은 **1024 이상**(256은 행동 순서를 분해하지 못함).
+- **환경 설정**: 새 실험은 `configs/dynamic_v0_5.json`을 쓴다. `dynamic_poc_v0_2.json`은
+  v0.2~v0.4 리포트의 매니페스트 해시를 보존하기 위해 그대로 둔다(그 결과들은 매니페스트의
+  `git_commit_before_run`으로 재현). 두 파일의 차이는 응답 채널 중립화 스위치와 명시적
+  timing·할인율 선언이다 — `reports/environment-fix-v0.5` 참고.
 
 ## 디자인 시스템
 
