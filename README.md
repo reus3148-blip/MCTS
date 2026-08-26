@@ -3,7 +3,7 @@
 공개 유방암 코호트로 치료 의사결정 환경을 만들고, 단순화한 NCCN 정책과
 Monte Carlo Tree Search(MCTS) 정책을 비교하는 학부 연구 프로젝트입니다.
 
-> 현재 단계: **강건성·민감도 분석 v0.3 완료 (2026-08-24)**  
+> 현재 단계: **탐색 예산 스케일링 진단 v0.4 완료 (2026-08-26)**  
 > 연구용 예측 실험이며 실제 환자의 치료 권고 도구가 아닙니다.
 
 ## 지금까지 한 일
@@ -21,10 +21,15 @@ Monte Carlo Tree Search(MCTS) 정책을 비교하는 학부 연구 프로젝트�
 9. **v0.3**: 합성 가정 민감도 분석으로 결론을 가장 크게 좌우하는 요인이 임상 효과가
    아니라 **보상 가중치(가치판단)** 임을 밝히고, target trial 인과 명세와 K-CURE 변수
    요청 명세를 초안했습니다.
+10. **v0.4**: 결정 불안정성의 원인을 탐색 부족과 진짜 동률로 분리했습니다. 잡음은
+    이론값대로 1/√N 로 줄었고(기울기 −0.508) 예산을 2048로 올리자 일치율이
+    57.8% → 80.4%로 올랐지만, 49개 결정 지점 중 10개는 **어떤 예산에서도** 갈리지
+    않았고 그 지점들은 호르몬치료·방사선에 몰려 있었습니다.
 
 핵심 결과와 해석은 [동적 MCTS PoC v0.2 보고서](reports/dynamic-mcts-poc-v0.2/README.md),
 [강건성 v0.3 보고서](reports/robustness-v0.3/README.md),
 [민감도 v0.3 보고서](reports/sensitivity-v0.3/README.md),
+[예산 스케일링 v0.4 보고서](reports/budget-scaling-v0.4/README.md),
 [Target trial 프로토콜](docs/target-trial-protocol.md),
 날짜별 작업 근거는 [프로젝트 타임라인](PROJECT_TIMELINE.md)에 정리되어 있습니다.
 
@@ -37,8 +42,12 @@ analysis/
   07_visualize_mcts_poc.py 결과 그림 생성 및 사이트 반영
   08_run_dynamic_mcts_poc.py OS/RFS 기반 동적 정책 실험
   09_visualize_dynamic_mcts_poc.py 동적환경 Figure 14~17
+  10_run_multiseed_robustness.py  다중 시드 강건성 (v0.3)
+  11_run_sensitivity_analysis.py  합성 가정 민감도 (v0.3)
+  12_run_budget_scaling.py        탐색 예산 스케일링 진단 (v0.4)
   mcts/                   환경·생존모형·UCT 탐색 모듈
   dynamic/                공통 스키마·확률 전이·stochastic MCTS
+  dynamic/cohort.py       10~12가 공유하는 코호트·보상모형·매니페스트
 data/
   brca_metabric/          원본 데이터 (Git 제외)
   processed/              전처리 데이터 (Git 제외)
@@ -50,6 +59,8 @@ reports/mcts-poc-v1/
 reports/dynamic-mcts-poc-v0.2/
   tables/                 8,000 episode·trace·정책·안정성 결과
   assumptions_snapshot.json 실행 당시 합성 가정
+reports/budget-scaling-v0.4/
+  tables/                 결정지점 × 예산 수렴, 예산별 효용 격차
 docs/k-cure-adaptation.md K-CURE 이행 데이터 계약
 src/minutes/              날짜별 연구 기록과 의사결정 근거
 tests/                    정책·환경·MCTS·특징변환 자동 검증
@@ -87,3 +98,7 @@ npm run dev
 - v0.2는 동적으로 움직이지만 반응·독성·치료강도 차이는 합성 학습용 가정입니다.
   K-CURE 또는 임상시험 자료로 교체하기 전에는 실제 효과로 해석할 수 없습니다.
 - NCCN 정책은 연구용 단순화 규칙이며 완전한 최신 가이드라인이 아닙니다.
+- v0.4 이후 기본 탐색 예산은 **1024 이상**입니다. 256으로 낸 v0.2·v0.3의 결정 단위
+  수치는 탐색 해상도에 미달했으므로 그 단서와 함께 읽어야 합니다.
+- 호르몬치료·방사선 결정은 어떤 예산에서도 안정되지 않습니다. 이 결정에 대해서는
+  "MCTS가 X를 권한다"가 아니라 **"우리 효용 아래 두 선택이 동률"** 로만 말할 수 있습니다.

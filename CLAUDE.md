@@ -48,8 +48,12 @@ analysis/
 ├── 01~05_*.py       # METABRIC 전처리·시각화·NCCN 정책 일치율
 ├── 06~07_*.py       # MCTS 정적 PoC v1 (Cox 보상모형 + UCT 탐색)
 ├── 08~09_*.py       # 동적 확률환경 v0.2 (chance-aware UCT)
+├── 10~11_*.py       # 다중 시드 강건성·합성 가정 민감도 v0.3
+├── 12_*.py          # 탐색 예산 스케일링 진단 v0.4
 ├── mcts/            # 치료환경·보상모형·UCT 탐색 모듈
 └── dynamic/         # 공통 스키마·확률 전이·stochastic MCTS
+                     #   cohort.py: 10~12 공유 코호트·보상모형·매니페스트
+                     #   experiment_utils.py: 테스트 가능한 통계 헬퍼
 tests/               # 단위 테스트 (py -m unittest discover -s tests -v)
 reports/             # 재현 가능한 기술 리포트 (metrics·manifest·표·figure)
 ```
@@ -59,6 +63,10 @@ reports/             # 재현 가능한 기술 리포트 (metrics·manifest·표
 - **데이터**(`data/`)는 대용량이라 git 제외. 이 PC엔 `data/processed/*.csv`가 있어 바로 실행됨.
   새 환경에서는 `analysis/01~02`로 재생성 필요.
 - 연구 코드 초안은 주로 Codex/Claude로 작성했고, 임상 규칙·인과추론·결과 해석은 사람 검토 대상(회의록에 명시).
+- **실험 규약**: 번호 붙은 `analysis/1x_*.py`는 모듈로 import할 수 없으므로, 재사용·테스트
+  대상 로직은 `analysis/dynamic/`에 두고 스크립트는 얇게 유지한다. 새 실험은
+  `reports/<label>/`에 `metrics.json`·`run_manifest.json`·`tables/`·`README.md`를 함께 낸다.
+- **탐색 예산**: v0.4 진단 이후 기본값은 **1024 이상**(256은 행동 순서를 분해하지 못함).
 
 ## 디자인 시스템
 
