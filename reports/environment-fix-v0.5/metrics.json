@@ -1,0 +1,44 @@
+{
+  "run_date": "2026-08-27",
+  "analysis_label": "environment-fix-v0.5",
+  "question": "How much of the measured MCTS advantage came from the asymmetric response hazard channel rather than from planning?",
+  "interpretation": "Paired within-seed comparison of the same experiment under the biased and the neutralised environment; not causal, not clinical.",
+  "defect": {
+    "channel": "hazard_multipliers.response",
+    "why": "Only a neoadjuvant patient draws a response, so only that arm picks up a response hazard multiplier; the multipliers did not average to 1.0.",
+    "expected_recurrence_multiplier_standard": 0.935,
+    "expected_recurrence_multiplier_intensified": 0.914,
+    "surgery_first_multiplier": 1.0
+  },
+  "design": {
+    "patients": 12,
+    "seeds": 10,
+    "episodes_per_policy": 25,
+    "simulations_per_decision": 1024
+  },
+  "utility_gap_biased": 0.031361777777777725,
+  "utility_gap_fixed": 0.03126977777777773,
+  "utility_gap_shift": -9.199999999999209e-05,
+  "utility_gap_shift_ci95": [
+    -0.01003391631113735,
+    0.009849916311137368
+  ],
+  "utility_gap_share_attributable_to_bias_pct": 0.29335071707950594,
+  "mcts_neoadjuvant_pct_biased": 20.833333333333332,
+  "mcts_neoadjuvant_pct_fixed": 21.666666666666664,
+  "mcts_neoadjuvant_shift_pp": 0.8333333333333318,
+  "mcts_neoadjuvant_shift_ci95": [
+    -10.703237610227085,
+    12.369904276893749
+  ],
+  "metrics_moved_beyond_noise": [],
+  "analytic_effect_estimate": {
+    "representative_annual_recurrence_neutral": 0.01769,
+    "representative_annual_recurrence_biased": 0.016540150000000003,
+    "extra_recurrence_free_years_from_bias": 0.01647558385922654,
+    "neoadjuvant_share_pct": 20.833333333333332,
+    "expected_utility_gap_inflation": 0.0002288275536003686,
+    "smallest_resolvable_shift_ci95_half_width": 0.00994191631113736,
+    "design_is_powered_for_it": false
+  }
+}

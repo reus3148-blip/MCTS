@@ -120,6 +120,40 @@ def evaluate(environments, seed_index: int) -> dict[str, float]:
     }
 
 
+def analytic_effect_estimate(config, neoadjuvant_share_pct: float) -> dict:
+    """Order-of-magnitude size of the bias, so a null result can be read honestly.
+
+    A paired experiment that finds nothing has only shown that the effect is
+    smaller than what it could resolve. This estimates how large the effect
+    could have been, so the report can say which of the two happened.
+
+    For a representative patient the bias lowers the annual recurrence
+    probability of the neoadjuvant arm from ``p_biased`` to ``p_fixed``. Over the
+    horizon that buys extra recurrence-free years, each worth
+    ``recurrence_free_year / max_followup_reward`` of normalised utility, and it
+    only applies to the share of episodes that actually chose neoadjuvant.
+    """
+    horizon = int(config.horizon_years)
+    weight = float(config.reward["recurrence_free_year"]) / config.max_followup_reward
+
+    def recurrence_free_years(annual_probability: float) -> float:
+        return sum((1.0 - annual_probability) ** year
+                   for year in range(1, horizon + 1))
+
+    # Representative patient, standard chemo (see reports/environment-fix-v0.5).
+    p_neutral = 0.01769
+    p_biased = p_neutral * config.response_multiplier_mean("standard", "recurrence")
+    share = neoadjuvant_share_pct / 100.0
+    delta_years = recurrence_free_years(p_biased) - recurrence_free_years(p_neutral)
+    return {
+        "representative_annual_recurrence_neutral": p_neutral,
+        "representative_annual_recurrence_biased": p_biased,
+        "extra_recurrence_free_years_from_bias": delta_years,
+        "neoadjuvant_share_pct": neoadjuvant_share_pct,
+        "expected_utility_gap_inflation": share * delta_years * weight,
+    }
+
+
 def main() -> None:
     TABLE_DIR.mkdir(parents=True, exist_ok=True)
     raw = pd.read_csv(INPUT_CSV)
@@ -179,6 +213,12 @@ def main() -> None:
         if gap["biased_mean"] else float("nan")
     )
 
+    analytic = analytic_effect_estimate(fixed_config, neo["biased_mean"])
+    resolvable = (gap["paired_delta_ci95_high"] - gap["paired_delta_ci95_low"]) / 2
+    analytic["smallest_resolvable_shift_ci95_half_width"] = resolvable
+    analytic["design_is_powered_for_it"] = bool(
+        abs(analytic["expected_utility_gap_inflation"]) > resolvable)
+
     metrics = {
         "run_date": RUN_DATE,
         "analysis_label": "environment-fix-v0.5",
@@ -221,6 +261,7 @@ def main() -> None:
         "metrics_moved_beyond_noise": [
             row["metric"] for row in summary_rows if not row["crosses_zero"]
         ],
+        "analytic_effect_estimate": analytic,
     }
 
     per_seed.to_csv(TABLE_DIR / "per_seed_by_arm.csv", index=False)
@@ -247,6 +288,11 @@ def main() -> None:
     print(summary.to_string(index=False))
     print(f"\nutility gap {gap['biased_mean']:+.4f} -> {gap['fixed_mean']:+.4f}")
     print(f"neoadjuvant {neo['biased_mean']:.1f}% -> {neo['fixed_mean']:.1f}%")
+    print("")
+    print("expected inflation from the bias  = "
+          f"{analytic['expected_utility_gap_inflation']:.6f}")
+    print(f"smallest shift this design resolves = {resolvable:.6f}")
+    print(f"powered to detect it = {analytic['design_is_powered_for_it']}")
     print(f"saved -> {REPORT_DIR}")
 
 
