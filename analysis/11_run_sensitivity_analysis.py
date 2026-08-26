@@ -20,7 +20,6 @@ import hashlib
 import json
 import math
 from pathlib import Path
-import subprocess
 import sys
 
 import numpy as np
@@ -30,19 +29,20 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from analysis.dynamic.cohort import (  # noqa: E402
+    BASE_SEED,
+    balanced_subtype_sample,
+    build_reward_models,
+    git_commit,
+    input_manifest,
+    make_risk_table,
+)
 from analysis.dynamic.config import DynamicConfig, _validate_probabilities  # noqa: E402
 from analysis.dynamic.environment import DynamicBreastCancerEnvironment  # noqa: E402
 from analysis.dynamic.experiment_utils import rescale_response_major  # noqa: E402
 from analysis.dynamic.evaluation import run_policy_episodes  # noqa: E402
 from analysis.dynamic.policies import CachedMCTSPolicy, DynamicNccnPolicy  # noqa: E402
-from analysis.dynamic.schema import RiskEstimate, patient_from_row  # noqa: E402
-from analysis.mcts.environment import all_plans  # noqa: E402
-from analysis.mcts.outcome_model import (  # noqa: E402
-    RegularizedCoxRewardModel,
-    prepare_model_cohort,
-    stratified_train_validation_test_split,
-    tune_penalizer,
-)
+from analysis.dynamic.schema import patient_from_row  # noqa: E402
 
 INPUT_CSV = ROOT / "data" / "processed" / "patients_with_nccn.csv"
 CONFIG_PATH = ROOT / "configs" / "dynamic_poc_v0_2.json"
@@ -50,72 +50,11 @@ REPORT_DIR = ROOT / "reports" / "sensitivity-v0.3"
 TABLE_DIR = REPORT_DIR / "tables"
 
 RUN_DATE = "2026-08-24"
-BASE_SEED = 20_260_720
-PENALIZERS = (0.01, 0.1, 1.0)
 PATIENTS_PER_SUBTYPE = 2       # 8 patients x variants x seeds -> tractable
 N_SEEDS = 3
 EPISODES_PER_POLICY = 40
 SIMULATIONS = 256
 EXPLORATION_WEIGHT = math.sqrt(2.0)
-SUBTYPES = ("HR+/HER2-", "HR+/HER2+", "HR-/HER2+", "TNBC")
-
-
-def sha256(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for block in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(block)
-    return digest.hexdigest()
-
-
-def git_commit() -> str:
-    try:
-        return subprocess.run(
-            ["git", "rev-parse", "HEAD"],
-            cwd=ROOT, capture_output=True, check=True, text=True,
-        ).stdout.strip()
-    except (OSError, subprocess.CalledProcessError):
-        return "unavailable"
-
-
-def make_risk_table(row, os_model, rfs_model):
-    plans = all_plans()
-    os_scores = os_model.score_plans(row, plans, months=60.0)
-    rfs_scores = rfs_model.score_plans(row, plans, months=60.0)
-    return {plan: RiskEstimate(os_scores[plan], rfs_scores[plan]) for plan in plans}
-
-
-def balanced_sample(test: pd.DataFrame) -> pd.DataFrame:
-    required = ["tumor_size_mm", "lymph_pos", "stage", "grade", "er", "pr", "her2"]
-    complete = test.dropna(subset=required).copy()
-    sampled = []
-    for index, subtype in enumerate(SUBTYPES):
-        group = complete[complete["subtype"].eq(subtype)]
-        count = min(PATIENTS_PER_SUBTYPE, len(group))
-        sampled.append(group.sample(n=count, random_state=BASE_SEED + index))
-    return (pd.concat(sampled, ignore_index=True)
-            .sort_values(["subtype", "patient_id"]).reset_index(drop=True))
-
-
-def build_models(raw: pd.DataFrame):
-    os_cohort = prepare_model_cohort(raw)
-    os_train, os_val, os_test, assignments = (
-        stratified_train_validation_test_split(os_cohort, seed=BASE_SEED))
-    os_pen, _ = tune_penalizer(os_train, os_val, PENALIZERS)
-    os_model = RegularizedCoxRewardModel(os_pen).fit(
-        pd.concat([os_train, os_val], ignore_index=True))
-    rfs_cohort = prepare_model_cohort(
-        raw, time_column="rfs_months", event_column="rfs_event")
-    split_map = assignments.set_index("patient_id")["split"]
-    rfs_split = rfs_cohort["patient_id"].astype(str).map(split_map)
-    rfs_pen, _ = tune_penalizer(
-        rfs_cohort[rfs_split.eq("train")], rfs_cohort[rfs_split.eq("validation")],
-        PENALIZERS, time_column="rfs_months", event_column="rfs_event")
-    rfs_model = RegularizedCoxRewardModel(
-        rfs_pen, time_column="rfs_months", event_column="rfs_event").fit(
-        pd.concat([rfs_cohort[rfs_split.eq("train")],
-                   rfs_cohort[rfs_split.eq("validation")]], ignore_index=True))
-    return os_model, rfs_model, os_test
 
 
 def config_from_dict(data: dict) -> DynamicConfig:
@@ -210,8 +149,8 @@ def main() -> None:
     with CONFIG_PATH.open("r", encoding="utf-8") as handle:
         base = json.load(handle)
     raw = pd.read_csv(INPUT_CSV)
-    os_model, rfs_model, os_test = build_models(raw)
-    sample = balanced_sample(os_test)
+    os_model, rfs_model, os_test = build_reward_models(raw)
+    sample = balanced_subtype_sample(os_test, PATIENTS_PER_SUBTYPE)
     print(f"sensitivity sample = {len(sample)} patients")
 
     variants = build_variants(base)
@@ -268,12 +207,9 @@ def main() -> None:
         "run_date": RUN_DATE,
         "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
         "git_commit_before_run": git_commit(),
-        "inputs": {
-            "data": {"path": "data/processed/patients_with_nccn.csv",
-                     "sha256": sha256(INPUT_CSV)},
-            "assumptions": {"path": "configs/dynamic_poc_v0_2.json",
-                            "sha256": sha256(CONFIG_PATH)},
-        },
+        "inputs": input_manifest({
+            "data": INPUT_CSV, "assumptions": CONFIG_PATH,
+        }),
         "entry_point": "analysis/11_run_sensitivity_analysis.py",
         "base_seed": BASE_SEED,
     }
