@@ -29,6 +29,11 @@ Monte Carlo Tree Search(MCTS) 정책을 비교하는 학부 연구 프로젝트�
     환경에서 **선행치료를 고르기만 하면 재발 위험이 6.5~8.6% 깎이는 미선언 이득**을
     찾아 중립화했습니다. 할인율도 설정에 명시해 민감도 대상으로 만들었습니다.
 
+전체 줄기를 한 번에 읽으려면 [연구 이야기](docs/research-story.md),
+숫자가 왜 달라졌는지는 [숫자 화해](docs/results-reconciliation.md),
+제안서 대비 범위 변화는 [제안서 대비 산출물](docs/proposal-vs-delivered.md)을 보세요.
+셋 다 사이트의 [/story](https://mcts.blundermate.app/story)에도 있습니다.
+
 핵심 결과와 해석은 [동적 MCTS PoC v0.2 보고서](reports/dynamic-mcts-poc-v0.2/README.md),
 [강건성 v0.3 보고서](reports/robustness-v0.3/README.md),
 [민감도 v0.3 보고서](reports/sensitivity-v0.3/README.md),
@@ -50,6 +55,7 @@ analysis/
   11_run_sensitivity_analysis.py  합성 가정 민감도 (v0.3)
   12_run_budget_scaling.py        탐색 예산 스케일링 진단 (v0.4)
   13_run_environment_fix_impact.py 환경 편향 수정의 영향 측정 (v0.5)
+  14_visualize_v03_v05.py         v0.3~v0.5 Figure 18~23
   mcts/                   환경·생존모형·UCT 탐색 모듈
   dynamic/                공통 스키마·확률 전이·stochastic MCTS
   dynamic/cohort.py       10~12가 공유하는 코호트·보상모형·매니페스트

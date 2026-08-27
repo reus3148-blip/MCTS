@@ -126,6 +126,8 @@ const sections = [
       { text: '강건성·민감도 v0.3 기술 보고서', done: true },
       { text: '탐색 예산 스케일링 v0.4 기술 보고서', done: true },
       { text: '환경 편향 수정 v0.5 기술 보고서', done: true },
+      { text: '발표용 Figure 18~23 (v0.3~v0.5)', done: true },
+      { text: '연구 이야기·숫자 화해·제안서 대조 문서', done: true },
       { text: '중간 보고서 초안', done: false },
       { text: '학회 발표 슬라이드 / 포스터', done: false },
       { text: '논문 / 최종 보고서 초안', done: false },

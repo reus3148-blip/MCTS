@@ -18,6 +18,7 @@
 | 2026-08-24 | K-CURE 변수 요청·매핑 명세 | `docs/k-cure-variable-dictionary.md` | 초안 완료 |
 | 2026-08-26 | 탐색 예산 스케일링 진단 v0.4 | `analysis/12`, `reports/budget-scaling-v0.4` | 완료 |
 | 2026-08-27 | MCTS·MDP 개념 감사와 환경 편향 수정 v0.5 | `analysis/13`, `configs/dynamic_v0_5.json`, `reports/environment-fix-v0.5` | 완료 |
+| 2026-08-27 | 발표용 자료 정비 — Figure 18~23·이야기·숫자화해·제안서대조 | `analysis/14`, `docs/research-story.md`, `docs/results-reconciliation.md`, `docs/proposal-vs-delivered.md`, `/story` | 완료 |
 | 다음 단계 | 인과추정 시제품·상호작용 민감도·K-CURE 확보 | IPW/g-방법, 2D 민감도, utility 사전등록, 코드북 매핑, 임상 검토 | 예정 |
 
 ## 2026-07-11 기준 현재 위치
