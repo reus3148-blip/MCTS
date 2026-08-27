@@ -1,0 +1,82 @@
+/* Tabs for the three standing narrative documents. */
+.story-tabs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin: 28px 0 34px;
+}
+
+.story-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 16px 18px;
+  text-align: left;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+  font: inherit;
+  color: inherit;
+  min-height: 44px;
+}
+
+.story-tab:hover {
+  border-color: var(--accent);
+}
+
+.story-tab.is-active {
+  border-color: var(--accent);
+  background: var(--bg-card2);
+}
+
+.story-tab-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.story-tab.is-active .story-tab-label {
+  color: var(--accent);
+}
+
+.story-tab-blurb {
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+  overflow-wrap: break-word;
+}
+
+.story-body {
+  margin-top: 4px;
+}
+
+/* The story leans on figures; keep them readable and never overflowing. */
+.story-body img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  margin: 22px auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+@media (max-width: 640px) {
+  .story-tabs {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin: 22px 0 26px;
+  }
+  .story-tab {
+    padding: 14px 15px;
+  }
+  .story-tab-label {
+    font-size: 0.95rem;
+  }
+  .story-tab-blurb {
+    font-size: 0.8rem;
+  }
+}

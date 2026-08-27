@@ -11,6 +11,7 @@ const links = [
   { to: '/checklist',     label: 'Checklist' },
   { to: '/team',          label: 'Team' },
   { to: '/about',         label: 'About' },
+  { to: '/story',         label: 'Story' },
   { to: '/minutes',       label: 'Minutes' },
 ]
 

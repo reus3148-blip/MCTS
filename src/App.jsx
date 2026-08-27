@@ -9,6 +9,7 @@ import ChecklistPage from './pages/ChecklistPage'
 import TeamPage from './pages/TeamPage'
 import AboutPage from './pages/AboutPage'
 import MinutesPage from './pages/MinutesPage'
+import StoryPage from './pages/StoryPage'
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/checklist" element={<ChecklistPage />} />
           <Route path="/team" element={<TeamPage />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/story" element={<StoryPage />} />
           <Route path="/minutes" element={<MinutesPage />} />
           <Route path="/minutes/:slug" element={<MinutesPage />} />
         </Routes>
