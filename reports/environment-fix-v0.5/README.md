@@ -15,6 +15,8 @@
 
 ## 무엇이 잘못돼 있었나
 
+![응답 채널 편향](figures/fig22_response_channel_bias.png)
+
 `response`(치료 반응)는 **선행치료를 고른 환자만 뽑는다.** 수술우선 환자는 반응을 측정할
 대상이 없으니 영원히 `not_applicable`이고, 그 hazard 배수는 1.0으로 고정된다. 여기까지는
 임상적으로 자연스럽다.
@@ -172,6 +174,8 @@ v0.4의 "동률" 결론이 알고리즘 튜닝 탓일 수 있어 두 가지를 �
 |---|---|
 | `metrics.json` | 편향 명세·짝지은 효과·**검정력 계산** |
 | `run_manifest.json` | 입력 SHA-256·base seed·실행 커밋 |
+| `figures/fig22_response_channel_bias.png` | 편향 전/후 응답 채널 기댓값 |
+| `figures/fig23_results_reconciliation.png` | 헤드라인 수치 다섯 값의 화해 |
 | `tables/per_seed_by_arm.csv` | 시드×환경별 원자료 |
 | `tables/paired_effect_of_fix.csv` | 지표별 짝지은 차이와 95% CI |
 

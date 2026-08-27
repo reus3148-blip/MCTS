@@ -61,6 +61,8 @@ Part B의 NCCN 정책은 탐색 예산과 무관하므로 시드당 한 번만 �
 
 ## 결과 1 — 탐색은 정상 작동하고 있었다
 
+![예산 스케일링](figures/fig18_budget_scaling.png)
+
 | 예산 | 일치율 | 잡음 SD | \|gap\| | separation | 불안정 지점 비율 |
 |---:|---:|---:|---:|---:|---:|
 | 64 | 57.8% | 0.0605 | 0.0234 | 0.43 | 83.7% |
@@ -85,6 +87,8 @@ Part B의 NCCN 정책은 탐색 예산과 무관하므로 시드당 한 번만 �
 것이었다.
 
 ## 결과 2 — 그래도 사라지지 않는 동률이 있다
+
+![단계별 일치율](figures/fig19_phase_agreement.png)
 
 예산 2048에서도 전부 해결되지는 않는다.
 
@@ -175,6 +179,8 @@ v0.3이 "결론을 가장 크게 좌우하는 건 가치판단"이라고 말한 
 |---|---|
 | `metrics.json` | 판정(verdict)·잡음 기울기·예산별 일치율과 효용 격차 |
 | `run_manifest.json` | 입력 SHA-256·base seed·실행 커밋 |
+| `figures/fig18_budget_scaling.png` | 예산별 일치율·잡음 감쇠 |
+| `figures/fig19_phase_agreement.png` | 단계별 일치율 (동률의 위치) |
 | `tables/node_budget_detail.csv` | 결정 지점 × 예산 전체 원자료 (49 × 6행) |
 | `tables/convergence_by_budget.csv` | 예산별 일치율·잡음·gap 요약 |
 | `tables/root_convergence_by_budget.csv` | 첫 결정(root)만 따로 본 요약 |
