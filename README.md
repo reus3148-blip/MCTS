@@ -3,7 +3,7 @@
 공개 유방암 코호트로 치료 의사결정 환경을 만들고, 단순화한 NCCN 정책과
 Monte Carlo Tree Search(MCTS) 정책을 비교하는 학부 연구 프로젝트입니다.
 
-> 현재 단계: **MCTS·MDP 개념 감사와 환경 편향 수정 v0.5 완료 (2026-08-27)**  
+> 현재 단계: **IPW 표적시험 에뮬레이션 v0.6 완료 (2026-08-27)**  
 > 연구용 예측 실험이며 실제 환자의 치료 권고 도구가 아닙니다.
 
 ## 지금까지 한 일
@@ -28,6 +28,10 @@ Monte Carlo Tree Search(MCTS) 정책을 비교하는 학부 연구 프로젝트�
 11. **v0.5**: MCTS·MDP 구현을 형식적 정의에 대조해 감사했습니다. 알고리즘은 맞았으나
     환경에서 **선행치료를 고르기만 하면 재발 위험이 6.5~8.6% 깎이는 미선언 이득**을
     찾아 중립화했습니다. 할인율도 설정에 명시해 민감도 대상으로 만들었습니다.
+12. **v0.6**: 관찰 연관성을 인과추정으로 바꾸는 첫 시도로 IPW 표적시험 에뮬레이션을
+    돌렸습니다. 항암 시행 여부가 사실상 결정돼 있어 **positivity가 무너졌고**(가중 후
+    최악 |SMD| 1.13 → 2.19, 유효표본 24명), 겹침 구간 38%로 좁혀야 균형이 잡혔습니다.
+    그 안에서 조정 전후로 **효과의 부호가 뒤집혔습니다**(+0.057 → −0.036, CI는 0 포함).
 
 전체 줄기를 한 번에 읽으려면 [연구 이야기](docs/research-story.md),
 숫자가 왜 달라졌는지는 [숫자 화해](docs/results-reconciliation.md),
@@ -39,6 +43,7 @@ Monte Carlo Tree Search(MCTS) 정책을 비교하는 학부 연구 프로젝트�
 [민감도 v0.3 보고서](reports/sensitivity-v0.3/README.md),
 [예산 스케일링 v0.4 보고서](reports/budget-scaling-v0.4/README.md),
 [환경 편향 수정 v0.5 보고서](reports/environment-fix-v0.5/README.md),
+[IPW 표적시험 v0.6 보고서](reports/ipw-target-trial-v0.6/README.md),
 [Target trial 프로토콜](docs/target-trial-protocol.md),
 날짜별 작업 근거는 [프로젝트 타임라인](PROJECT_TIMELINE.md)에 정리되어 있습니다.
 
@@ -56,6 +61,9 @@ analysis/
   12_run_budget_scaling.py        탐색 예산 스케일링 진단 (v0.4)
   13_run_environment_fix_impact.py 환경 편향 수정의 영향 측정 (v0.5)
   14_visualize_v03_v05.py         v0.3~v0.5 Figure 18~23
+  15_run_ipw_target_trial.py      IPW 표적시험 에뮬레이션 (v0.6)
+  16_visualize_ipw.py             IPW Figure 24~26
+  causal/ipw.py                   프로펜서티·균형·가중 KM·E-value (numpy 구현)
   mcts/                   환경·생존모형·UCT 탐색 모듈
   dynamic/                공통 스키마·확률 전이·stochastic MCTS
   dynamic/cohort.py       10~12가 공유하는 코호트·보상모형·매니페스트
@@ -74,6 +82,8 @@ reports/budget-scaling-v0.4/
   tables/                 결정지점 × 예산 수렴, 예산별 효용 격차
 reports/environment-fix-v0.5/
   tables/                 편향/수정 환경의 시드별 결과와 짝지은 차이
+reports/ipw-target-trial-v0.6/
+  tables/                 프로펜서티·공변량 균형·효과추정·트리밍 민감도
 configs/dynamic_v0_5.json 현재 환경 가정 (v0.2는 과거 리포트 재현용으로 보존)
 docs/k-cure-adaptation.md K-CURE 이행 데이터 계약
 src/minutes/              날짜별 연구 기록과 의사결정 근거
@@ -106,7 +116,10 @@ npm run dev
 ## 해석 경계
 
 - Cox 보상모형은 관찰자료의 **연관성**을 학습합니다. 치료의 인과효과를
-  추정하지 않습니다.
+  추정하지 않습니다. v0.6에서 같은 자료의 조정 전 관찰 비교가 **부호까지 틀린다**는
+  것을 직접 확인했습니다.
+- v0.6의 IPW 추정치는 **단일 시점 결정 하나**에 대한 것이며, 표적시험 프로토콜이 명세한
+  MCTS vs NCCN 전략 비교가 아닙니다. 그 비교는 치료 시점 정보가 있어야 식별됩니다.
 - METABRIC은 오래된 치료 시기의 데이터이므로 최신 임상진료에 바로 적용할 수
   없습니다.
 - v0.2는 동적으로 움직이지만 반응·독성·치료강도 차이는 합성 학습용 가정입니다.
