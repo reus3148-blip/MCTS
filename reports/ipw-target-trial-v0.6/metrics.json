@@ -1,0 +1,117 @@
+{
+  "run_date": "2026-08-27",
+  "analysis_label": "ipw-target-trial-v0.6",
+  "question": "Point-treatment emulation: what is the five-year mortality effect of adjuvant chemotherapy versus none under IPW adjustment for measured baseline confounders?",
+  "scope_warning": "ONE decision node, not the MCTS-vs-NCCN regime comparison the target trial protocol specifies. METABRIC records no treatment timing, so the sequential estimand is not identifiable here.",
+  "estimand": "Five-year all-cause mortality risk difference, chemotherapy vs none, in the propensity-overlap population (propensity in [0.1, 0.9]).",
+  "design": {
+    "eligible_patients": 1354,
+    "eligible_treated": 301,
+    "analysed_patients": 515,
+    "analysed_treated": 216,
+    "retained_pct": 38.03545051698671,
+    "horizon_months": 60.0,
+    "confounders": [
+      "age",
+      "tumor_size_mm",
+      "lymph_pos",
+      "stage",
+      "grade",
+      "er",
+      "pr",
+      "her2",
+      "menopause=Pre",
+      "subtype=HR+/HER2+",
+      "subtype=HR-/HER2+",
+      "subtype=TNBC"
+    ],
+    "primary_trim": [
+      0.1,
+      0.9
+    ],
+    "bootstrap_replicates": 1000
+  },
+  "positivity": {
+    "median_propensity_treated": 0.6941914294327499,
+    "median_propensity_control": 0.03901137638498586,
+    "propensity_min": 0.00016074442379661268,
+    "propensity_max": 0.9996342200518934,
+    "untrimmed_worst_abs_smd": 2.191453904307257,
+    "untrimmed_balanced_pct": 16.666666666666664,
+    "untrimmed_effective_sample_size": 23.65275655058117,
+    "untrimmed_max_weight": 348.90892388892934
+  },
+  "balance": {
+    "worst_abs_smd_crude": 0.45051412845156713,
+    "worst_abs_smd_weighted": 0.048188221182882025,
+    "covariates_balanced_after_pct": 100.0,
+    "effective_sample_size": 309.4582642957141,
+    "max_weight": 6.8423686964299115
+  },
+  "naive": {
+    "risk_treated": 0.2718778470838332,
+    "risk_control": 0.21446715090941004,
+    "risk_difference": 0.05741069617442318,
+    "risk_ratio": 1.2676899279492606
+  },
+  "ipw": {
+    "risk_treated": 0.22812026860296775,
+    "risk_control": 0.2641158503886035,
+    "risk_difference": -0.03599558178563578,
+    "risk_ratio": 0.8637129057848133
+  },
+  "ipw_ci95": {
+    "risk_difference": [
+      -0.15207165819778118,
+      0.05723383362923077
+    ],
+    "risk_ratio": [
+      0.5457577120218353,
+      1.2529796527553978
+    ]
+  },
+  "e_value_point": 1.5852151920638153,
+  "e_value_ci_limit": 1.0,
+  "confounding_by_indication_shift": -0.09340627796005896,
+  "trim_sensitivity": [
+    {
+      "bounds": [
+        0.05,
+        0.95
+      ],
+      "n": 706,
+      "n_treated": 251,
+      "worst_abs_smd": 0.22926395197820015,
+      "balanced_pct": 91.66666666666666,
+      "effective_sample_size": 227.49080486678704,
+      "risk_difference": -0.0747057805427741,
+      "risk_ratio": 0.7630170186143612
+    },
+    {
+      "bounds": [
+        0.1,
+        0.9
+      ],
+      "n": 515,
+      "n_treated": 216,
+      "worst_abs_smd": 0.048188221182882025,
+      "balanced_pct": 100.0,
+      "effective_sample_size": 309.4582642957141,
+      "risk_difference": -0.03599558178563578,
+      "risk_ratio": 0.8637129057848133
+    },
+    {
+      "bounds": [
+        0.15,
+        0.85
+      ],
+      "n": 399,
+      "n_treated": 179,
+      "worst_abs_smd": 0.04005325026175449,
+      "balanced_pct": 100.0,
+      "effective_sample_size": 276.1053612157829,
+      "risk_difference": -0.03032803445101273,
+      "risk_ratio": 0.8814540750438892
+    }
+  ]
+}

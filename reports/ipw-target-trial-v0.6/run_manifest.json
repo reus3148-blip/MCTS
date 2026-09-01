@@ -1,0 +1,14 @@
+{
+  "run_date": "2026-08-27",
+  "generated_at": "2026-09-02T00:57:57+09:00",
+  "git_commit_before_run": "ca9428a890b91cbc11659c6c750293362c819c30",
+  "inputs": {
+    "data": {
+      "path": "data/processed/patients_with_nccn.csv",
+      "sha256": "23e76e584ebb3a308583e1f278df4b4befba19f7d6175361483149f5b17cab8f"
+    }
+  },
+  "protocol": "docs/target-trial-protocol.md",
+  "entry_point": "analysis/15_run_ipw_target_trial.py",
+  "base_seed": 20260720
+}
