@@ -1,0 +1,34 @@
+{
+  "run_date": "2026-08-28",
+  "analysis_label": "utility-interaction-v0.9",
+  "question": "Is the v0.8 interaction between the recurrence-free reward and the toxicity penalty real, or was it seed noise at three seeds?",
+  "estimand": "Corner difference-in-differences of the MCTS-minus-NCCN utility gap over the two reward weights, in the corrected v0.5 environment.",
+  "prespecified_rule": {
+    "confirmed_if_abs_z_at_least": 3.0,
+    "noise_if_abs_z_below": 2.0,
+    "sign_must_match_v0_8": true
+  },
+  "design": {
+    "patients": 8,
+    "seeds": 12,
+    "episodes_per_policy": 30,
+    "simulations_per_decision": 1024,
+    "cells": 9,
+    "config": "configs/dynamic_v0_5.json"
+  },
+  "v0_8_reference": {
+    "seeds": 3,
+    "corner_difference_in_differences": -0.024546944444444573,
+    "standard_error": 0.011529659029896736,
+    "z": -2.1290260519234474
+  },
+  "corner_difference_in_differences": -0.011517083333333336,
+  "paired_standard_error": 0.007078828333081285,
+  "paired_z": -1.6269759332220108,
+  "unpaired_standard_error": 0.008681156234065554,
+  "unpaired_z": -1.326676196442517,
+  "simple_effect_low_reward": 0.012859444444444486,
+  "simple_effect_high_reward": 0.0013423611111111552,
+  "direction_reverses": false,
+  "verdict": "noise"
+}
