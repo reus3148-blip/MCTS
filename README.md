@@ -3,7 +3,7 @@
 공개 유방암 코호트로 치료 의사결정 환경을 만들고, 단순화한 NCCN 정책과
 Monte Carlo Tree Search(MCTS) 정책을 비교하는 학부 연구 프로젝트입니다.
 
-> 현재 단계: **이중강건 추정과 결정별 식별 가능성 지도 v0.7 완료 (2026-08-27)**  
+> 현재 단계: **환경 재실행 검증과 2차원 상호작용 민감도 v0.8 완료 (2026-08-28)**  
 > 연구용 예측 실험이며 실제 환자의 치료 권고 도구가 아닙니다.
 
 ## 지금까지 한 일
@@ -36,6 +36,9 @@ Monte Carlo Tree Search(MCTS) 정책을 비교하는 학부 연구 프로젝트�
     일치해 모형 오설정이 아님을 확인했습니다. 결정별 식별 가능성 지도를 그리다가
     **방사선치료의 넓은 겹침이 교란요인(수술 유형) 누락의 산물**임을 발견했습니다 —
     넣자마자 유지율 96%→69%, 균형 실패.
+14. **v0.8**: v0.5의 "편향 영향은 검출 한계보다 43배 작다"는 예측을 v0.3·v0.4 재실행으로
+    확인했습니다(효용 격차 소수점 넷째 자리까지 동일). 이어서 2차원 격자에서 **두 가치판단이
+    서로의 방향을 뒤집는다**는 것을 찾았고, 할인율(0~5%)은 결론을 바꾸지 않음을 확인했습니다.
 
 전체 줄기를 한 번에 읽으려면 [연구 이야기](docs/research-story.md),
 숫자가 왜 달라졌는지는 [숫자 화해](docs/results-reconciliation.md),
@@ -49,6 +52,8 @@ Monte Carlo Tree Search(MCTS) 정책을 비교하는 학부 연구 프로젝트�
 [환경 편향 수정 v0.5 보고서](reports/environment-fix-v0.5/README.md),
 [IPW 표적시험 v0.6 보고서](reports/ipw-target-trial-v0.6/README.md),
 [이중강건 v0.7 보고서](reports/doubly-robust-v0.7/README.md),
+[상호작용 민감도 v0.8 보고서](reports/interaction-sensitivity-v0.8/README.md),
+[v0.5 환경 재실행](reports/robustness-v0.5env/README.md),
 [Target trial 프로토콜](docs/target-trial-protocol.md),
 날짜별 작업 근거는 [프로젝트 타임라인](PROJECT_TIMELINE.md)에 정리되어 있습니다.
 
@@ -70,6 +75,9 @@ analysis/
   16_visualize_ipw.py             IPW Figure 24~26
   17_run_doubly_robust.py         AIPW·IPCW·결정별 식별 가능성 지도 (v0.7)
   18_visualize_doubly_robust.py   Figure 27~28
+  19_run_interaction_sensitivity.py 2차원 상호작용 민감도 (v0.8)
+  20_visualize_interaction.py     Figure 29
+  21_visualize_env_refresh.py     Figure 30 (환경 재실행 대조)
   causal/ipw.py                   프로펜서티·균형·가중 KM·IPCW·AIPW·E-value (numpy 구현)
   causal/decisions.py             결정별 코호트·교란요인 명세·트리밍
   mcts/                   환경·생존모형·UCT 탐색 모듈
@@ -94,6 +102,9 @@ reports/ipw-target-trial-v0.6/
   tables/                 프로펜서티·공변량 균형·효과추정·트리밍 민감도
 reports/doubly-robust-v0.7/
   tables/                 추정량 비교·결정별 식별 가능성 지도·검열 가중
+reports/interaction-sensitivity-v0.8/
+  tables/                 2차원 격자 27셀·상호작용 통계
+reports/*-v0.5env/        v0.3·v0.4를 수정 환경에서 재실행한 결과
 configs/dynamic_v0_5.json 현재 환경 가정 (v0.2는 과거 리포트 재현용으로 보존)
 docs/k-cure-adaptation.md K-CURE 이행 데이터 계약
 src/minutes/              날짜별 연구 기록과 의사결정 근거
@@ -141,6 +152,8 @@ npm run dev
   수치는 탐색 해상도에 미달했으므로 그 단서와 함께 읽어야 합니다.
 - 호르몬치료·방사선 결정은 어떤 예산에서도 안정되지 않습니다. 이 결정에 대해서는
   "MCTS가 X를 권한다"가 아니라 **"우리 효용 아래 두 선택이 동률"** 로만 말할 수 있습니다.
-- **v0.2~v0.4의 수치는 응답 채널 편향이 있던 환경에서 나왔습니다.** v0.5에서 고쳤고 그
-  영향은 측정 한계 안이었지만(`reports/environment-fix-v0.5`), 아직 재실행하지
-  않았으므로 그 단서와 함께 읽어야 합니다.
+- **v0.2~v0.4의 수치는 응답 채널 편향이 있던 환경에서 나왔습니다.** v0.5에서 고쳤고,
+  2026-08-28 재실행으로 결론이 바뀌지 않음을 확인했습니다(`reports/*-v0.5env`).
+  인용은 재실행 쪽 값을 씁니다.
+- **보상 가중치들은 서로의 방향을 바꿉니다**(v0.8). 무재발 보상과 독성 페널티를 따로
+  정할 수 없으며, 일차원 민감도 순위는 크기만 말하고 방향은 말하지 못합니다.
