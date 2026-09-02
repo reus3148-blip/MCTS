@@ -22,7 +22,8 @@
 | 2026-08-27 | IPW 표적시험 에뮬레이션 v0.6 | `analysis/causal`, `analysis/15~16`, `reports/ipw-target-trial-v0.6`, Figure 24~26 | 완료 |
 | 2026-08-27 | 이중강건 추정·결정별 식별 가능성 지도 v0.7 | `analysis/17~18`, `reports/doubly-robust-v0.7`, Figure 27~28 | 완료 |
 | 2026-08-28 | v0.5 환경 재실행 검증 | `reports/*-v0.5env`, Figure 30 | 완료 |
-| 2026-08-28 | 2차원 상호작용 민감도 v0.8 | `analysis/19~20`, `reports/interaction-sensitivity-v0.8`, Figure 29 | 완료 |
+| 2026-08-28 | 2차원 상호작용 민감도 v0.8 | `analysis/19~20`, `reports/interaction-sensitivity-v0.8`, Figure 29 | 완료 (일부 정정됨) |
+| 2026-08-28 | 가치판단 상호작용 확인 v0.9 | `analysis/22~23`, `reports/utility-interaction-v0.9`, Figure 31 | 완료 |
 | 다음 단계 | 인과추정 시제품·상호작용 민감도·K-CURE 확보 | IPW/g-방법, 2D 민감도, utility 사전등록, 코드북 매핑, 임상 검토 | 예정 |
 
 ## 2026-07-11 기준 현재 위치

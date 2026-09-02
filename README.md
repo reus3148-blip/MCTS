@@ -3,7 +3,7 @@
 공개 유방암 코호트로 치료 의사결정 환경을 만들고, 단순화한 NCCN 정책과
 Monte Carlo Tree Search(MCTS) 정책을 비교하는 학부 연구 프로젝트입니다.
 
-> 현재 단계: **환경 재실행 검증과 2차원 상호작용 민감도 v0.8 완료 (2026-08-28)**  
+> 현재 단계: **가치판단 상호작용 확인 실험 v0.9 완료 (2026-08-28)**  
 > 연구용 예측 실험이며 실제 환자의 치료 권고 도구가 아닙니다.
 
 ## 지금까지 한 일
@@ -38,7 +38,10 @@ Monte Carlo Tree Search(MCTS) 정책을 비교하는 학부 연구 프로젝트�
     넣자마자 유지율 96%→69%, 균형 실패.
 14. **v0.8**: v0.5의 "편향 영향은 검출 한계보다 43배 작다"는 예측을 v0.3·v0.4 재실행으로
     확인했습니다(효용 격차 소수점 넷째 자리까지 동일). 이어서 2차원 격자에서 **두 가치판단이
-    서로의 방향을 뒤집는다**는 것을 찾았고, 할인율(0~5%)은 결론을 바꾸지 않음을 확인했습니다.
+    서로의 방향을 뒤집는 것처럼** 보였고, 할인율(0~5%)은 결론을 바꾸지 않음을 확인했습니다.
+15. **v0.9**: 그 방향 반전을 시드 12개로 확인했더니 **살아남지 못했습니다** — 상호작용이
+    절반(−0.0115)이 되고 z가 잡음 기준 아래로 내려갔으며 부호 반전 자체가 사라졌습니다.
+    승자의 저주 사례이며, v0.8의 해당 서술에 정정 표기를 달았습니다.
 
 전체 줄기를 한 번에 읽으려면 [연구 이야기](docs/research-story.md),
 숫자가 왜 달라졌는지는 [숫자 화해](docs/results-reconciliation.md),
@@ -53,6 +56,7 @@ Monte Carlo Tree Search(MCTS) 정책을 비교하는 학부 연구 프로젝트�
 [IPW 표적시험 v0.6 보고서](reports/ipw-target-trial-v0.6/README.md),
 [이중강건 v0.7 보고서](reports/doubly-robust-v0.7/README.md),
 [상호작용 민감도 v0.8 보고서](reports/interaction-sensitivity-v0.8/README.md),
+[확인 실험 v0.9 보고서](reports/utility-interaction-v0.9/README.md),
 [v0.5 환경 재실행](reports/robustness-v0.5env/README.md),
 [Target trial 프로토콜](docs/target-trial-protocol.md),
 날짜별 작업 근거는 [프로젝트 타임라인](PROJECT_TIMELINE.md)에 정리되어 있습니다.
@@ -78,6 +82,8 @@ analysis/
   19_run_interaction_sensitivity.py 2차원 상호작용 민감도 (v0.8)
   20_visualize_interaction.py     Figure 29
   21_visualize_env_refresh.py     Figure 30 (환경 재실행 대조)
+  22_run_utility_interaction_confirm.py 가치판단 상호작용 확인 (v0.9)
+  23_visualize_interaction_confirm.py   Figure 31
   causal/ipw.py                   프로펜서티·균형·가중 KM·IPCW·AIPW·E-value (numpy 구현)
   causal/decisions.py             결정별 코호트·교란요인 명세·트리밍
   mcts/                   환경·생존모형·UCT 탐색 모듈
@@ -104,6 +110,8 @@ reports/doubly-robust-v0.7/
   tables/                 추정량 비교·결정별 식별 가능성 지도·검열 가중
 reports/interaction-sensitivity-v0.8/
   tables/                 2차원 격자 27셀·상호작용 통계
+reports/utility-interaction-v0.9/
+  tables/                 시드 12개 확인 격자·시드별 차이-의-차이
 reports/*-v0.5env/        v0.3·v0.4를 수정 환경에서 재실행한 결과
 configs/dynamic_v0_5.json 현재 환경 가정 (v0.2는 과거 리포트 재현용으로 보존)
 docs/k-cure-adaptation.md K-CURE 이행 데이터 계약
@@ -155,5 +163,7 @@ npm run dev
 - **v0.2~v0.4의 수치는 응답 채널 편향이 있던 환경에서 나왔습니다.** v0.5에서 고쳤고,
   2026-08-28 재실행으로 결론이 바뀌지 않음을 확인했습니다(`reports/*-v0.5env`).
   인용은 재실행 쪽 값을 씁니다.
-- **보상 가중치들은 서로의 방향을 바꿉니다**(v0.8). 무재발 보상과 독성 페널티를 따로
-  정할 수 없으며, 일차원 민감도 순위는 크기만 말하고 방향은 말하지 못합니다.
+- **보상 가중치는 각각 결과를 크게 움직입니다.** 두 값을 함께 사전등록해야 합니다.
+  (v0.8이 보고한 "서로의 방향을 뒤집는다"는 v0.9 확인 실험에서 기각됐습니다.)
+- **3시드 설계는 셀 평균을 0.010~0.015 치우치게 합니다**(v0.9). v0.3의 일차원 민감도도
+  같은 문제를 안고 있어 하위 순위는 신뢰도가 낮습니다.
