@@ -1,0 +1,28 @@
+grid,kind,x_parameter,x_value,y_parameter,y_value,utility_gap,utility_gap_sd,neoadjuvant_rate_pct,extended_endocrine_rate_pct
+judgement_x_judgement,가치판단 × 가치판단,reward.recurrence_free_year,0.25,reward.acute_toxicity_penalty,0.05,0.018053333333333404,0.006893542872379529,20.833333333333332,2.222222222222222
+judgement_x_judgement,가치판단 × 가치판단,reward.recurrence_free_year,0.25,reward.acute_toxicity_penalty,0.15,0.016344444444444495,0.005810413384923938,33.333333333333336,3.472222222222222
+judgement_x_judgement,가치판단 × 가치판단,reward.recurrence_free_year,0.25,reward.acute_toxicity_penalty,0.3,0.03339333333333346,0.004757665160325768,8.333333333333334,1.8055555555555556
+judgement_x_judgement,가치판단 × 가치판단,reward.recurrence_free_year,0.5,reward.acute_toxicity_penalty,0.05,0.019805555555555705,0.015606233915875884,29.166666666666668,17.083333333333332
+judgement_x_judgement,가치판단 × 가치판단,reward.recurrence_free_year,0.5,reward.acute_toxicity_penalty,0.15,0.018918518518518595,0.0043594736251141445,25.0,10.138888888888888
+judgement_x_judgement,가치판단 × 가치판단,reward.recurrence_free_year,0.5,reward.acute_toxicity_penalty,0.3,0.03015925925925948,0.00363639580980911,12.5,5.972222222222221
+judgement_x_judgement,가치판단 × 가치판단,reward.recurrence_free_year,1.0,reward.acute_toxicity_penalty,0.05,0.01963611111111104,0.010645327233023333,37.5,13.472222222222221
+judgement_x_judgement,가치판단 × 가치판단,reward.recurrence_free_year,1.0,reward.acute_toxicity_penalty,0.15,0.016733333333333194,0.014723368141985872,20.833333333333332,16.666666666666668
+judgement_x_judgement,가치판단 × 가치판단,reward.recurrence_free_year,1.0,reward.acute_toxicity_penalty,0.3,0.010429166666666526,0.014673779643560739,29.166666666666668,8.611111111111112
+judgement_x_clinical,가치판단 × 데이터로 추정 가능,reward.recurrence_free_year,0.25,toxicity.chemo.intensified,0.15,0.015571111111111166,0.013485291301320937,29.166666666666668,2.5
+judgement_x_clinical,가치판단 × 데이터로 추정 가능,reward.recurrence_free_year,0.25,toxicity.chemo.intensified,0.3,0.016344444444444495,0.005810413384923938,33.333333333333336,3.472222222222222
+judgement_x_clinical,가치판단 × 데이터로 추정 가능,reward.recurrence_free_year,0.25,toxicity.chemo.intensified,0.45,0.023217777777777854,0.008365753823597489,16.666666666666668,1.25
+judgement_x_clinical,가치판단 × 데이터로 추정 가능,reward.recurrence_free_year,0.5,toxicity.chemo.intensified,0.15,0.011859259259259347,0.01340352626963916,20.833333333333332,7.222222222222221
+judgement_x_clinical,가치판단 × 데이터로 추정 가능,reward.recurrence_free_year,0.5,toxicity.chemo.intensified,0.3,0.018918518518518595,0.0043594736251141445,25.0,10.138888888888888
+judgement_x_clinical,가치판단 × 데이터로 추정 가능,reward.recurrence_free_year,0.5,toxicity.chemo.intensified,0.45,0.019403703703703812,0.008792998992136846,25.0,8.888888888888888
+judgement_x_clinical,가치판단 × 데이터로 추정 가능,reward.recurrence_free_year,1.0,toxicity.chemo.intensified,0.15,0.015363888888888733,0.013139529876307203,25.0,14.444444444444445
+judgement_x_clinical,가치판단 × 데이터로 추정 가능,reward.recurrence_free_year,1.0,toxicity.chemo.intensified,0.3,0.016733333333333194,0.014723368141985872,20.833333333333332,16.666666666666668
+judgement_x_clinical,가치판단 × 데이터로 추정 가능,reward.recurrence_free_year,1.0,toxicity.chemo.intensified,0.45,0.01729305555555538,0.010477815795412381,12.5,13.472222222222223
+judgement_x_discount,가치판단 × 시간선호,reward.recurrence_free_year,0.25,discount_rate_annual,0.0,0.016344444444444495,0.005810413384923938,33.333333333333336,3.472222222222222
+judgement_x_discount,가치판단 × 시간선호,reward.recurrence_free_year,0.25,discount_rate_annual,0.03,0.0244628263736113,0.0009772551264998727,25.0,16.25
+judgement_x_discount,가치판단 × 시간선호,reward.recurrence_free_year,0.25,discount_rate_annual,0.05,0.025368595320134208,0.007969125333806039,12.5,13.055555555555557
+judgement_x_discount,가치판단 × 시간선호,reward.recurrence_free_year,0.5,discount_rate_annual,0.0,0.018918518518518595,0.0043594736251141445,25.0,10.138888888888888
+judgement_x_discount,가치판단 × 시간선호,reward.recurrence_free_year,0.5,discount_rate_annual,0.03,0.02337141548134229,0.007806422599487061,4.166666666666667,14.583333333333334
+judgement_x_discount,가치판단 × 시간선호,reward.recurrence_free_year,0.5,discount_rate_annual,0.05,0.009753223400803349,0.012853598478951466,25.0,2.0833333333333335
+judgement_x_discount,가치판단 × 시간선호,reward.recurrence_free_year,1.0,discount_rate_annual,0.0,0.016733333333333194,0.014723368141985872,20.833333333333332,16.666666666666668
+judgement_x_discount,가치판단 × 시간선호,reward.recurrence_free_year,1.0,discount_rate_annual,0.03,0.020194928754546464,0.0055819078746741115,16.666666666666668,9.583333333333334
+judgement_x_discount,가치판단 × 시간선호,reward.recurrence_free_year,1.0,discount_rate_annual,0.05,0.020723791608130166,0.006619560270161559,16.666666666666668,11.527777777777779

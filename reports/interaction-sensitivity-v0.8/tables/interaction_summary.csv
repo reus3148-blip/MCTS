@@ -1,0 +1,4 @@
+grid,title,kind,x_parameter,y_parameter,range,max_additive_residual,corner_difference_in_differences,corner_did_standard_error,corner_did_z,mean_cell_standard_error,interaction_share_of_range,sign_flips
+judgement_x_judgement,무재발 보상 × 독성 페널티,가치판단 × 가치판단,reward.recurrence_free_year,reward.acute_toxicity_penalty,0.022964166666666938,0.009445061728395114,-0.024546944444444573,0.011529659029896736,-2.1290260519234474,0.005202965142219006,0.4112956444487427,False
+judgement_x_clinical,무재발 보상 × 강화항암 독성확률,가치판단 × 데이터로 추정 가능,reward.recurrence_free_year,toxicity.chemo.intensified,0.011358518518518507,0.0021759773662551572,-0.00571750000000004,0.013345046368490456,-0.428436128442376,0.005937609451560648,0.19157228671217327,False
+judgement_x_discount,무재발 보상 × 연 할인율,가치판단 × 시간선호,reward.recurrence_free_year,discount_rate_annual,0.015615371919330859,0.006668468371900186,-0.005033692600892741,0.010921904746950177,-0.4608804707162773,0.004278879153231871,0.42704511979282656,False

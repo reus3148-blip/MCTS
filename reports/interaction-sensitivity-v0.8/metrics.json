@@ -1,0 +1,78 @@
+{
+  "run_date": "2026-08-28",
+  "analysis_label": "interaction-sensitivity-v0.8",
+  "question": "Do the synthetic assumptions interact, or does one-at-a-time sensitivity already capture the uncertainty in the utility gap?",
+  "estimand": "Mean MCTS-minus-NCCN utility gap in the corrected v0.5 environment, as a function of two assumptions varied jointly.",
+  "scope_warning": "Sensitivity of our own simulator to its declared assumptions. Not a clinical effect and not an estimate of any real quantity.",
+  "design": {
+    "patients": 8,
+    "seeds": 3,
+    "episodes_per_policy": 30,
+    "simulations_per_decision": 1024,
+    "config": "configs/dynamic_v0_5.json",
+    "cells": 27
+  },
+  "grids": [
+    {
+      "grid": "judgement_x_judgement",
+      "title": "무재발 보상 × 독성 페널티",
+      "kind": "가치판단 × 가치판단",
+      "x_parameter": "reward.recurrence_free_year",
+      "y_parameter": "reward.acute_toxicity_penalty",
+      "range": 0.022964166666666938,
+      "max_additive_residual": 0.009445061728395114,
+      "corner_difference_in_differences": -0.024546944444444573,
+      "corner_did_standard_error": 0.011529659029896736,
+      "corner_did_z": -2.1290260519234474,
+      "mean_cell_standard_error": 0.005202965142219006,
+      "interaction_share_of_range": 0.4112956444487427,
+      "sign_flips": false
+    },
+    {
+      "grid": "judgement_x_clinical",
+      "title": "무재발 보상 × 강화항암 독성확률",
+      "kind": "가치판단 × 데이터로 추정 가능",
+      "x_parameter": "reward.recurrence_free_year",
+      "y_parameter": "toxicity.chemo.intensified",
+      "range": 0.011358518518518507,
+      "max_additive_residual": 0.0021759773662551572,
+      "corner_difference_in_differences": -0.00571750000000004,
+      "corner_did_standard_error": 0.013345046368490456,
+      "corner_did_z": -0.428436128442376,
+      "mean_cell_standard_error": 0.005937609451560648,
+      "interaction_share_of_range": 0.19157228671217327,
+      "sign_flips": false
+    },
+    {
+      "grid": "judgement_x_discount",
+      "title": "무재발 보상 × 연 할인율",
+      "kind": "가치판단 × 시간선호",
+      "x_parameter": "reward.recurrence_free_year",
+      "y_parameter": "discount_rate_annual",
+      "range": 0.015615371919330859,
+      "max_additive_residual": 0.006668468371900186,
+      "corner_difference_in_differences": -0.005033692600892741,
+      "corner_did_standard_error": 0.010921904746950177,
+      "corner_did_z": -0.4608804707162773,
+      "mean_cell_standard_error": 0.004278879153231871,
+      "interaction_share_of_range": 0.42704511979282656,
+      "sign_flips": false
+    }
+  ],
+  "strongest_interaction": {
+    "grid": "judgement_x_judgement",
+    "title": "무재발 보상 × 독성 페널티",
+    "kind": "가치판단 × 가치판단",
+    "x_parameter": "reward.recurrence_free_year",
+    "y_parameter": "reward.acute_toxicity_penalty",
+    "range": 0.022964166666666938,
+    "max_additive_residual": 0.009445061728395114,
+    "corner_difference_in_differences": -0.024546944444444573,
+    "corner_did_standard_error": 0.011529659029896736,
+    "corner_did_z": -2.1290260519234474,
+    "mean_cell_standard_error": 0.005202965142219006,
+    "interaction_share_of_range": 0.4112956444487427,
+    "sign_flips": false
+  },
+  "judgement_grid_range": 0.022964166666666938
+}
