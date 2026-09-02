@@ -1,0 +1,7 @@
+parameter,abs_gap_delta
+reward.recurrence_free_year,0.016379166666666757
+reward.acute_toxicity_penalty,0.0093555555555556
+toxicity.chemo.intensified,0.00904722222222228
+hazard.chemo.intensified.death,0.005943055555555557
+response.intensified.major,0.0023986111111110966
+hazard.response.major.death,0.002138888888888875

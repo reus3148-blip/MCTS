@@ -45,11 +45,16 @@ from analysis.dynamic.policies import CachedMCTSPolicy, DynamicNccnPolicy  # noq
 from analysis.dynamic.schema import patient_from_row  # noqa: E402
 
 INPUT_CSV = ROOT / "data" / "processed" / "patients_with_nccn.csv"
-CONFIG_PATH = ROOT / "configs" / "dynamic_poc_v0_2.json"
-REPORT_DIR = ROOT / "reports" / "sensitivity-v0.3"
+# The environment audit (v0.5) neutralised the response channel and declared the
+# discount rate, so this study now runs on the corrected assumptions. The v0.2
+# config and the original report directory are left untouched: those results are
+# the published record of what the biased environment produced, reproducible from
+# their manifests' git_commit_before_run.
+CONFIG_PATH = ROOT / "configs" / "dynamic_v0_5.json"
+REPORT_DIR = ROOT / "reports" / "sensitivity-v0.5env"
 TABLE_DIR = REPORT_DIR / "tables"
 
-RUN_DATE = "2026-08-24"
+RUN_DATE = "2026-08-28"
 PATIENTS_PER_SUBTYPE = 2       # 8 patients x variants x seeds -> tractable
 N_SEEDS = 3
 EPISODES_PER_POLICY = 40
@@ -183,7 +188,7 @@ def main() -> None:
 
     metrics = {
         "run_date": RUN_DATE,
-        "analysis_label": "sensitivity-v0.3",
+        "analysis_label": "sensitivity-v0.5env",
         "interpretation": (
             "How the MCTS-vs-NCCN gap responds to each synthetic assumption; "
             "identifies which assumptions most need real K-CURE estimates."

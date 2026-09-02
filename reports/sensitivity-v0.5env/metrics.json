@@ -1,0 +1,27 @@
+{
+  "run_date": "2026-08-28",
+  "analysis_label": "sensitivity-v0.5env",
+  "interpretation": "How the MCTS-vs-NCCN gap responds to each synthetic assumption; identifies which assumptions most need real K-CURE estimates.",
+  "design": {
+    "patients": 8,
+    "n_seeds": 3,
+    "episodes_per_policy_per_seed": 40,
+    "variants": 13
+  },
+  "baseline_utility_gap": -0.0021375000000000144,
+  "any_sign_flip": true,
+  "most_influential_parameters": [
+    {
+      "parameter": "reward.recurrence_free_year",
+      "abs_gap_delta": 0.016379166666666757
+    },
+    {
+      "parameter": "reward.acute_toxicity_penalty",
+      "abs_gap_delta": 0.0093555555555556
+    },
+    {
+      "parameter": "toxicity.chemo.intensified",
+      "abs_gap_delta": 0.00904722222222228
+    }
+  ]
+}

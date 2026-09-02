@@ -1,0 +1,86 @@
+{
+  "run_date": "2026-08-28",
+  "analysis_label": "budget-scaling-v0.5env",
+  "question": "Is the v0.3 seed instability caused by too small a search budget, or by genuine equipoise between the competing actions?",
+  "interpretation": "Search-behaviour diagnostic on the same synthetic environment; not causal, not clinical.",
+  "design": {
+    "patients": 12,
+    "decision_nodes": 49,
+    "budgets": [
+      64,
+      128,
+      256,
+      512,
+      1024,
+      2048
+    ],
+    "replicates_per_node_budget": 10,
+    "policy_budgets": [
+      64,
+      256,
+      1024
+    ],
+    "policy_seeds": 10,
+    "episodes_per_policy": 25
+  },
+  "verdict": "budget_limited",
+  "value_noise_log_log_slope": -0.5115868714447099,
+  "agreement_pct_per_log_budget": 7.057849208780414,
+  "agreement_at_min_budget_pct": 57.755102040816325,
+  "agreement_at_max_budget_pct": 81.22448979591837,
+  "value_noise_sd_at_min_budget": 0.060726902094285475,
+  "value_noise_sd_at_max_budget": 0.00996745279143202,
+  "mean_abs_value_gap_at_max_budget": 0.018143227756322232,
+  "unstable_node_pct_at_min_budget": 83.6734693877551,
+  "unstable_node_pct_at_max_budget": 32.6530612244898,
+  "utility_gap_by_budget": [
+    {
+      "budget": 64,
+      "utility_gap_mean": 0.01121600000000007,
+      "utility_gap_ci95_low": 0.005192016690189103,
+      "utility_gap_ci95_high": 0.01723998330981104,
+      "survival_gap_pp_mean": 1.5666666666666684,
+      "survival_gap_pp_ci95_low": 0.9129704711374445,
+      "survival_gap_pp_ci95_high": 2.220362862195892,
+      "mean_mcts_toxicity": 0.28300000000000003
+    },
+    {
+      "budget": 256,
+      "utility_gap_mean": 0.01981644444444456,
+      "utility_gap_ci95_low": 0.011885570255388512,
+      "utility_gap_ci95_high": 0.027747318633500606,
+      "survival_gap_pp_mean": 1.4000000000000035,
+      "survival_gap_pp_ci95_low": 0.2525776822335044,
+      "survival_gap_pp_ci95_high": 2.5474223177665025,
+      "mean_mcts_toxicity": 0.22800000000000004
+    },
+    {
+      "budget": 1024,
+      "utility_gap_mean": 0.031269777777777966,
+      "utility_gap_ci95_low": 0.02443214026071391,
+      "utility_gap_ci95_high": 0.03810741529484202,
+      "survival_gap_pp_mean": 1.8666666666666685,
+      "survival_gap_pp_ci95_low": 0.9015400262205712,
+      "survival_gap_pp_ci95_high": 2.8317933071127657,
+      "mean_mcts_toxicity": 0.1716666666666667
+    }
+  ],
+  "paired_utility_gap_vs_reference": [
+    {
+      "budget": 64,
+      "reference_budget": 256,
+      "paired_gap_delta_mean": -0.008600444444444489,
+      "paired_gap_delta_ci95_low": -0.017085940460595708,
+      "paired_gap_delta_ci95_high": -0.00011494842829326904,
+      "crosses_zero": false
+    },
+    {
+      "budget": 1024,
+      "reference_budget": 256,
+      "paired_gap_delta_mean": 0.011453333333333404,
+      "paired_gap_delta_ci95_low": 0.006301037123324124,
+      "paired_gap_delta_ci95_high": 0.016605629543342684,
+      "crosses_zero": false
+    }
+  ]
+}

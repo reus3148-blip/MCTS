@@ -1,0 +1,31 @@
+{
+  "run_date": "2026-08-28",
+  "analysis_label": "robustness-v0.5env",
+  "interpretation": "Stochastic stability of the v0.2 comparison across seeds; same synthetic environment, not causal, not clinical.",
+  "design": {
+    "patients": 12,
+    "patients_per_subtype": 3,
+    "n_seeds": 20,
+    "episodes_per_policy_per_seed": 50,
+    "simulations_per_decision": 256
+  },
+  "utility_gap_ci95": {
+    "mean": 0.02001922222222218,
+    "sd": 0.01245349210101608,
+    "stderr": 0.002784685489512863,
+    "ci95_low": 0.01456123866277697,
+    "ci95_high": 0.025477205781667393,
+    "n_seeds": 20
+  },
+  "survival_gap_pp_ci95": {
+    "mean": 1.7416666666666718,
+    "sd": 1.5193440797753932,
+    "stderr": 0.33973566435896424,
+    "ci95_low": 1.0757847645231018,
+    "ci95_high": 2.407548568810242,
+    "n_seeds": 20
+  },
+  "utility_gap_positive_in_all_seeds": false,
+  "mean_modal_first_action_agreement_pct": 65.0,
+  "min_modal_first_action_agreement_pct": 50.0
+}

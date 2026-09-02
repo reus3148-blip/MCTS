@@ -64,11 +64,16 @@ from analysis.dynamic.schema import DynamicState, patient_from_row  # noqa: E402
 from analysis.dynamic.search import stochastic_mcts_search  # noqa: E402
 
 INPUT_CSV = ROOT / "data" / "processed" / "patients_with_nccn.csv"
-CONFIG_PATH = ROOT / "configs" / "dynamic_poc_v0_2.json"
-REPORT_DIR = ROOT / "reports" / "budget-scaling-v0.4"
+# The environment audit (v0.5) neutralised the response channel and declared the
+# discount rate, so this study now runs on the corrected assumptions. The v0.2
+# config and the original report directory are left untouched: those results are
+# the published record of what the biased environment produced, reproducible from
+# their manifests' git_commit_before_run.
+CONFIG_PATH = ROOT / "configs" / "dynamic_v0_5.json"
+REPORT_DIR = ROOT / "reports" / "budget-scaling-v0.5env"
 TABLE_DIR = REPORT_DIR / "tables"
 
-RUN_DATE = "2026-08-26"
+RUN_DATE = "2026-08-28"
 PATIENTS_PER_SUBTYPE = 3           # the same 12 patients as robustness-v0.3
 EXPLORATION_WEIGHT = math.sqrt(2.0)
 
@@ -314,7 +319,7 @@ def main() -> None:
 
     metrics = {
         "run_date": RUN_DATE,
-        "analysis_label": "budget-scaling-v0.4",
+        "analysis_label": "budget-scaling-v0.5env",
         "question": (
             "Is the v0.3 seed instability caused by too small a search budget, "
             "or by genuine equipoise between the competing actions?"

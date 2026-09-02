@@ -44,11 +44,16 @@ from analysis.dynamic.schema import patient_from_row  # noqa: E402
 from analysis.dynamic.search import stochastic_mcts_search  # noqa: E402
 
 INPUT_CSV = ROOT / "data" / "processed" / "patients_with_nccn.csv"
-CONFIG_PATH = ROOT / "configs" / "dynamic_poc_v0_2.json"
-REPORT_DIR = ROOT / "reports" / "robustness-v0.3"
+# The environment audit (v0.5) neutralised the response channel and declared the
+# discount rate, so this study now runs on the corrected assumptions. The v0.2
+# config and the original report directory are left untouched: those results are
+# the published record of what the biased environment produced, reproducible from
+# their manifests' git_commit_before_run.
+CONFIG_PATH = ROOT / "configs" / "dynamic_v0_5.json"
+REPORT_DIR = ROOT / "reports" / "robustness-v0.5env"
 TABLE_DIR = REPORT_DIR / "tables"
 
-RUN_DATE = "2026-08-24"
+RUN_DATE = "2026-08-28"
 PATIENTS_PER_SUBTYPE = 3          # 12 patients keeps the multi-seed cost tractable
 N_SEEDS = 20                      # independent replications
 EPISODES_PER_POLICY = 50
@@ -188,7 +193,7 @@ def main() -> None:
     surv_ci = confidence_interval(per_seed["survival_gap_pp"].to_numpy())
     metrics = {
         "run_date": RUN_DATE,
-        "analysis_label": "robustness-v0.3",
+        "analysis_label": "robustness-v0.5env",
         "interpretation": (
             "Stochastic stability of the v0.2 comparison across seeds; "
             "same synthetic environment, not causal, not clinical."
