@@ -36,6 +36,7 @@ def fit_logistic(
     l2: float = 1e-3,
     max_iter: int = 100,
     tol: float = 1e-9,
+    sample_weight: np.ndarray | None = None,
 ) -> np.ndarray:
     """Ridge-penalised logistic regression by iteratively reweighted least squares.
 
@@ -43,6 +44,9 @@ def fit_logistic(
     so shifting the outcome prevalence does not shrink the intercept. The small
     default penalty exists to keep the fit finite under near-separation, which a
     propensity model with strong indication effects can easily hit.
+
+    ``sample_weight`` multiplies each observation's contribution, which is what an
+    outcome model needs when it is fitted under censoring weights.
     """
     if design.ndim != 2:
         raise ValueError("design must be 2-dimensional")
@@ -50,6 +54,13 @@ def fit_logistic(
         raise ValueError("design and outcome must have the same number of rows")
     if not np.all(np.isin(outcome, (0, 1))):
         raise ValueError("outcome must be binary 0/1")
+    if sample_weight is None:
+        sample_weight = np.ones_like(outcome, dtype=float)
+    sample_weight = np.asarray(sample_weight, dtype=float)
+    if sample_weight.shape != outcome.shape:
+        raise ValueError("sample_weight must have the same length as outcome")
+    if np.any(sample_weight < 0):
+        raise ValueError("sample_weight must be non-negative")
 
     n_features = design.shape[1]
     penalty = np.eye(n_features) * l2
@@ -61,8 +72,8 @@ def fit_logistic(
         mu = sigmoid(eta)
         # Clip the IRLS working weights away from zero; without it a
         # near-separated fit divides by ~0 and the step explodes.
-        w = np.clip(mu * (1.0 - mu), 1e-8, None)
-        z = eta + (outcome - mu) / w
+        w = np.clip(mu * (1.0 - mu), 1e-8, None) * sample_weight
+        z = eta + (outcome - mu) / np.clip(mu * (1.0 - mu), 1e-8, None)
         lhs = design.T @ (design * w[:, None]) + penalty
         rhs = design.T @ (w * z)
         step = np.linalg.solve(lhs, rhs)
@@ -231,3 +242,96 @@ def e_value_for_interval(lower: float, upper: float) -> float:
         return 1.0
     limit = lower if lower > 1.0 else upper
     return e_value(limit)
+
+
+def discrete_time_rows(
+    durations: np.ndarray,
+    events: np.ndarray,
+    edges: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Expand survival data into person-interval rows for a pooled hazard model.
+
+    Returns ``(row, interval, event_here)``: one row per patient per interval they
+    entered, the interval index, and whether their event fell in that interval.
+    A patient contributes intervals up to and including the one holding their exit
+    time; anyone still at risk at the last edge simply contributes every interval.
+
+    Pooled logistic regression on these rows estimates a discrete-time hazard,
+    which is what both the outcome model and the censoring model need.
+    """
+    durations = np.asarray(durations, dtype=float)
+    events = np.asarray(events, dtype=float)
+    edges = np.asarray(edges, dtype=float)
+    if durations.shape != events.shape:
+        raise ValueError("durations and events must have equal length")
+    if edges.ndim != 1 or edges.size < 2 or np.any(np.diff(edges) <= 0):
+        raise ValueError("edges must be strictly increasing with at least 2 entries")
+
+    n_intervals = edges.size - 1
+    rows, intervals, event_here = [], [], []
+    for index, (duration, event) in enumerate(zip(durations, events)):
+        # Index of the interval the patient exits in, capped at the last one.
+        last = int(np.searchsorted(edges[1:], duration, side="left"))
+        last = min(last, n_intervals - 1)
+        for interval in range(last + 1):
+            rows.append(index)
+            intervals.append(interval)
+            fell_here = interval == last and event == 1 and duration <= edges[-1]
+            event_here.append(1.0 if fell_here else 0.0)
+    return (
+        np.asarray(rows, dtype=int),
+        np.asarray(intervals, dtype=int),
+        np.asarray(event_here, dtype=float),
+    )
+
+
+def survival_probability(
+    hazards: np.ndarray,
+    rows: np.ndarray,
+    n_patients: int,
+) -> np.ndarray:
+    """Per-patient product of ``1 - hazard`` over the intervals they contributed."""
+    hazards = np.clip(np.asarray(hazards, dtype=float), 0.0, 1.0 - 1e-12)
+    out = np.ones(n_patients)
+    np.multiply.at(out, rows, 1.0 - hazards)
+    return out
+
+
+def aipw_risk(
+    treated: np.ndarray,
+    outcome: np.ndarray,
+    observed: np.ndarray,
+    propensity: np.ndarray,
+    uncensored_probability: np.ndarray,
+    predicted_treated: np.ndarray,
+    predicted_control: np.ndarray,
+) -> dict[str, float]:
+    """Augmented IPW risks under each arm - doubly robust at a fixed horizon.
+
+    ``observed`` flags patients whose horizon status is known (event before the
+    horizon, or follow-up reaching it); ``uncensored_probability`` is their
+    modelled chance of getting that far uncensored. The estimator is consistent
+    if *either* the treatment/censoring models or the outcome model is right,
+    which is the whole point of carrying both.
+    """
+    treated = np.asarray(treated, dtype=float)
+    outcome = np.nan_to_num(np.asarray(outcome, dtype=float))
+    observed = np.asarray(observed, dtype=float)
+    propensity = np.asarray(propensity, dtype=float)
+    uncensored = np.clip(np.asarray(uncensored_probability, dtype=float), 1e-6, None)
+    if np.any((propensity <= 0) | (propensity >= 1)):
+        raise ValueError("propensity must lie strictly inside (0, 1)")
+
+    def arm(indicator: np.ndarray, weight_denominator: np.ndarray,
+            predicted: np.ndarray) -> float:
+        residual = indicator * observed / (weight_denominator * uncensored)
+        return float(np.mean(residual * (outcome - predicted) + predicted))
+
+    risk_treated = arm(treated, propensity, predicted_treated)
+    risk_control = arm(1.0 - treated, 1.0 - propensity, predicted_control)
+    return {
+        "risk_treated": risk_treated,
+        "risk_control": risk_control,
+        "risk_difference": risk_treated - risk_control,
+        "risk_ratio": risk_treated / risk_control if risk_control > 0 else float("nan"),
+    }

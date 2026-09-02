@@ -38,14 +38,17 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from analysis.causal.decisions import (  # noqa: E402
+    balance_table,
+    build_cohort,
+    covariate_frame,
+    propensity_and_weights,
+    trim_to_overlap,
+)
 from analysis.causal.ipw import (  # noqa: E402
     e_value,
     e_value_for_interval,
     effective_sample_size,
-    fit_logistic,
-    sigmoid,
-    stabilized_weights,
-    standardized_mean_difference,
     weighted_kaplan_meier,
 )
 from analysis.dynamic.cohort import (  # noqa: E402
@@ -62,80 +65,11 @@ RUN_DATE = "2026-08-27"
 TREATMENT = "chemo"
 HORIZON_MONTHS = 60.0
 BOOTSTRAP = 1000
-BALANCE_THRESHOLD = 0.1        # |SMD| below this is conventionally "balanced"
 
 #: Trims considered, loosest first. The primary analysis is the loosest one that
 #: balances every covariate; the others are reported as sensitivity so the
 #: dependence of the estimate on this choice is visible rather than buried.
 TRIM_GRID = ((0.05, 0.95), (0.10, 0.90), (0.15, 0.85))
-
-CONTINUOUS = ["age", "tumor_size_mm", "lymph_pos", "stage", "grade"]
-BINARY = ["er", "pr", "her2"]
-CATEGORICAL = {
-    "menopause": ["Pre"],                            # Post is the reference level
-    "subtype": ["HR+/HER2+", "HR-/HER2+", "TNBC"],   # HR+/HER2- is reference
-}
-
-
-def build_cohort(raw: pd.DataFrame) -> pd.DataFrame:
-    """Protocol §1.1 eligibility, as far as METABRIC can express it."""
-    required = (
-        CONTINUOUS + BINARY + list(CATEGORICAL)
-        + [TREATMENT, "os_months", "os_event", "patient_id"]
-    )
-    cohort = raw.dropna(subset=required).copy()
-    cohort = cohort[cohort["os_months"] > 0]
-    cohort[TREATMENT] = cohort[TREATMENT].astype(int)
-    return cohort.reset_index(drop=True)
-
-
-def design_matrix(cohort: pd.DataFrame) -> np.ndarray:
-    """Intercept, standardised continuous terms, and reference-coded factors."""
-    columns = [np.ones(len(cohort))]
-    for column in CONTINUOUS:
-        values = cohort[column].to_numpy(dtype=float)
-        spread = values.std(ddof=1)
-        columns.append((values - values.mean()) / (spread if spread else 1.0))
-    for column in BINARY:
-        columns.append(cohort[column].to_numpy(dtype=float))
-    for column, levels in CATEGORICAL.items():
-        for level in levels:
-            columns.append((cohort[column] == level).to_numpy(dtype=float))
-    return np.column_stack(columns)
-
-
-def covariate_frame(cohort: pd.DataFrame) -> pd.DataFrame:
-    """Covariates on their natural scale, for the balance table."""
-    frame = cohort[CONTINUOUS + BINARY].astype(float).copy()
-    for column, levels in CATEGORICAL.items():
-        for level in levels:
-            frame[f"{column}={level}"] = (cohort[column] == level).astype(float)
-    return frame
-
-
-def propensity_and_weights(cohort: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
-    treated = cohort[TREATMENT].to_numpy(dtype=float)
-    design = design_matrix(cohort)
-    propensity = np.clip(sigmoid(design @ fit_logistic(design, treated)), 1e-6, 1 - 1e-6)
-    return propensity, stabilized_weights(treated, propensity)
-
-
-def balance_table(cohort: pd.DataFrame, weights: np.ndarray) -> pd.DataFrame:
-    treated = cohort[TREATMENT].to_numpy(dtype=float)
-    covariates = covariate_frame(cohort)
-    rows = []
-    for column in covariates.columns:
-        values = covariates[column].to_numpy(dtype=float)
-        rows.append({
-            "covariate": column,
-            "mean_treated": float(values[treated == 1].mean()),
-            "mean_control": float(values[treated == 0].mean()),
-            "smd_crude": standardized_mean_difference(values, treated),
-            "smd_weighted": standardized_mean_difference(values, treated, weights),
-        })
-    table = pd.DataFrame(rows)
-    table["balanced_after"] = table["smd_weighted"].abs() < BALANCE_THRESHOLD
-    return table
 
 
 def risk_at_horizon(cohort, weights: np.ndarray, treated_value: int) -> float:
@@ -161,36 +95,12 @@ def estimate(cohort: pd.DataFrame, weights: np.ndarray) -> dict[str, float]:
 
 
 def trimmed_analysis(cohort: pd.DataFrame, bounds: tuple[float, float]) -> dict:
-    """Fit, trim to the overlap region, refit inside it, weight and estimate.
-
-    Refitting the propensity model after trimming matters: the model fitted on the
-    full cohort is dominated by the near-deterministic tails, and its scores are
-    not the ones that balance the overlap population.
-    """
-    propensity, _ = propensity_and_weights(cohort)
-    keep = (propensity >= bounds[0]) & (propensity <= bounds[1])
-    trimmed = cohort[keep].reset_index(drop=True)
-    if trimmed[TREATMENT].nunique() < 2:
-        raise ValueError(f"trim {bounds} leaves a single arm")
-
-    inner_propensity, weights = propensity_and_weights(trimmed)
-    balance = balance_table(trimmed, weights)
-    return {
-        "bounds": list(bounds),
-        "cohort": trimmed,
-        "propensity": inner_propensity,
-        "weights": weights,
-        "balance": balance,
-        "n": int(len(trimmed)),
-        "n_treated": int(trimmed[TREATMENT].sum()),
-        "retained_pct": float(len(trimmed) / len(cohort) * 100),
-        "worst_abs_smd": float(balance["smd_weighted"].abs().max()),
-        "balanced_pct": float(balance["balanced_after"].mean() * 100),
-        "effective_sample_size": effective_sample_size(weights),
-        "max_weight": float(weights.max()),
-        "naive": estimate(trimmed, np.ones(len(trimmed))),
-        "ipw": estimate(trimmed, weights),
-    }
+    """Overlap trimming plus the naive and IPW estimates for this decision."""
+    result = trim_to_overlap(cohort, TREATMENT, bounds)
+    trimmed, weights = result["cohort"], result["weights"]
+    result["naive"] = estimate(trimmed, np.ones(len(trimmed)))
+    result["ipw"] = estimate(trimmed, weights)
+    return result
 
 
 def bootstrap_interval(
@@ -228,15 +138,15 @@ def bootstrap_interval(
 def main() -> None:
     TABLE_DIR.mkdir(parents=True, exist_ok=True)
     raw = pd.read_csv(INPUT_CSV)
-    cohort = build_cohort(raw)
+    cohort = build_cohort(raw, TREATMENT)
     treated = cohort[TREATMENT].to_numpy(dtype=float)
     print(f"eligible = {len(cohort)} "
           f"(treated {int(treated.sum())}, control {int(len(cohort) - treated.sum())})",
           flush=True)
 
     # --- positivity in the full cohort: the finding that shapes everything ----
-    full_propensity, full_weights = propensity_and_weights(cohort)
-    full_balance = balance_table(cohort, full_weights)
+    full_propensity, full_weights = propensity_and_weights(cohort, TREATMENT)
+    full_balance = balance_table(cohort, TREATMENT, full_weights)
     positivity = {
         "median_propensity_treated": float(np.median(full_propensity[treated == 1])),
         "median_propensity_control": float(np.median(full_propensity[treated == 0])),
