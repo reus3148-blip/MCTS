@@ -1,0 +1,65 @@
+{
+  "run_date": "2026-08-28",
+  "analysis_label": "sensitivity-precision-v1.0",
+  "question": "Does the v0.3 sensitivity ranking survive four times the seeds, and does it change at the search budget v0.4 established as adequate?",
+  "estimand": "Largest absolute shift in the MCTS-minus-NCCN utility gap that each assumption produces when moved to either end of its v0.3 range.",
+  "scope_warning": "Sensitivity of our own simulator to its declared assumptions. Not a clinical effect.",
+  "design": {
+    "patients": 8,
+    "seeds": 12,
+    "episodes_per_policy": 40,
+    "variants": 13,
+    "budgets": [
+      "256",
+      "1024"
+    ],
+    "config": "configs/dynamic_v0_5.json"
+  },
+  "v0_5env_reference": {
+    "seeds": 3,
+    "simulations": 256,
+    "baseline_utility_gap": -0.0021375000000000144,
+    "ranking": [
+      "reward.recurrence_free_year",
+      "reward.acute_toxicity_penalty",
+      "toxicity.chemo.intensified",
+      "hazard.chemo.intensified.death",
+      "response.intensified.major",
+      "hazard.response.major.death"
+    ]
+  },
+  "by_budget": [
+    {
+      "budget": "256",
+      "top_two_are_value_judgements": false,
+      "ranking": [
+        "toxicity.chemo.intensified",
+        "response.intensified.major",
+        "hazard.response.major.death",
+        "reward.acute_toxicity_penalty",
+        "hazard.chemo.intensified.death",
+        "reward.recurrence_free_year"
+      ],
+      "matches_v0_5env_ranking": false,
+      "spearman_vs_v0_5env": -0.48571428571428577,
+      "parameters_distinguishable_from_zero": 2,
+      "baseline_utility_gap": 0.01700277777777781
+    },
+    {
+      "budget": "1024",
+      "top_two_are_value_judgements": true,
+      "ranking": [
+        "reward.recurrence_free_year",
+        "reward.acute_toxicity_penalty",
+        "toxicity.chemo.intensified",
+        "hazard.response.major.death",
+        "response.intensified.major",
+        "hazard.chemo.intensified.death"
+      ],
+      "matches_v0_5env_ranking": false,
+      "spearman_vs_v0_5env": 0.7714285714285715,
+      "parameters_distinguishable_from_zero": 1,
+      "baseline_utility_gap": 0.030945833333333377
+    }
+  ]
+}
