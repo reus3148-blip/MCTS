@@ -1,0 +1,204 @@
+{
+  "run_date": "2026-08-27",
+  "analysis_label": "doubly-robust-v0.7",
+  "question": "Do IPW, g-computation and AIPW agree on the chemotherapy effect, and which treatment decisions can this observational data answer at all?",
+  "estimand": "Five-year all-cause mortality risk difference at the horizon, treated vs untreated, in the propensity-overlap population (propensity in [0.1, 0.9]) of each decision.",
+  "scope_warning": "Point-treatment emulation of single decisions. Not the MCTS-vs-NCCN regime comparison, which needs treatment timing METABRIC lacks.",
+  "assumptions": {
+    "exchangeability": "conditional on the measured baseline covariates only",
+    "positivity": "enforced by trimming to the overlap region, not assumed",
+    "censoring": "modelled as a covariate- and treatment-dependent discrete-time hazard (IPCW), not assumed independent",
+    "consistency": "one version of each treatment; METABRIC records no regimen or dose"
+  },
+  "design": {
+    "primary_decision": "chemo",
+    "eligible_patients": 1354,
+    "analysed_patients": 515,
+    "retained_pct": 38.03545051698671,
+    "primary_trim": [
+      0.1,
+      0.9
+    ],
+    "horizon_months": 60.0,
+    "interval_edges_months": [
+      0.0,
+      12.0,
+      24.0,
+      36.0,
+      48.0,
+      60.0
+    ],
+    "bootstrap_replicates": 500
+  },
+  "estimators": {
+    "ipw_km": {
+      "risk_treated": 0.22812026860296775,
+      "risk_control": 0.2641158503886035,
+      "risk_difference": -0.03599558178563578,
+      "risk_ratio": 0.8637129057848133
+    },
+    "g_computation": {
+      "risk_treated": 0.22231571475105807,
+      "risk_control": 0.2530072836683556,
+      "risk_difference": -0.030691568917297546,
+      "risk_ratio": 0.878692943253253
+    },
+    "aipw": {
+      "risk_treated": 0.2341659677153545,
+      "risk_control": 0.26603442925669624,
+      "risk_difference": -0.031868461541341736,
+      "risk_ratio": 0.8802092585144613
+    }
+  },
+  "censoring": {
+    "min_uncensored_probability": 0.6463566480878499,
+    "mean_uncensored_probability": 0.9752888975145994,
+    "observed_at_horizon_pct": 97.47572815533981
+  },
+  "estimator_spread_risk_difference": 0.0053040128683382315,
+  "aipw_ci95": {
+    "risk_difference": [
+      -0.13535243459319113,
+      0.06296751091538662
+    ],
+    "risk_ratio": [
+      0.5883089927967327,
+      1.2883581549505736
+    ]
+  },
+  "e_value_point": 1.5293045125953513,
+  "e_value_ci_limit": 1.0,
+  "identifiability_map": [
+    {
+      "decision": "chemo",
+      "label": "보조 항암치료",
+      "covariate_spec": "baseline",
+      "eligible": 1354,
+      "treated": 301,
+      "treated_pct": 22.23042836041359,
+      "median_propensity_control": 0.03901137638498586,
+      "median_propensity_treated": 0.6941914294327499,
+      "propensity_separation": 0.655180053047764,
+      "untrimmed_worst_abs_smd": 2.191453904307257,
+      "untrimmed_effective_sample_size": 23.65275655058117,
+      "trimmed_n": 515,
+      "retained_pct": 38.03545051698671,
+      "trimmed_worst_abs_smd": 0.048188221182882025,
+      "trimmed_balanced_pct": 100.0,
+      "trimmed_effective_sample_size": 309.4582642957141,
+      "identifiable": true
+    },
+    {
+      "decision": "hormone",
+      "label": "호르몬치료",
+      "covariate_spec": "baseline",
+      "eligible": 1354,
+      "treated": 825,
+      "treated_pct": 60.93057607090103,
+      "median_propensity_control": 0.4160896245338743,
+      "median_propensity_treated": 0.7897522713658117,
+      "propensity_separation": 0.3736626468319374,
+      "untrimmed_worst_abs_smd": 0.1679683374486035,
+      "untrimmed_effective_sample_size": 714.4558327137008,
+      "trimmed_n": 1205,
+      "retained_pct": 88.99556868537665,
+      "trimmed_worst_abs_smd": 0.05590850619910672,
+      "trimmed_balanced_pct": 100.0,
+      "trimmed_effective_sample_size": 825.3897854632398,
+      "identifiable": true
+    },
+    {
+      "decision": "radio",
+      "label": "방사선치료",
+      "covariate_spec": "baseline",
+      "eligible": 1354,
+      "treated": 907,
+      "treated_pct": 66.98670605612999,
+      "median_propensity_control": 0.6219964478426344,
+      "median_propensity_treated": 0.6798002726033268,
+      "propensity_separation": 0.057803824760692346,
+      "untrimmed_worst_abs_smd": 2.109697801021955,
+      "untrimmed_effective_sample_size": 164.39282693887833,
+      "trimmed_n": 1304,
+      "retained_pct": 96.30723781388478,
+      "trimmed_worst_abs_smd": 0.08628998450165169,
+      "trimmed_balanced_pct": 100.0,
+      "trimmed_effective_sample_size": 1171.0382863466725,
+      "identifiable": true
+    },
+    {
+      "decision": "chemo",
+      "label": "보조 항암치료",
+      "covariate_spec": "baseline + surgery",
+      "eligible": 1341,
+      "treated": 297,
+      "treated_pct": 22.14765100671141,
+      "median_propensity_control": 0.0376063480411166,
+      "median_propensity_treated": 0.6934567143403909,
+      "propensity_separation": 0.6558503662992743,
+      "untrimmed_worst_abs_smd": 1.9386487192922022,
+      "untrimmed_effective_sample_size": 29.428955504075045,
+      "trimmed_n": 501,
+      "retained_pct": 37.360178970917225,
+      "trimmed_worst_abs_smd": 0.04639212403219727,
+      "trimmed_balanced_pct": 100.0,
+      "trimmed_effective_sample_size": 288.4296866852276,
+      "identifiable": true
+    },
+    {
+      "decision": "hormone",
+      "label": "호르몬치료",
+      "covariate_spec": "baseline + surgery",
+      "eligible": 1341,
+      "treated": 821,
+      "treated_pct": 61.22296793437732,
+      "median_propensity_control": 0.421389014746788,
+      "median_propensity_treated": 0.7941075617366485,
+      "propensity_separation": 0.3727185469898605,
+      "untrimmed_worst_abs_smd": 0.12994179091163063,
+      "untrimmed_effective_sample_size": 710.3997188073931,
+      "trimmed_n": 1198,
+      "retained_pct": 89.33631618195376,
+      "trimmed_worst_abs_smd": 0.06308918085491828,
+      "trimmed_balanced_pct": 100.0,
+      "trimmed_effective_sample_size": 805.7606872321616,
+      "identifiable": true
+    },
+    {
+      "decision": "radio",
+      "label": "방사선치료",
+      "covariate_spec": "baseline + surgery",
+      "eligible": 1341,
+      "treated": 902,
+      "treated_pct": 67.26323639075316,
+      "median_propensity_control": 0.3793329743904429,
+      "median_propensity_treated": 0.8820122039748972,
+      "propensity_separation": 0.5026792295844543,
+      "untrimmed_worst_abs_smd": 5.510988056044529,
+      "untrimmed_effective_sample_size": 12.203632048989233,
+      "trimmed_n": 923,
+      "retained_pct": 68.82923191648024,
+      "trimmed_worst_abs_smd": 0.23430799900955757,
+      "trimmed_balanced_pct": 84.61538461538461,
+      "trimmed_effective_sample_size": 497.0620424662526,
+      "identifiable": false
+    }
+  ],
+  "decisions_identifiable_baseline": [
+    "chemo",
+    "hormone",
+    "radio"
+  ],
+  "decisions_identifiable_with_surgery": [
+    "chemo",
+    "hormone"
+  ],
+  "radiotherapy_overlap_was_missing_confounder": {
+    "retained_pct_baseline": 96.30723781388478,
+    "retained_pct_with_surgery": 68.82923191648024,
+    "worst_abs_smd_baseline": 0.08628998450165169,
+    "worst_abs_smd_with_surgery": 0.23430799900955757,
+    "identifiable_baseline": true,
+    "identifiable_with_surgery": false
+  }
+}
