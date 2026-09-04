@@ -1,0 +1,16 @@
+{
+  "run_date": "2026-09-04",
+  "generated_at": "2026-09-04T21:54:03+09:00",
+  "git_commit_before_run": "9b957c1722d2f61970e51a1ab22f0f7839fb08a3",
+  "inputs": {
+    "data": {
+      "path": "data/processed/patients_with_nccn.csv",
+      "sha256": "23e76e584ebb3a308583e1f278df4b4befba19f7d6175361483149f5b17cab8f"
+    },
+    "per_patient": {
+      "path": "reports/cohort-replication-v1.2/tables/per_patient_gaps.csv",
+      "sha256": "4f9127cdcb9e9b7ae6a2bc1a1c2ba15d9ff39cc59f52fc546fb06693f658c2f2"
+    }
+  },
+  "entry_point": "analysis/30_run_subtype_standardisation.py"
+}

@@ -315,6 +315,12 @@ def fig23_results_reconciliation() -> None:
                           if row["budget"] == "1024")
     patients = load(ROOT / "reports" / "sensitivity-patients-v1.1")
     patients_largest = patients["by_patient_count"][-1]
+    replication = load(ROOT / "reports" / "cohort-replication-v1.2")
+    pooled = next(row for row in replication["by_cohort"]
+                  if row["cohort"] == "pooled")
+    standardised = json.loads(
+        (ROOT / "reports" / "cohort-replication-v1.2"
+         / "metrics_posthoc_subtype.json").read_text(encoding="utf-8"))
 
     rows = [
         (f"v0.2 단일 시드\n(256 · {dynamic['cohort']['dynamic_test_patients']}명 · 1시드)",
@@ -344,6 +350,19 @@ def fig23_results_reconciliation() -> None:
         (f"v1.1 환자 확대\n(1024 · {patients_largest['n_patients']}명 · "
          f"{patients['design']['seeds']}시드)",
          patients_largest["baseline_utility_gap"], None, None, AMBER),
+        (f"v1.2 두 코호트 합산\n(1024 · {pooled['n_patients']}명 · "
+         f"{replication['design']['seeds']}시드)",
+         standardised["balanced_sample_mean"],
+         standardised["balanced_sample_mean"]
+         - 1.96 * standardised["balanced_sample_standard_error"],
+         standardised["balanced_sample_mean"]
+         + 1.96 * standardised["balanced_sample_standard_error"], GREEN),
+        (f"v1.2 아형 표준화\n(사후 · {pooled['n_patients']}명)",
+         standardised["prevalence_standardised_mean"],
+         standardised["prevalence_standardised_mean"]
+         - 1.96 * standardised["prevalence_standardised_standard_error"],
+         standardised["prevalence_standardised_mean"]
+         + 1.96 * standardised["prevalence_standardised_standard_error"], RED),
     ]
     labels = [row[0] for row in rows]
     positions = np.arange(len(rows))
@@ -362,7 +381,7 @@ def fig23_results_reconciliation() -> None:
     ax.set_ylim(len(rows) - 0.35, -0.7)
     ax.set_xlabel("효용 격차 (MCTS - NCCN), 가로선은 95% CI")
     ax.set_title("헤드라인 수치가 달라질 때마다 무엇이 바뀌었나\n"
-                 "— 예산·표본/시드·환경, 그리고 마지막엔 아무것도",
+                 "— 예산·표본/시드·환경, 그리고 마지막엔 표집 설계",
                  fontsize=12.5, pad=12)
     ax.annotate("예산 256 → 1024\n(행동 순서를 분해할 해상도)",
                 xy=(by_budget[1024]["utility_gap_mean"], 4),
@@ -379,6 +398,11 @@ def fig23_results_reconciliation() -> None:
                 xytext=(precision_1024["baseline_utility_gap"] - 0.0230, 6.55),
                 fontsize=8.8, color=AMBER,
                 arrowprops=dict(arrowstyle="->", color=AMBER, linewidth=1.1))
+    ax.annotate("아형 구성을 실제 분포로 맞추면\n같은 40명이 여기로 내려온다",
+                xy=(standardised["prevalence_standardised_mean"], 9),
+                xytext=(standardised["prevalence_standardised_mean"] - 0.0205, 8.35),
+                fontsize=8.8, color=RED,
+                arrowprops=dict(arrowstyle="->", color=RED, linewidth=1.1))
     save(fig, ENVFIX, "fig23_results_reconciliation.png")
 
     print("  reconciliation:", {row[0].splitlines()[0]: round(row[1], 4)

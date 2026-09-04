@@ -1,0 +1,34 @@
+{
+  "run_date": "2026-09-04",
+  "analysis_label": "cohort-replication-v1.2-posthoc-subtype",
+  "prespecified": false,
+  "question": "Every study since v0.3 averages over an equal number of patients per subtype. If the gap varies by subtype, what does that averaging do to the headline?",
+  "estimand": "Mean MCTS-minus-NCCN utility gap over the v1.2 forty patients, under (a) the equal-per-subtype weights the sample was drawn with and (b) the subtype mix of the held-out test split it was drawn from.",
+  "scope_warning": "Direct standardisation over four strata of ten patients. Exploratory; not a population estimate, and still a synthetic simulator.",
+  "population_reference": {
+    "source": "held-out OS test split, complete-record patients",
+    "n_patients": 266,
+    "subtype_share": {
+      "HR+/HER2-": 0.7443609022556391,
+      "TNBC": 0.13157894736842105,
+      "HR-/HER2+": 0.07142857142857142,
+      "HR+/HER2+": 0.05263157894736842
+    }
+  },
+  "balanced_sample_mean": 0.033248680555555556,
+  "balanced_sample_standard_error": 0.003098919511462743,
+  "prevalence_standardised_mean": 0.01977507518796993,
+  "prevalence_standardised_standard_error": 0.003951120852811292,
+  "ratio_standardised_to_balanced": 0.5947627050922384,
+  "largest_subtype": {
+    "subtype": "HR+/HER2-",
+    "population_share": 0.7443609022556391,
+    "sample_share": 0.25,
+    "mean_gap": 0.013640555555555562
+  },
+  "subtype_gap_spread": {
+    "min": 0.013640555555555562,
+    "max": 0.05026583333333334,
+    "ratio": 3.685028306113305
+  }
+}

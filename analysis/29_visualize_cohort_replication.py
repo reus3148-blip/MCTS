@@ -109,7 +109,10 @@ def fig34_replication() -> None:
     ax.set_yticks(positions)
     ax.set_yticklabels([PRETTY[p] for p in order], fontsize=9)
     ax.set_xlabel("효용 격차에 준 최대 영향 |Δ|")
-    ax.legend(frameon=False, fontsize=8.5, loc="lower right")
+    # Both cohorts' bars start at zero and run most of the axis, so an in-axes
+    # legend would sit on top of the data.
+    ax.legend(frameon=False, fontsize=8.5, loc="upper center",
+              bbox_to_anchor=(0.5, -0.17), ncol=2)
     met = replication["primary_prediction_met"]
     ax.set_title(
         "A. 사전 선언한 예측: B의 상위 2개는 가치판단\n"
@@ -123,11 +126,20 @@ def fig34_replication() -> None:
     limit = max(max(xs), max(ys)) * 1.25
     ax.plot([0, limit], [0, limit], color=GRAY, linewidth=1.1, linestyle="--",
             label="완전 일치선")
+    # Points crowd near the diagonal, so labels go outward from it; neighbours on
+    # the same side alternate above and below or their text collides.
+    left_side = 0
     for parameter, x, y in zip(order, xs, ys):
         color = RED if parameter in JUDGEMENTS else BLUE
         ax.scatter(x, y, s=95, color=color, zorder=3)
+        if x < limit / 2:
+            offset, align = (10, 6), "left"
+        else:
+            offset = (-12, 8) if left_side % 2 == 0 else (-12, -16)
+            align = "right"
+            left_side += 1
         ax.annotate(SHORT[parameter], (x, y), textcoords="offset points",
-                    xytext=(9, 6), fontsize=8.5, color=INK)
+                    xytext=offset, ha=align, fontsize=8.5, color=INK)
     ax.set_xlim(0, limit)
     ax.set_ylim(0, limit)
     ax.set_xlabel("코호트 A의 |Δ|")
@@ -156,7 +168,8 @@ def fig34_replication() -> None:
     ax.set_ylabel("기준선 효용 격차")
     ax.set_ylim(0, max(gaps) + max(errors) + 0.008)
     difference = replication["baseline_gap_difference"]
-    ax.set_title(f"C. 헤드라인은 코호트를 갈아도 유지된다\nB − A = {difference:+.4f}",
+    # ASCII hyphen: Malgun Gothic has no glyph for U+2212.
+    ax.set_title(f"C. 헤드라인은 코호트를 갈아도 유지된다\nB - A = {difference:+.4f}",
                  fontsize=12, pad=10, color=INK)
 
     # --- D: pooled per-patient spread --------------------------------------
@@ -190,8 +203,74 @@ def fig34_replication() -> None:
     save(fig, "fig34_cohort_replication.png")
 
 
+def fig35_subtype_standardisation() -> None:
+    """Post-hoc: the sampling scheme's effect on the headline.
+
+    Equal-per-subtype sampling keeps rare subtypes present, which is why every
+    study since v0.3 used it. It also means the headline averages over a mix that
+    is nothing like the cohort it was drawn from - and the gap turns out to vary
+    several-fold by subtype, so the two averages are not the same number.
+    """
+    posthoc = json.loads(
+        (REPORT_DIR / "metrics_posthoc_subtype.json").read_text(encoding="utf-8"))
+    table = pd.read_csv(TABLE_DIR / "subtype_standardisation.csv")
+
+    fig, axes = plt.subplots(1, 2, figsize=(13.0, 4.9),
+                             gridspec_kw={"wspace": 0.30, "width_ratios": [1.35, 1]})
+
+    # --- left: gap by subtype, with how much of each we sampled -------------
+    ax = axes[0]
+    positions = np.arange(len(table))
+    ax.bar(positions, table["mean_gap"],
+           yerr=1.96 * table["standard_error"], color=BLUE, width=0.55,
+           error_kw={"ecolor": INK, "capsize": 4, "linewidth": 1.1})
+    ax.axhline(0, color=INK, linewidth=1.0)
+    for x, row in zip(positions, table.itertuples()):
+        ax.text(x, row.mean_gap + 1.96 * row.standard_error + 0.0025,
+                f"{row.mean_gap:+.4f}", ha="center", fontsize=9.5, color=INK)
+    ax.set_xticks(positions)
+    ax.set_xticklabels(
+        [f"{row.subtype}\n표본 {row.sample_weight:.0%} · 실제 {row.population_share:.0%}"
+         for row in table.itertuples()], fontsize=9)
+    ax.set_ylabel("환자별 효용 격차 평균")
+    spread = posthoc["subtype_gap_spread"]
+    ax.set_title(
+        f"아형에 따라 {spread['ratio']:.1f}배 갈린다 — 그런데 표본은 균등하게 뽑았다\n"
+        f"가장 흔한 아형(전체의 "
+        f"{posthoc['largest_subtype']['population_share']:.0%})이 표본에서는 25%",
+        fontsize=12, pad=10, color=INK)
+
+    # --- right: what that does to the headline ------------------------------
+    ax = axes[1]
+    values = [posthoc["balanced_sample_mean"],
+              posthoc["prevalence_standardised_mean"]]
+    errors = [1.96 * posthoc["balanced_sample_standard_error"],
+              1.96 * posthoc["prevalence_standardised_standard_error"]]
+    positions = np.arange(2)
+    ax.bar(positions, values, yerr=errors, color=[BLUE, RED], width=0.5,
+           error_kw={"ecolor": INK, "capsize": 4, "linewidth": 1.1})
+    for x, value, error in zip(positions, values, errors):
+        ax.text(x, value + error + 0.0018, f"{value:+.4f}",
+                ha="center", fontsize=10.5, color=INK)
+    ax.axhline(0, color=INK, linewidth=1.0)
+    ax.set_xticks(positions)
+    ax.set_xticklabels(["아형 균등 표본\n(우리가 인용해 온 값)",
+                        "실제 아형 구성으로\n표준화"], fontsize=9.5)
+    ax.set_ylabel("효용 격차")
+    ax.set_ylim(0, max(v + e for v, e in zip(values, errors)) + 0.006)
+    ax.set_title(
+        f"헤드라인이 {1 - posthoc['ratio_standardised_to_balanced']:.0%} 줄어든다",
+        fontsize=12, pad=10, color=RED)
+
+    fig.suptitle("v1.2 사후 분석 — 아형 균등 표집이 헤드라인을 얼마나 키웠나 "
+                 "(사전 계획 아님, 오차막대는 95% CI)",
+                 fontsize=13, y=1.03, color=INK)
+    save(fig, "fig35_subtype_standardisation.png")
+
+
 def main() -> None:
     fig34_replication()
+    fig35_subtype_standardisation()
     print(f"\ncopied to {PUBLIC_DIR}")
 
 

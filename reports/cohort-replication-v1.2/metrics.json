@@ -1,0 +1,110 @@
+{
+  "run_date": "2026-09-04",
+  "analysis_label": "cohort-replication-v1.2",
+  "question": "v1.1's cohorts were nested, so its agreement could be a recount rather than a replication. Does the sensitivity ranking appear in twenty patients the first cohort never saw?",
+  "estimand": "Largest absolute shift in the MCTS-minus-NCCN utility gap that each assumption produces when moved to either end of its v0.3 range, estimated separately in two disjoint subtype-balanced cohorts of 20.",
+  "scope_warning": "Sensitivity of our own simulator to its declared assumptions. Not a clinical effect.",
+  "prespecified_prediction": {
+    "primary": "In cohort B the top two parameters by |gap delta| are the two value judgements.",
+    "secondary_baseline_positive": "Cohort B's baseline utility gap is positive.",
+    "secondary_rank_correlation": "Spearman rank correlation of the six-parameter ranking between cohort A and cohort B is positive.",
+    "expected_failure_rate": "v1.1's patient bootstrap put the primary prediction at 69.5%, so about one draw in three is expected to miss it."
+  },
+  "design": {
+    "cohorts": {
+      "A": {
+        "offset": 0,
+        "n_patients": 20
+      },
+      "B": {
+        "offset": 5,
+        "n_patients": 20
+      }
+    },
+    "cohorts_disjoint": true,
+    "seeds": 12,
+    "simulations": 1024,
+    "episodes_per_policy": 40,
+    "variants": 13,
+    "config": "configs/dynamic_v0_5.json"
+  },
+  "replication": {
+    "primary_prediction_met": false,
+    "baseline_positive_in_b": true,
+    "spearman_a_vs_b": 0.028571428571428574,
+    "rank_correlation_positive": true,
+    "identical_ranking": false,
+    "baseline_gap_difference": 0.003893194444444449,
+    "cohort_a_matches_v1_1": true,
+    "v1_1_cohort_a_baseline": 0.03130208333333337
+  },
+  "by_cohort": [
+    {
+      "cohort": "A",
+      "n_patients": 20,
+      "baseline_utility_gap": 0.03130208333333337,
+      "baseline_seed_standard_error": 0.0023664174015570966,
+      "top_two_are_value_judgements": true,
+      "ranking": [
+        "reward.recurrence_free_year",
+        "reward.acute_toxicity_penalty",
+        "hazard.response.major.death",
+        "response.intensified.major",
+        "toxicity.chemo.intensified",
+        "hazard.chemo.intensified.death"
+      ],
+      "parameters_distinguishable_from_zero": 2,
+      "negative_variant_cells": 0,
+      "variant_cells": 13
+    },
+    {
+      "cohort": "B",
+      "n_patients": 20,
+      "baseline_utility_gap": 0.03519527777777782,
+      "baseline_seed_standard_error": 0.0020388937140421227,
+      "top_two_are_value_judgements": false,
+      "ranking": [
+        "hazard.chemo.intensified.death",
+        "reward.acute_toxicity_penalty",
+        "reward.recurrence_free_year",
+        "hazard.response.major.death",
+        "toxicity.chemo.intensified",
+        "response.intensified.major"
+      ],
+      "parameters_distinguishable_from_zero": 2,
+      "negative_variant_cells": 0,
+      "variant_cells": 13
+    },
+    {
+      "cohort": "pooled",
+      "n_patients": 40,
+      "baseline_utility_gap": 0.0332486805555556,
+      "baseline_seed_standard_error": 0.001711397920890181,
+      "top_two_are_value_judgements": true,
+      "ranking": [
+        "reward.recurrence_free_year",
+        "reward.acute_toxicity_penalty",
+        "hazard.chemo.intensified.death",
+        "toxicity.chemo.intensified",
+        "response.intensified.major",
+        "hazard.response.major.death"
+      ],
+      "parameters_distinguishable_from_zero": 2,
+      "negative_variant_cells": 0,
+      "variant_cells": 13
+    }
+  ],
+  "patient_heterogeneity": {
+    "per_patient_gap_sd": {
+      "A": 0.020419779208880003,
+      "B": 0.026039638604850382,
+      "pooled": 0.023181083523947155
+    },
+    "pooled_min": -0.008372222222222189,
+    "pooled_max": 0.09303888888888885,
+    "pooled_median": 0.028877777777777842,
+    "patients_with_negative_gap": 1,
+    "n_patients": 40,
+    "between_patient_standard_error_pooled": 0.0036652511283137685
+  }
+}

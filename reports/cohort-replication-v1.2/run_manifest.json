@@ -1,0 +1,17 @@
+{
+  "run_date": "2026-09-04",
+  "generated_at": "2026-09-04T21:52:33+09:00",
+  "git_commit_before_run": "9b957c1722d2f61970e51a1ab22f0f7839fb08a3",
+  "inputs": {
+    "data": {
+      "path": "data/processed/patients_with_nccn.csv",
+      "sha256": "23e76e584ebb3a308583e1f278df4b4befba19f7d6175361483149f5b17cab8f"
+    },
+    "assumptions": {
+      "path": "configs/dynamic_v0_5.json",
+      "sha256": "dc943e895fa2cc3ade349721c39ae7f0bdb3e0d69ecda57ea5fa9f7e4c3e888b"
+    }
+  },
+  "entry_point": "analysis/28_run_cohort_replication.py",
+  "base_seed": 20260720
+}
