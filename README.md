@@ -3,7 +3,7 @@
 공개 유방암 코호트로 치료 의사결정 환경을 만들고, 단순화한 NCCN 정책과
 Monte Carlo Tree Search(MCTS) 정책을 비교하는 학부 연구 프로젝트입니다.
 
-> 현재 단계: **민감도 정밀도 재실행 v1.0 완료 (2026-08-28)**  
+> 현재 단계: **환자 수 민감도 v1.1 완료 (2026-09-04)**  
 > 연구용 예측 실험이며 실제 환자의 치료 권고 도구가 아닙니다.
 
 ## 지금까지 한 일
@@ -45,6 +45,11 @@ Monte Carlo Tree Search(MCTS) 정책을 비교하는 학부 연구 프로젝트�
 16. **v1.0**: v0.3 민감도를 시드 12개로 재실행했습니다. **시드만 4배 늘렸는데 기준선이
     0.019 움직여** 순위를 매기려던 효과들보다 컸습니다. 핵심 결론(상위 2개가 가치판단)은
     유지되나 **예산 1024에서만** 성립하고, v0.3이 보고한 **부호 반전은 전부 철회**됐습니다.
+17. **v1.1**: 마지막 병목이던 환자 수를 8 → 20명으로 늘렸습니다. **헤드라인은 +0.0004만
+    움직여 처음으로 버텼지만**, 환자 부트스트랩에서 "상위 2개가 가치판단"의 재현율이
+    **8명 24.6% → 20명 69.5%** 였습니다. 결론은 맞았어도 **8명은 그 근거가 못 됐습니다.**
+    임상 파라미터들의 영향은 70~86% 사라졌고, |z|≥2인 파라미터가 처음으로 2개가 되면서
+    그 둘이 정확히 두 가치판단이었습니다.
 
 전체 줄기를 한 번에 읽으려면 [연구 이야기](docs/research-story.md),
 숫자가 왜 달라졌는지는 [숫자 화해](docs/results-reconciliation.md),
@@ -61,6 +66,7 @@ Monte Carlo Tree Search(MCTS) 정책을 비교하는 학부 연구 프로젝트�
 [상호작용 민감도 v0.8 보고서](reports/interaction-sensitivity-v0.8/README.md),
 [확인 실험 v0.9 보고서](reports/utility-interaction-v0.9/README.md),
 [민감도 재실행 v1.0 보고서](reports/sensitivity-precision-v1.0/README.md),
+[환자 수 민감도 v1.1 보고서](reports/sensitivity-patients-v1.1/README.md),
 [v0.5 환경 재실행](reports/robustness-v0.5env/README.md),
 [Target trial 프로토콜](docs/target-trial-protocol.md),
 날짜별 작업 근거는 [프로젝트 타임라인](PROJECT_TIMELINE.md)에 정리되어 있습니다.
@@ -90,6 +96,8 @@ analysis/
   23_visualize_interaction_confirm.py   Figure 31
   24_run_sensitivity_precision.py 민감도 정밀도 재실행 (v1.0)
   25_visualize_sensitivity_precision.py Figure 32
+  26_run_sensitivity_patients.py  환자 수를 늘린 민감도 (v1.1)
+  27_visualize_sensitivity_patients.py Figure 33
   causal/ipw.py                   프로펜서티·균형·가중 KM·IPCW·AIPW·E-value (numpy 구현)
   causal/decisions.py             결정별 코호트·교란요인 명세·트리밍
   mcts/                   환경·생존모형·UCT 탐색 모듈
@@ -120,6 +128,8 @@ reports/utility-interaction-v0.9/
   tables/                 시드 12개 확인 격자·시드별 차이-의-차이
 reports/sensitivity-precision-v1.0/
   tables/                 13변형 × 2예산 결과·짝지은 표준오차
+reports/sensitivity-patients-v1.1/
+  tables/                 13변형 × 3코호트 결과·환자별 효용 격차
 reports/*-v0.5env/        v0.3·v0.4를 수정 환경에서 재실행한 결과
 configs/dynamic_v0_5.json 현재 환경 가정 (v0.2는 과거 리포트 재현용으로 보존)
 docs/k-cure-adaptation.md K-CURE 이행 데이터 계약
@@ -173,7 +183,12 @@ npm run dev
   인용은 재실행 쪽 값을 씁니다.
 - **보상 가중치는 각각 결과를 크게 움직입니다.** 두 값을 함께 사전등록해야 합니다.
   (v0.8이 보고한 "서로의 방향을 뒤집는다"는 v0.9 확인 실험에서 기각됐습니다.)
-- **민감도 분석의 최소 설계는 시드 12개·예산 1024입니다**(v1.0). 3시드 결과는 인용하지
-  않습니다 — v0.3의 기준선(−0.0043)과 "부호가 바뀐다"는 서술은 철회됐습니다.
-- **민감도 순위는 순서가 아니라 그룹으로만 말할 수 있습니다.** 예산 1024에서 상위 2개가
-  가치판단인 것은 성립하나, 6개 중 |z|≥2는 1개뿐이라 순서는 구분되지 않습니다.
+- **민감도 분석의 최소 설계는 시드 12개·예산 1024·환자 20명입니다**(v1.0, v1.1).
+  3시드 결과는 인용하지 않습니다 — v0.3의 기준선(−0.0043)과 "부호가 바뀐다"는 서술은
+  철회됐습니다. **8명으로 낸 순위도 인용하지 않습니다** — 환자를 다시 뽑으면 우리 결론이
+  24.6%만 재현됩니다(v1.1).
+- **민감도 순위는 순서가 아니라 그룹으로만 말할 수 있습니다.** 환자 20명에서 상위 2개가
+  가치판단이고 |z|≥2도 그 둘뿐이지만, 1·2위의 CI가 겹쳐 순서는 구분되지 않습니다.
+- **효용 격차의 평균만 인용하지 않습니다.** 환자 20명에서 부호는 전원 같지만 크기가
+  87배(+0.0009 ~ +0.0809) 갈리고 상위 3명이 전체의 33%를 가져갑니다(v1.1).
+  "평균 +0.031"은 전형적인 환자의 값이 아닙니다.

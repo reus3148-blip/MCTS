@@ -1,0 +1,303 @@
+{
+  "run_date": "2026-09-04",
+  "analysis_label": "sensitivity-patients-v1.1",
+  "question": "v1.0 settled seeds and budget and named the eight patients as the next bottleneck. Does the sensitivity ranking hold when the cohort grows to twenty, and how many patients would it actually need?",
+  "estimand": "Largest absolute shift in the MCTS-minus-NCCN utility gap that each assumption produces when moved to either end of its v0.3 range, as the simulated cohort grows from 8 to 20 subtype-balanced patients.",
+  "scope_warning": "Sensitivity of our own simulator to its declared assumptions. Not a clinical effect.",
+  "design": {
+    "patient_counts": [
+      8,
+      12,
+      20
+    ],
+    "cohorts_are_nested": true,
+    "seeds": 12,
+    "simulations": 1024,
+    "episodes_per_policy": 40,
+    "variants": 13,
+    "config": "configs/dynamic_v0_5.json",
+    "bootstrap_replicates": 2000
+  },
+  "v1_0_reference": {
+    "patients": 8,
+    "seeds": 12,
+    "simulations": 1024,
+    "baseline_utility_gap": 0.030945833333333377,
+    "ranking": [
+      "reward.recurrence_free_year",
+      "reward.acute_toxicity_penalty",
+      "toxicity.chemo.intensified",
+      "hazard.response.major.death",
+      "response.intensified.major",
+      "hazard.chemo.intensified.death"
+    ]
+  },
+  "reproduction_check": {
+    "v1_0_baseline_utility_gap": 0.030945833333333377,
+    "rerun_baseline_utility_gap": 0.030945833333333363,
+    "absolute_difference": 1.3877787807814457e-17,
+    "reproduces_v1_0": true,
+    "ranking_matches_v1_0": true
+  },
+  "by_patient_count": [
+    {
+      "n_patients": 8,
+      "baseline_utility_gap": 0.030945833333333363,
+      "baseline_seed_standard_error": 0.0037284898657892244,
+      "top_two_are_value_judgements": true,
+      "ranking": [
+        "reward.recurrence_free_year",
+        "reward.acute_toxicity_penalty",
+        "toxicity.chemo.intensified",
+        "hazard.response.major.death",
+        "response.intensified.major",
+        "hazard.chemo.intensified.death"
+      ],
+      "matches_v1_0_ranking": true,
+      "spearman_vs_v1_0": 1.0,
+      "parameters_distinguishable_from_zero": 1,
+      "negative_variant_cells": 0,
+      "variant_cells": 13
+    },
+    {
+      "n_patients": 12,
+      "baseline_utility_gap": 0.031561805555555586,
+      "baseline_seed_standard_error": 0.0021576474228763597,
+      "top_two_are_value_judgements": true,
+      "ranking": [
+        "reward.acute_toxicity_penalty",
+        "reward.recurrence_free_year",
+        "hazard.response.major.death",
+        "hazard.chemo.intensified.death",
+        "response.intensified.major",
+        "toxicity.chemo.intensified"
+      ],
+      "matches_v1_0_ranking": false,
+      "spearman_vs_v1_0": 0.5428571428571429,
+      "parameters_distinguishable_from_zero": 1,
+      "negative_variant_cells": 0,
+      "variant_cells": 13
+    },
+    {
+      "n_patients": 20,
+      "baseline_utility_gap": 0.03130208333333337,
+      "baseline_seed_standard_error": 0.0023664174015570966,
+      "top_two_are_value_judgements": true,
+      "ranking": [
+        "reward.recurrence_free_year",
+        "reward.acute_toxicity_penalty",
+        "hazard.response.major.death",
+        "response.intensified.major",
+        "toxicity.chemo.intensified",
+        "hazard.chemo.intensified.death"
+      ],
+      "matches_v1_0_ranking": false,
+      "spearman_vs_v1_0": 0.8285714285714287,
+      "parameters_distinguishable_from_zero": 2,
+      "negative_variant_cells": 0,
+      "variant_cells": 13
+    }
+  ],
+  "patient_heterogeneity": {
+    "n_patients": 20,
+    "per_patient_gap_sd": 0.020419779208880003,
+    "per_patient_gap_min": 0.0009250000000000091,
+    "per_patient_gap_max": 0.08089444444444442,
+    "patients_with_negative_gap": 0,
+    "between_patient_standard_error": {
+      "8": 0.007219482174465562,
+      "12": 0.005894682511519797,
+      "20": 0.004566001439659256
+    },
+    "target_standard_error": 0.005,
+    "patients_needed_for_target": 17
+  },
+  "patient_bootstrap": {
+    "8": {
+      "replicates": 2000,
+      "top_two_are_value_judgements_share": 0.2465,
+      "rank_distribution": {
+        "hazard.chemo.intensified.death": [
+          0.0375,
+          0.0935,
+          0.1655,
+          0.228,
+          0.274,
+          0.2015
+        ],
+        "hazard.response.major.death": [
+          0.007,
+          0.1045,
+          0.2085,
+          0.213,
+          0.1985,
+          0.2685
+        ],
+        "response.intensified.major": [
+          0.0265,
+          0.172,
+          0.1405,
+          0.2015,
+          0.2205,
+          0.239
+        ],
+        "reward.acute_toxicity_penalty": [
+          0.32,
+          0.1935,
+          0.1955,
+          0.1105,
+          0.1195,
+          0.061
+        ],
+        "reward.recurrence_free_year": [
+          0.354,
+          0.2335,
+          0.1265,
+          0.162,
+          0.082,
+          0.042
+        ],
+        "toxicity.chemo.intensified": [
+          0.255,
+          0.203,
+          0.1635,
+          0.085,
+          0.1055,
+          0.188
+        ]
+      },
+      "share_ranked_first": {
+        "hazard.chemo.intensified.death": 0.0375,
+        "hazard.response.major.death": 0.007,
+        "response.intensified.major": 0.0265,
+        "reward.acute_toxicity_penalty": 0.32,
+        "reward.recurrence_free_year": 0.354,
+        "toxicity.chemo.intensified": 0.255
+      }
+    },
+    "12": {
+      "replicates": 2000,
+      "top_two_are_value_judgements_share": 0.337,
+      "rank_distribution": {
+        "hazard.chemo.intensified.death": [
+          0.055,
+          0.1285,
+          0.161,
+          0.206,
+          0.238,
+          0.2115
+        ],
+        "hazard.response.major.death": [
+          0.003,
+          0.0605,
+          0.167,
+          0.218,
+          0.2555,
+          0.296
+        ],
+        "response.intensified.major": [
+          0.103,
+          0.19,
+          0.209,
+          0.18,
+          0.169,
+          0.149
+        ],
+        "reward.acute_toxicity_penalty": [
+          0.376,
+          0.2365,
+          0.1365,
+          0.1035,
+          0.0805,
+          0.067
+        ],
+        "reward.recurrence_free_year": [
+          0.3835,
+          0.24,
+          0.1145,
+          0.1125,
+          0.08,
+          0.0695
+        ],
+        "toxicity.chemo.intensified": [
+          0.0795,
+          0.1445,
+          0.212,
+          0.18,
+          0.177,
+          0.207
+        ]
+      },
+      "share_ranked_first": {
+        "hazard.chemo.intensified.death": 0.055,
+        "hazard.response.major.death": 0.003,
+        "response.intensified.major": 0.103,
+        "reward.acute_toxicity_penalty": 0.376,
+        "reward.recurrence_free_year": 0.3835,
+        "toxicity.chemo.intensified": 0.0795
+      }
+    },
+    "20": {
+      "replicates": 2000,
+      "top_two_are_value_judgements_share": 0.6945,
+      "rank_distribution": {
+        "hazard.chemo.intensified.death": [
+          0.005,
+          0.045,
+          0.134,
+          0.2195,
+          0.278,
+          0.3185
+        ],
+        "hazard.response.major.death": [
+          0.002,
+          0.056,
+          0.299,
+          0.246,
+          0.2135,
+          0.1835
+        ],
+        "response.intensified.major": [
+          0.0135,
+          0.0765,
+          0.186,
+          0.26,
+          0.252,
+          0.212
+        ],
+        "reward.acute_toxicity_penalty": [
+          0.284,
+          0.488,
+          0.12,
+          0.055,
+          0.0335,
+          0.0195
+        ],
+        "reward.recurrence_free_year": [
+          0.6735,
+          0.2415,
+          0.035,
+          0.0275,
+          0.0165,
+          0.006
+        ],
+        "toxicity.chemo.intensified": [
+          0.022,
+          0.093,
+          0.226,
+          0.192,
+          0.2065,
+          0.2605
+        ]
+      },
+      "share_ranked_first": {
+        "hazard.chemo.intensified.death": 0.005,
+        "hazard.response.major.death": 0.002,
+        "response.intensified.major": 0.0135,
+        "reward.acute_toxicity_penalty": 0.284,
+        "reward.recurrence_free_year": 0.6735,
+        "toxicity.chemo.intensified": 0.022
+      }
+    }
+  }
+}

@@ -133,9 +133,13 @@ def fig33_patients() -> None:
     ax.set_ylabel("환자별 효용 격차")
     ax.legend(frameon=False, fontsize=9, loc="upper left")
     negative = heterogeneity["patients_with_negative_gap"]
+    ratio = (heterogeneity["per_patient_gap_max"]
+             / heterogeneity["per_patient_gap_min"])
+    median = float(block["baseline_utility_gap"].median())
     ax.set_title(
-        f"B. 환자별로 갈린다 — {largest}명 중 {negative}명은 NCCN이 낫다\n"
-        f"환자간 표준편차 {heterogeneity['per_patient_gap_sd']:.4f}",
+        f"B. 부호는 {largest}명 전원 같다 (음수 {negative}명) — 크기는 {ratio:.0f}배 갈린다\n"
+        f"환자간 표준편차 {heterogeneity['per_patient_gap_sd']:.4f} · "
+        f"중앙값 {median:+.4f}",
         fontsize=12, pad=10, color=INK)
 
     # --- C: the ranking at the largest cohort -------------------------------

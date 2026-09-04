@@ -310,6 +310,11 @@ def fig23_results_reconciliation() -> None:
     budget = load(BUDGET)
     by_budget = {row["budget"]: row for row in budget["utility_gap_by_budget"]}
     envfix = load(ENVFIX)
+    precision = load(ROOT / "reports" / "sensitivity-precision-v1.0")
+    precision_1024 = next(row for row in precision["by_budget"]
+                          if row["budget"] == "1024")
+    patients = load(ROOT / "reports" / "sensitivity-patients-v1.1")
+    patients_largest = patients["by_patient_count"][-1]
 
     rows = [
         (f"v0.2 단일 시드\n(256 · {dynamic['cohort']['dynamic_test_patients']}명 · 1시드)",
@@ -333,6 +338,12 @@ def fig23_results_reconciliation() -> None:
         (f"v0.5 편향 수정\n(1024 · {envfix['design']['patients']}명 · "
          f"{envfix['design']['seeds']}시드)",
          envfix["utility_gap_fixed"], None, None, GREEN),
+        (f"v1.0 민감도 재실행\n(1024 · {precision['design']['patients']}명 · "
+         f"{precision['design']['seeds']}시드)",
+         precision_1024["baseline_utility_gap"], None, None, AMBER),
+        (f"v1.1 환자 확대\n(1024 · {patients_largest['n_patients']}명 · "
+         f"{patients['design']['seeds']}시드)",
+         patients_largest["baseline_utility_gap"], None, None, AMBER),
     ]
     labels = [row[0] for row in rows]
     positions = np.arange(len(rows))
@@ -350,8 +361,8 @@ def fig23_results_reconciliation() -> None:
     ax.set_yticklabels(labels, fontsize=9.5)
     ax.set_ylim(len(rows) - 0.35, -0.7)
     ax.set_xlabel("효용 격차 (MCTS - NCCN), 가로선은 95% CI")
-    ax.set_title("헤드라인 수치가 다섯 번 달라진 이유\n"
-                 "— 예산·표본/시드·환경이 각각 바뀌었기 때문이다",
+    ax.set_title("헤드라인 수치가 달라질 때마다 무엇이 바뀌었나\n"
+                 "— 예산·표본/시드·환경, 그리고 마지막엔 아무것도",
                  fontsize=12.5, pad=12)
     ax.annotate("예산 256 → 1024\n(행동 순서를 분해할 해상도)",
                 xy=(by_budget[1024]["utility_gap_mean"], 4),
@@ -361,6 +372,11 @@ def fig23_results_reconciliation() -> None:
     ax.annotate("표본 8명·3시드로 축소한 설정",
                 xy=(sensitivity["baseline_utility_gap"], 2),
                 xytext=(sensitivity["baseline_utility_gap"] + 0.0025, 1.35),
+                fontsize=8.8, color=AMBER,
+                arrowprops=dict(arrowstyle="->", color=AMBER, linewidth=1.1))
+    ax.annotate("같은 8명을 시드 12개로 다시 재니\n민감도 기준선이 여기로 올라왔다",
+                xy=(precision_1024["baseline_utility_gap"], 6),
+                xytext=(precision_1024["baseline_utility_gap"] - 0.0230, 6.55),
                 fontsize=8.8, color=AMBER,
                 arrowprops=dict(arrowstyle="->", color=AMBER, linewidth=1.1))
     save(fig, ENVFIX, "fig23_results_reconciliation.png")
