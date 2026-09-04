@@ -5,6 +5,8 @@ import unittest
 
 from analysis.dynamic.experiment_utils import (
     confidence_interval,
+    patients_for_standard_error,
+    rank_parameters_by_influence,
     rescale_response_major,
     summarize_decision_replicates,
 )
@@ -122,6 +124,44 @@ class SummarizeDecisionReplicatesTests(unittest.TestCase):
     def test_empty_raises(self) -> None:
         with self.assertRaises(ValueError):
             summarize_decision_replicates([])
+
+
+class RankParametersByInfluenceTests(unittest.TestCase):
+    def test_orders_by_absolute_magnitude(self) -> None:
+        order = rank_parameters_by_influence({"a": 0.001, "b": -0.010, "c": 0.005})
+        self.assertEqual(order, ["b", "c", "a"])
+
+    def test_sign_does_not_change_the_order(self) -> None:
+        positive = rank_parameters_by_influence({"a": 0.01, "b": 0.02})
+        negative = rank_parameters_by_influence({"a": -0.01, "b": -0.02})
+        self.assertEqual(positive, negative)
+
+    def test_ties_break_alphabetically(self) -> None:
+        forward = rank_parameters_by_influence({"z": 0.01, "a": -0.01})
+        self.assertEqual(forward, ["a", "z"])
+
+    def test_empty_raises(self) -> None:
+        with self.assertRaises(ValueError):
+            rank_parameters_by_influence({})
+
+
+class PatientsForStandardErrorTests(unittest.TestCase):
+    def test_inverts_the_standard_error_formula(self) -> None:
+        self.assertEqual(patients_for_standard_error(0.10, 0.01), 100)
+
+    def test_rounds_up_to_a_whole_patient(self) -> None:
+        self.assertEqual(patients_for_standard_error(0.10, 0.03), 12)
+
+    def test_zero_spread_needs_one_patient(self) -> None:
+        self.assertEqual(patients_for_standard_error(0.0, 0.01), 1)
+
+    def test_rejects_non_positive_target(self) -> None:
+        with self.assertRaises(ValueError):
+            patients_for_standard_error(0.1, 0.0)
+
+    def test_rejects_negative_spread(self) -> None:
+        with self.assertRaises(ValueError):
+            patients_for_standard_error(-0.1, 0.01)
 
 
 if __name__ == "__main__":

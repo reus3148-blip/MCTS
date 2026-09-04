@@ -118,3 +118,36 @@ def summarize_decision_replicates(
         "value_noise_sd": noise,
         "separation": separation,
     }
+
+
+def rank_parameters_by_influence(
+    influence: Mapping[str, float],
+) -> list[str]:
+    """Parameter names ordered by ``|influence|``, largest first.
+
+    Ties break alphabetically so a bootstrap replicate that lands on two equal
+    magnitudes does not vote for an arbitrary order; without that, resampling
+    noise would show up as rank churn that has nothing to do with the data.
+    """
+    if not influence:
+        raise ValueError("rank_parameters_by_influence requires at least one parameter")
+    return sorted(influence, key=lambda name: (-abs(float(influence[name])), name))
+
+
+def patients_for_standard_error(
+    per_patient_sd: float, target_standard_error: float
+) -> int:
+    """Patients needed for the between-patient SE of the mean to reach a target.
+
+    Inverts ``se = sd / sqrt(n)``. This is the question a small simulated cohort
+    has to answer honestly: an eight-patient sample does not become adequate
+    because its point estimate looks stable, only because its spread is small
+    enough for the differences being ranked.
+    """
+    if per_patient_sd < 0:
+        raise ValueError("per_patient_sd must be non-negative")
+    if target_standard_error <= 0:
+        raise ValueError("target_standard_error must be positive")
+    if per_patient_sd == 0:
+        return 1
+    return math.ceil((per_patient_sd / target_standard_error) ** 2)

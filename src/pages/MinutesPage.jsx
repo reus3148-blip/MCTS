@@ -30,12 +30,20 @@ const entries = Object.entries(rawFiles)
     return {
       slug,
       date: meta.date || slug.slice(0, 10),
+      // Several entries can share a date. `order` puts them back in the sequence
+      // they were written; without it same-day entries fall back to filename
+      // order, which showed v0.9 above v1.0.
+      order: Number(meta.order) || 0,
       title: meta.title || slug,
       summary: meta.summary || '',
       body,
     }
   })
-  .sort((a, b) => (a.date < b.date ? 1 : -1))
+  .sort((a, b) => {
+    if (a.date !== b.date) return a.date < b.date ? 1 : -1
+    if (a.order !== b.order) return b.order - a.order
+    return a.slug < b.slug ? 1 : -1
+  })
 
 marked.setOptions({ gfm: true, breaks: false })
 
