@@ -104,6 +104,7 @@ def balanced_subtype_sample(
     per_subtype: int,
     seed: int = BASE_SEED,
     subtypes: Sequence[str] = SUBTYPES,
+    offset: int = 0,
 ) -> pd.DataFrame:
     """Draw ``per_subtype`` complete-record patients from each molecular subtype.
 
@@ -111,16 +112,25 @@ def balanced_subtype_sample(
     TNBC represented in the small samples these studies can afford. Each subtype
     uses ``seed + index`` so that raising ``per_subtype`` extends a sample rather
     than replacing it.
+
+    ``offset`` skips that many patients per subtype before taking the sample,
+    which is how a *disjoint* second cohort is drawn: ``offset=0`` and
+    ``offset=per_subtype`` share the same draw order and therefore share no
+    patients. v1.1 could only report nested cohorts, and nested cohorts cannot
+    tell a replication from a recount of the same people.
     """
     if per_subtype < 1:
         raise ValueError("per_subtype must be positive")
+    if offset < 0:
+        raise ValueError("offset must be non-negative")
     complete = test.dropna(subset=list(REQUIRED_PATIENT_COLUMNS)).copy()
     sampled = []
     for index, subtype in enumerate(subtypes):
         group = complete[complete["subtype"].eq(subtype)]
-        count = min(per_subtype, len(group))
-        if count:
-            sampled.append(group.sample(n=count, random_state=seed + index))
+        count = min(per_subtype + offset, len(group))
+        if count > offset:
+            block = group.sample(n=count, random_state=seed + index)
+            sampled.append(block.iloc[offset:])
     if not sampled:
         raise ValueError("no complete patients available for the requested subtypes")
     return (

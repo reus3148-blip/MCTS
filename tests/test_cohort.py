@@ -77,6 +77,49 @@ class BalancedSubtypeSampleTests(unittest.TestCase):
         sample = balanced_subtype_sample(frame, per_subtype=5)
         self.assertEqual(len(sample), len(SUBTYPES))
 
+    def test_an_offset_draws_a_disjoint_cohort(self) -> None:
+        """offset=per_subtype must share no patient with offset=0."""
+        frame = make_frame(per_subtype=12)
+        first = set(balanced_subtype_sample(
+            frame, per_subtype=5)["patient_id"])
+        second = set(balanced_subtype_sample(
+            frame, per_subtype=5, offset=5)["patient_id"])
+        self.assertEqual(len(first), 20)
+        self.assertEqual(len(second), 20)
+        self.assertEqual(first & second, set())
+
+    def test_an_offset_keeps_the_subtype_balance(self) -> None:
+        frame = make_frame(per_subtype=12)
+        sample = balanced_subtype_sample(frame, per_subtype=5, offset=5)
+        counts = sample["subtype"].value_counts().to_dict()
+        self.assertTrue(all(count == 5 for count in counts.values()))
+
+    def test_offset_zero_is_the_original_behaviour(self) -> None:
+        frame = make_frame()
+        self.assertEqual(
+            list(balanced_subtype_sample(frame, per_subtype=3)["patient_id"]),
+            list(balanced_subtype_sample(
+                frame, per_subtype=3, offset=0)["patient_id"]),
+        )
+
+    def test_an_offset_past_the_supply_raises(self) -> None:
+        """Silently returning an empty cohort would hide a failed replication."""
+        frame = make_frame(per_subtype=3)
+        with self.assertRaises(ValueError):
+            balanced_subtype_sample(frame, per_subtype=2, offset=3)
+
+    def test_a_short_subtype_shrinks_rather_than_overlaps(self) -> None:
+        """A subtype with too few patients yields fewer, never a repeat."""
+        frame = make_frame(per_subtype=7)
+        first = set(balanced_subtype_sample(frame, per_subtype=5)["patient_id"])
+        second = balanced_subtype_sample(frame, per_subtype=5, offset=5)
+        self.assertEqual(len(second), 8)  # 2 left per subtype
+        self.assertEqual(first & set(second["patient_id"]), set())
+
+    def test_rejects_a_negative_offset(self) -> None:
+        with self.assertRaises(ValueError):
+            balanced_subtype_sample(make_frame(), per_subtype=1, offset=-1)
+
     def test_rejects_a_non_positive_request(self) -> None:
         with self.assertRaises(ValueError):
             balanced_subtype_sample(make_frame(), per_subtype=0)
