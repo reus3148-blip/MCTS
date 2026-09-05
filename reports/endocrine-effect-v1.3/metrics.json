@@ -1,0 +1,556 @@
+{
+  "run_date": "2026-09-05",
+  "analysis_label": "endocrine-effect-v1.3",
+  "question": "v0.7 found endocrine therapy the most answerable decision in this data and did not estimate it. What is the effect, and does the pipeline pass a negative control where the drug is known not to work?",
+  "estimand": "Five-year all-cause mortality risk difference at the horizon, treated vs untreated, in the propensity-overlap population (propensity in [0.10, 0.90]) of each arm.",
+  "scope_warning": "Point-treatment emulation of single decisions. Not the MCTS-vs-NCCN regime comparison, which needs treatment timing METABRIC lacks.",
+  "assumptions": {
+    "exchangeability": "conditional on the measured baseline covariates plus surgery type",
+    "positivity": "enforced by trimming to the overlap region, not assumed",
+    "censoring": "modelled as a covariate- and treatment-dependent discrete-time hazard (IPCW)",
+    "consistency": "one version of each treatment; METABRIC records no agent, dose or duration"
+  },
+  "prespecified_prediction": {
+    "primary": "The endocrine-therapy risk difference in ER-positive patients is negative (protective), consistent with EBCTCG.",
+    "negative_control": "The ER-negative risk difference has a 95% interval covering zero. A clearly protective estimate there is confounding by indication, not the drug, and bounds how much of the primary estimate is believable.",
+    "chemo_respecification": "Chemotherapy under the surgery-augmented covariate set stays inside v0.7's interval [-0.1354, +0.0630].",
+    "external_benchmark": "EBCTCG (Lancet 2011): five years of tamoxifen reduces breast-cancer mortality by about a third in ER-positive disease and is without effect in ER-negative disease."
+  },
+  "design": {
+    "horizon_months": 60.0,
+    "interval_edges_months": [
+      0.0,
+      12.0,
+      24.0,
+      36.0,
+      48.0,
+      60.0
+    ],
+    "trim": [
+      0.1,
+      0.9
+    ],
+    "bootstrap_replicates": 500,
+    "covariate_spec": "baseline + surgery, constant terms dropped per arm",
+    "arms": [
+      {
+        "key": "hormone_er_positive",
+        "treatment": "hormone",
+        "restriction": {
+          "er": 1.0
+        },
+        "label": "호르몬치료 (ER 양성)",
+        "prespecified": true
+      },
+      {
+        "key": "hormone_er_negative",
+        "treatment": "hormone",
+        "restriction": {
+          "er": 0.0
+        },
+        "label": "호르몬치료 (ER 음성, 음성대조)",
+        "prespecified": true
+      },
+      {
+        "key": "chemo_with_surgery",
+        "treatment": "chemo",
+        "restriction": null,
+        "label": "보조 항암치료 (수술 유형 보정)",
+        "prespecified": true
+      },
+      {
+        "key": "radio_mastectomy",
+        "treatment": "radio",
+        "restriction": {
+          "surgery": "MASTECTOMY"
+        },
+        "label": "방사선치료 (전절제 후)",
+        "prespecified": false
+      },
+      {
+        "key": "radio_conserving",
+        "treatment": "radio",
+        "restriction": {
+          "surgery": "BREAST CONSERVING"
+        },
+        "label": "방사선치료 (유방보존술 후)",
+        "prespecified": false
+      }
+    ]
+  },
+  "verdict": {
+    "primary_prediction_met": true,
+    "primary_interval_excludes_null": false,
+    "negative_control_prediction_met": true,
+    "negative_control_risk_difference": -0.13908400266932291,
+    "negative_control_ci95": [
+      -0.23503446055765398,
+      0.04293005769945421
+    ],
+    "chemo_inside_v0_7_interval": true,
+    "chemo_v0_7_risk_difference": -0.031868461541341736,
+    "chemo_shift_from_v0_7": 0.008528172233769254,
+    "v0_7_interval": [
+      -0.1354,
+      0.063
+    ]
+  },
+  "trimming_effect": {
+    "decisions_needing_more_than_one_pass": 10,
+    "decision_cells": 10,
+    "single_pass_not_at_fixed_point": 10,
+    "endocrine_er_positive": {
+      "single_pass": {
+        "decision": "hormone",
+        "population": "ER 양성",
+        "covariate_spec": "baseline + surgery",
+        "trimming": "single_pass",
+        "iterations": 1,
+        "converged": false,
+        "eligible": 1031,
+        "n": 817,
+        "retained_pct": 79.24345295829292,
+        "worst_abs_smd": 1.5751835766904472,
+        "balanced_pct": 10.0,
+        "effective_sample_size": 77.10854918869641,
+        "max_weight": 94.1064681747056,
+        "propensity_inside_bounds_pct": 81.02815177478581,
+        "identifiable": false
+      },
+      "iterated": {
+        "decision": "hormone",
+        "population": "ER 양성",
+        "covariate_spec": "baseline + surgery",
+        "trimming": "iterated",
+        "iterations": 5,
+        "converged": true,
+        "eligible": 1031,
+        "n": 564,
+        "retained_pct": 54.704170708050434,
+        "worst_abs_smd": 0.03211546149842222,
+        "balanced_pct": 100.0,
+        "effective_sample_size": 499.54447832312576,
+        "max_weight": 3.40323701033277,
+        "propensity_inside_bounds_pct": 100.0,
+        "identifiable": true
+      }
+    },
+    "radiotherapy_with_surgery": {
+      "single_pass": {
+        "decision": "radio",
+        "population": "전체",
+        "covariate_spec": "baseline + surgery",
+        "trimming": "single_pass",
+        "iterations": 1,
+        "converged": false,
+        "eligible": 1341,
+        "n": 923,
+        "retained_pct": 68.82923191648024,
+        "worst_abs_smd": 0.23430799900955757,
+        "balanced_pct": 84.61538461538461,
+        "effective_sample_size": 497.0620424662526,
+        "max_weight": 9.560919792421048,
+        "propensity_inside_bounds_pct": 86.13217768147345,
+        "identifiable": false
+      },
+      "iterated": {
+        "decision": "radio",
+        "population": "전체",
+        "covariate_spec": "baseline + surgery",
+        "trimming": "iterated",
+        "iterations": 8,
+        "converged": true,
+        "eligible": 1341,
+        "n": 730,
+        "retained_pct": 54.43698732289336,
+        "worst_abs_smd": 0.030138832549937152,
+        "balanced_pct": 100.0,
+        "effective_sample_size": 482.2402516822497,
+        "max_weight": 4.616668637403887,
+        "propensity_inside_bounds_pct": 100.0,
+        "identifiable": true
+      }
+    }
+  },
+  "arms": {
+    "hormone_er_positive": {
+      "covariate_spec": "baseline + surgery",
+      "covariates": [
+        "age",
+        "tumor_size_mm",
+        "lymph_pos",
+        "stage",
+        "grade",
+        "pr",
+        "her2",
+        "menopause=Pre",
+        "subtype=HR+/HER2+",
+        "surgery=BREAST CONSERVING"
+      ],
+      "eligible": 1031,
+      "treated": 738,
+      "treated_pct": 71.58098933074685,
+      "median_propensity_control": 0.5483212988600046,
+      "median_propensity_treated": 0.8286874257274621,
+      "untrimmed_worst_abs_smd": 2.166938972735401,
+      "untrimmed_effective_sample_size": 17.00043428515484,
+      "analysed": 564,
+      "retained_pct": 54.704170708050434,
+      "trim_iterations": 5,
+      "trim_converged": true,
+      "max_weight": 3.40323701033277,
+      "trimmed_worst_abs_smd": 0.03211546149842222,
+      "trimmed_balanced_pct": 100.0,
+      "trimmed_effective_sample_size": 499.54447832312576,
+      "identifiable": true,
+      "estimators": {
+        "ipw_km": {
+          "risk_treated": 0.08484141759920372,
+          "risk_control": 0.13802396842583742,
+          "risk_difference": -0.0531825508266337,
+          "risk_ratio": 0.6146861198588883
+        },
+        "g_computation": {
+          "risk_treated": 0.08331270790427635,
+          "risk_control": 0.13338158726686397,
+          "risk_difference": -0.05006887936258762,
+          "risk_ratio": 0.6246192567613397
+        },
+        "aipw": {
+          "risk_treated": 0.08396291369523566,
+          "risk_control": 0.13238898834892143,
+          "risk_difference": -0.04842607465368577,
+          "risk_ratio": 0.6342137268542675
+        }
+      },
+      "censoring": {
+        "min_uncensored_probability": 0.7694652295017721,
+        "mean_uncensored_probability": 0.9704977409067849,
+        "observed_at_horizon_pct": 96.98581560283688
+      },
+      "estimator_spread_risk_difference": 0.004756476172947929,
+      "aipw_risk_difference": -0.04842607465368577,
+      "aipw_risk_ratio": 0.6342137268542675,
+      "aipw_ci95": [
+        -0.10991113397923334,
+        0.00032672207231710656
+      ],
+      "aipw_risk_ratio_ci95": [
+        0.36532106893959204,
+        1.0031759072305366
+      ],
+      "bootstrap_replicates": 500,
+      "interval_covers_null": true,
+      "e_value_point": 2.530381486472815,
+      "e_value_ci_limit": 1.0,
+      "label": "호르몬치료 (ER 양성)",
+      "treatment": "hormone",
+      "prespecified": true
+    },
+    "hormone_er_negative": {
+      "covariate_spec": "baseline + surgery",
+      "covariates": [
+        "age",
+        "tumor_size_mm",
+        "lymph_pos",
+        "stage",
+        "grade",
+        "pr",
+        "her2",
+        "menopause=Pre",
+        "subtype=HR+/HER2+",
+        "subtype=HR-/HER2+",
+        "subtype=TNBC",
+        "surgery=BREAST CONSERVING"
+      ],
+      "eligible": 310,
+      "treated": 83,
+      "treated_pct": 26.7741935483871,
+      "median_propensity_control": 0.2750379286591969,
+      "median_propensity_treated": 0.33716975350723516,
+      "untrimmed_worst_abs_smd": 0.08878953196377033,
+      "untrimmed_effective_sample_size": 275.5791024883652,
+      "analysed": 270,
+      "retained_pct": 87.09677419354838,
+      "trim_iterations": 2,
+      "trim_converged": true,
+      "max_weight": 2.391693044022736,
+      "trimmed_worst_abs_smd": 0.0810313004182275,
+      "trimmed_balanced_pct": 100.0,
+      "trimmed_effective_sample_size": 250.84021119752137,
+      "identifiable": true,
+      "estimators": {
+        "ipw_km": {
+          "risk_treated": 0.27954013327480276,
+          "risk_control": 0.4028514442330654,
+          "risk_difference": -0.12331131095826264,
+          "risk_ratio": 0.6939037634753465
+        },
+        "g_computation": {
+          "risk_treated": 0.29033972296816624,
+          "risk_control": 0.40349573589315335,
+          "risk_difference": -0.11315601292498711,
+          "risk_ratio": 0.7195608209476814
+        },
+        "aipw": {
+          "risk_treated": 0.26332176654969514,
+          "risk_control": 0.40240576921901805,
+          "risk_difference": -0.13908400266932291,
+          "risk_ratio": 0.6543687657876907
+        }
+      },
+      "censoring": {
+        "min_uncensored_probability": 0.7105635756573868,
+        "mean_uncensored_probability": 0.9823240851483321,
+        "observed_at_horizon_pct": 98.14814814814815
+      },
+      "estimator_spread_risk_difference": 0.0259279897443358,
+      "aipw_risk_difference": -0.13908400266932291,
+      "aipw_risk_ratio": 0.6543687657876907,
+      "aipw_ci95": [
+        -0.23503446055765398,
+        0.04293005769945421
+      ],
+      "aipw_risk_ratio_ci95": [
+        0.4625264211848575,
+        1.1191946228098253
+      ],
+      "bootstrap_replicates": 500,
+      "interval_covers_null": true,
+      "e_value_point": 2.4266196461767002,
+      "e_value_ci_limit": 1.0,
+      "label": "호르몬치료 (ER 음성, 음성대조)",
+      "treatment": "hormone",
+      "prespecified": true
+    },
+    "chemo_with_surgery": {
+      "covariate_spec": "baseline + surgery",
+      "covariates": [
+        "age",
+        "tumor_size_mm",
+        "lymph_pos",
+        "stage",
+        "grade",
+        "er",
+        "pr",
+        "her2",
+        "menopause=Pre",
+        "subtype=HR+/HER2+",
+        "subtype=HR-/HER2+",
+        "subtype=TNBC",
+        "surgery=BREAST CONSERVING"
+      ],
+      "eligible": 1341,
+      "treated": 297,
+      "treated_pct": 22.14765100671141,
+      "median_propensity_control": 0.0376063480411166,
+      "median_propensity_treated": 0.6934567143403909,
+      "untrimmed_worst_abs_smd": 1.9386487192922022,
+      "untrimmed_effective_sample_size": 29.428955504075045,
+      "analysed": 420,
+      "retained_pct": 31.319910514541387,
+      "trim_iterations": 5,
+      "trim_converged": true,
+      "max_weight": 5.885361703237806,
+      "trimmed_worst_abs_smd": 0.055927742561526474,
+      "trimmed_balanced_pct": 100.0,
+      "trimmed_effective_sample_size": 278.3426903025644,
+      "identifiable": true,
+      "estimators": {
+        "ipw_km": {
+          "risk_treated": 0.2257363087355616,
+          "risk_control": 0.2596508923900658,
+          "risk_difference": -0.03391458365450417,
+          "risk_ratio": 0.8693839125977071
+        },
+        "g_computation": {
+          "risk_treated": 0.21866537909881656,
+          "risk_control": 0.23922155371242,
+          "risk_difference": -0.02055617461360343,
+          "risk_ratio": 0.914070558047144
+        },
+        "aipw": {
+          "risk_treated": 0.2325818218218279,
+          "risk_control": 0.2559221111294004,
+          "risk_difference": -0.02334028930757248,
+          "risk_ratio": 0.9087992467529659
+        }
+      },
+      "censoring": {
+        "min_uncensored_probability": 0.7888231852077018,
+        "mean_uncensored_probability": 0.979018598955329,
+        "observed_at_horizon_pct": 97.85714285714285
+      },
+      "estimator_spread_risk_difference": 0.013358409040900743,
+      "aipw_risk_difference": -0.02334028930757248,
+      "aipw_risk_ratio": 0.9087992467529659,
+      "aipw_ci95": [
+        -0.1264337882196991,
+        0.10176938463091434
+      ],
+      "aipw_risk_ratio_ci95": [
+        0.5983150022304169,
+        1.5287397046846702
+      ],
+      "bootstrap_replicates": 500,
+      "interval_covers_null": true,
+      "e_value_point": 1.4326537232344956,
+      "e_value_ci_limit": 1.0,
+      "label": "보조 항암치료 (수술 유형 보정)",
+      "treatment": "chemo",
+      "prespecified": true
+    },
+    "radio_mastectomy": {
+      "covariate_spec": "baseline + surgery",
+      "covariates": [
+        "age",
+        "tumor_size_mm",
+        "lymph_pos",
+        "stage",
+        "grade",
+        "er",
+        "pr",
+        "her2",
+        "menopause=Pre",
+        "subtype=HR+/HER2+",
+        "subtype=HR-/HER2+",
+        "subtype=TNBC"
+      ],
+      "eligible": 767,
+      "treated": 378,
+      "treated_pct": 49.282920469361144,
+      "median_propensity_control": 0.34007131576066446,
+      "median_propensity_treated": 0.6005878668248636,
+      "untrimmed_worst_abs_smd": 7.951885601135147,
+      "untrimmed_effective_sample_size": 1.4374191387376831,
+      "analysed": 584,
+      "retained_pct": 76.14080834419818,
+      "trim_iterations": 6,
+      "trim_converged": true,
+      "max_weight": 4.65098037869753,
+      "trimmed_worst_abs_smd": 0.02550566539160618,
+      "trimmed_balanced_pct": 100.0,
+      "trimmed_effective_sample_size": 432.2227625339859,
+      "identifiable": true,
+      "estimators": {
+        "ipw_km": {
+          "risk_treated": 0.18468918240301535,
+          "risk_control": 0.24586540691379677,
+          "risk_difference": -0.06117622451078142,
+          "risk_ratio": 0.7511800245561568
+        },
+        "g_computation": {
+          "risk_treated": 0.184121110019408,
+          "risk_control": 0.2260201140795609,
+          "risk_difference": -0.0418990040601529,
+          "risk_ratio": 0.8146226753721392
+        },
+        "aipw": {
+          "risk_treated": 0.18765785678839336,
+          "risk_control": 0.2408214398178643,
+          "risk_difference": -0.05316358302947094,
+          "risk_ratio": 0.779240656190416
+        }
+      },
+      "censoring": {
+        "min_uncensored_probability": 0.5825891996114518,
+        "mean_uncensored_probability": 0.9666783965422248,
+        "observed_at_horizon_pct": 96.57534246575342
+      },
+      "estimator_spread_risk_difference": 0.01927722045062852,
+      "aipw_risk_difference": -0.05316358302947094,
+      "aipw_risk_ratio": 0.779240656190416,
+      "aipw_ci95": [
+        -0.13758205754053238,
+        0.018219286423982708
+      ],
+      "aipw_risk_ratio_ci95": [
+        0.545594424460378,
+        1.0918002939994838
+      ],
+      "bootstrap_replicates": 500,
+      "interval_covers_null": true,
+      "e_value_point": 1.8862598226247242,
+      "e_value_ci_limit": 1.0,
+      "label": "방사선치료 (전절제 후)",
+      "treatment": "radio",
+      "prespecified": false
+    },
+    "radio_conserving": {
+      "covariate_spec": "baseline + surgery",
+      "covariates": [
+        "age",
+        "tumor_size_mm",
+        "lymph_pos",
+        "stage",
+        "grade",
+        "er",
+        "pr",
+        "her2",
+        "menopause=Pre",
+        "subtype=HR+/HER2+",
+        "subtype=HR-/HER2+",
+        "subtype=TNBC"
+      ],
+      "eligible": 574,
+      "treated": 524,
+      "treated_pct": 91.28919860627178,
+      "median_propensity_control": 0.8939465474683082,
+      "median_propensity_treated": 0.924537606976696,
+      "untrimmed_worst_abs_smd": 0.06796830806412599,
+      "untrimmed_effective_sample_size": 555.1792870354225,
+      "analysed": 135,
+      "retained_pct": 23.519163763066203,
+      "trim_iterations": 4,
+      "trim_converged": true,
+      "max_weight": 1.8818321133458045,
+      "trimmed_worst_abs_smd": 0.09046836660704324,
+      "trimmed_balanced_pct": 100.0,
+      "trimmed_effective_sample_size": 128.9583775626812,
+      "identifiable": true,
+      "estimators": {
+        "ipw_km": {
+          "risk_treated": 0.08242755635266352,
+          "risk_control": 0.049361569260988,
+          "risk_difference": 0.03306598709167552,
+          "risk_ratio": 1.6698730933136805
+        },
+        "g_computation": {
+          "risk_treated": 0.0768652174527315,
+          "risk_control": 0.07715059682156045,
+          "risk_difference": -0.0002853793688289419,
+          "risk_ratio": 0.9963010089281747
+        },
+        "aipw": {
+          "risk_treated": 0.07648617710971559,
+          "risk_control": 0.08004563574524375,
+          "risk_difference": -0.0035594586355281593,
+          "risk_ratio": 0.9555321336086751
+        }
+      },
+      "censoring": {
+        "min_uncensored_probability": 0.37198729978234435,
+        "mean_uncensored_probability": 0.9784085107020911,
+        "observed_at_horizon_pct": 97.77777777777777
+      },
+      "estimator_spread_risk_difference": 0.03662544572720368,
+      "aipw_risk_difference": -0.0035594586355281593,
+      "aipw_risk_ratio": 0.9555321336086751,
+      "aipw_ci95": [
+        -0.2515888060684449,
+        0.16696892639984168
+      ],
+      "aipw_risk_ratio_ci95": [
+        0.11903736789779118,
+        302.75669543071155
+      ],
+      "bootstrap_replicates": 487,
+      "interval_covers_null": true,
+      "e_value_point": 1.2672248381775721,
+      "e_value_ci_limit": 1.0,
+      "label": "방사선치료 (유방보존술 후)",
+      "treatment": "radio",
+      "prespecified": false
+    }
+  }
+}

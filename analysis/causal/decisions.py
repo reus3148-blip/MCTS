@@ -171,32 +171,92 @@ def trim_to_overlap(
     treatment: str,
     bounds: tuple[float, float],
     spec: CovariateSpec = DEFAULT_SPEC,
+    max_iterations: int = 25,
 ) -> dict:
-    """Fit, trim to the overlap region, refit inside it, then weight and diagnose.
+    """Trim to the overlap region and refit until the scores stay inside it.
 
     Refitting after trimming matters: a model fitted on the full cohort is
     dominated by the near-deterministic tails, and its scores are not the ones
     that balance the overlap population.
-    """
-    propensity, _ = propensity_and_weights(cohort, treatment, spec)
-    keep = (propensity >= bounds[0]) & (propensity <= bounds[1])
-    trimmed = cohort[keep].reset_index(drop=True)
-    if trimmed[treatment].nunique() < 2:
-        raise ValueError(f"trim {bounds} leaves a single arm")
 
-    inner_propensity, weights = propensity_and_weights(trimmed, treatment, spec)
-    balance = balance_table(trimmed, treatment, weights, spec)
+    But the refit produces *new* scores, and those can fall back outside the
+    window - so one trim-then-refit pass does not generally leave a population
+    that satisfies its own overlap condition. v0.6 and v0.7 did exactly one pass;
+    for the endocrine decision restricted to ER-positive patients that left a
+    population whose refitted propensities reached 0.999, worst |SMD| 1.58 and an
+    effective sample of 77 out of 817. Iterating to a fixed point - trim, refit,
+    trim again until every score is inside the window - gives 564 patients with
+    worst |SMD| 0.032 and an effective sample of 500.
+
+    ``max_iterations=1`` reproduces the original single-pass behaviour, which is
+    how the pre-v1.3 numbers can still be regenerated.
+    """
+    current = cohort.reset_index(drop=True)
+    iterations = 0
+    converged = False
+    for iterations in range(1, max_iterations + 1):
+        propensity, weights = propensity_and_weights(current, treatment, spec)
+        inside = (propensity >= bounds[0]) & (propensity <= bounds[1])
+        if inside.all():
+            converged = True
+            break
+        trimmed = current[inside].reset_index(drop=True)
+        if trimmed[treatment].nunique() < 2:
+            raise ValueError(f"trim {bounds} leaves a single arm")
+        if iterations == max_iterations:
+            current = trimmed
+            propensity, weights = propensity_and_weights(current, treatment, spec)
+            break
+        current = trimmed
+
+    if current[treatment].nunique() < 2:
+        raise ValueError(f"trim {bounds} leaves a single arm")
+    balance = balance_table(current, treatment, weights, spec)
     return {
         "bounds": list(bounds),
-        "cohort": trimmed,
-        "propensity": inner_propensity,
+        "cohort": current,
+        "propensity": propensity,
         "weights": weights,
         "balance": balance,
-        "n": int(len(trimmed)),
-        "n_treated": int(trimmed[treatment].sum()),
-        "retained_pct": float(len(trimmed) / len(cohort) * 100),
+        "n": int(len(current)),
+        "n_treated": int(current[treatment].sum()),
+        "retained_pct": float(len(current) / len(cohort) * 100),
         "worst_abs_smd": float(balance["smd_weighted"].abs().max()),
         "balanced_pct": float(balance["balanced_after"].mean() * 100),
         "effective_sample_size": effective_sample_size(weights),
         "max_weight": float(weights.max()),
+        "iterations": int(iterations),
+        "converged": bool(converged),
+        "propensity_inside_bounds_pct": float(
+            ((propensity >= bounds[0]) & (propensity <= bounds[1])).mean() * 100),
     }
+
+
+def drop_constant_terms(
+    cohort: pd.DataFrame,
+    spec: CovariateSpec = DEFAULT_SPEC,
+) -> CovariateSpec:
+    """The same spec with covariates that do not vary in this cohort removed.
+
+    Subgroup analyses make some covariates constant by construction - ``er`` is
+    always 1 inside the ER-positive subgroup, and two of the four subtype levels
+    are empty there. A constant cannot confound within the subgroup, but leaving
+    it in makes the design matrix collinear with the intercept and turns its
+    standardised mean difference into 0/0. Dropping it is the honest fix, and
+    doing it here means every model in the analysis drops the same terms.
+    """
+    continuous = tuple(
+        column for column in spec.continuous
+        if cohort[column].astype(float).nunique(dropna=True) > 1
+    )
+    binary = tuple(
+        column for column in spec.binary
+        if cohort[column].astype(float).nunique(dropna=True) > 1
+    )
+    categorical = tuple(
+        (column, tuple(level for level in levels
+                       if 0 < (cohort[column] == level).sum() < len(cohort)))
+        for column, levels in spec.categorical
+    )
+    categorical = tuple((column, levels) for column, levels in categorical if levels)
+    return CovariateSpec(continuous, binary, categorical, spec.label)

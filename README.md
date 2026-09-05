@@ -3,7 +3,7 @@
 공개 유방암 코호트로 치료 의사결정 환경을 만들고, 단순화한 NCCN 정책과
 Monte Carlo Tree Search(MCTS) 정책을 비교하는 학부 연구 프로젝트입니다.
 
-> 현재 단계: **코호트 복제 v1.2 완료 (2026-09-04)**  
+> 현재 단계: **음성대조와 트리밍 수정 v1.3 완료 (2026-09-05)**  
 > 연구용 예측 실험이며 실제 환자의 치료 권고 도구가 아닙니다.
 
 ## 지금까지 한 일
@@ -56,6 +56,17 @@ Monte Carlo Tree Search(MCTS) 정책을 비교하는 학부 연구 프로젝트�
     맞습니다. 살아남은 것은 헤드라인(A +0.0313, B +0.0352, 합산 **+0.0332**)입니다.
     사후 분석에서 **아형 균등 표집이 헤드라인을 41% 부풀리고 있었다**는 것을 찾았습니다
     (실제 아형 구성으로 표준화하면 **+0.0198**).
+19. **v1.3**: v0.7이 남긴 호르몬치료 효과 추정을 끝내려다 두 가지를 찾았습니다.
+    **음성대조가 실패했습니다** — 약이 들을 수 없는 ER 음성 환자에서 ER 양성과 거의
+    같은 위험비가 나왔습니다(0.654 대 0.634). 그래서 이 프로젝트의 관찰 추정치는
+    이제 **"효과"가 아니라 "교란 보정 후에도 남는 연관성"** 으로만 적습니다.
+    그리고 **트리밍이 v0.6부터 고정점에 도달하지 않고 있었습니다**(10칸 전부, 5칸은
+    균형까지 실패). 고치자 v0.7의 **"방사선은 식별 불가" 판정이 철회**됐습니다
+    (최악 |SMD| 0.234 → 0.030).
+
+**헤드라인 인용 규칙**(2026-09-05 결정): 효용 격차는 **아형 균등 표본** 값 +0.0332를
+쓰되, 실제 아형 구성으로 표준화한 **+0.0198**과 아형 간 3.7배 차이를 **항상 함께** 적습니다.
+근거와 되돌릴 조건은 `src/minutes/2026-09-05-headline-sampling-decision.md`에 있습니다.
 
 전체 줄기를 한 번에 읽으려면 [연구 이야기](docs/research-story.md),
 숫자가 왜 달라졌는지는 [숫자 화해](docs/results-reconciliation.md),
@@ -74,6 +85,7 @@ Monte Carlo Tree Search(MCTS) 정책을 비교하는 학부 연구 프로젝트�
 [민감도 재실행 v1.0 보고서](reports/sensitivity-precision-v1.0/README.md),
 [환자 수 민감도 v1.1 보고서](reports/sensitivity-patients-v1.1/README.md),
 [코호트 복제 v1.2 보고서](reports/cohort-replication-v1.2/README.md),
+[음성대조와 트리밍 수정 v1.3 보고서](reports/endocrine-effect-v1.3/README.md),
 [v0.5 환경 재실행](reports/robustness-v0.5env/README.md),
 [Target trial 프로토콜](docs/target-trial-protocol.md),
 날짜별 작업 근거는 [프로젝트 타임라인](PROJECT_TIMELINE.md)에 정리되어 있습니다.
@@ -108,8 +120,11 @@ analysis/
   28_run_cohort_replication.py    겹치지 않는 코호트 복제 (v1.2)
   29_visualize_cohort_replication.py Figure 34~35
   30_run_subtype_standardisation.py 아형 표준화 (v1.2 사후)
+  31_run_endocrine_effect.py      호르몬치료 효과·음성대조·트리밍 수정 (v1.3)
+  32_visualize_endocrine_effect.py Figure 36~37
   causal/ipw.py                   프로펜서티·균형·가중 KM·IPCW·AIPW·E-value (numpy 구현)
-  causal/decisions.py             결정별 코호트·교란요인 명세·트리밍
+  causal/decisions.py             결정별 코호트·교란요인 명세·고정점 트리밍
+  causal/effects.py               IPCW·세 추정량·부트스트랩 (17과 31이 공유)
   mcts/                   환경·생존모형·UCT 탐색 모듈
   dynamic/                공통 스키마·확률 전이·stochastic MCTS
   dynamic/cohort.py       10~12가 공유하는 코호트·보상모형·매니페스트
@@ -142,6 +157,8 @@ reports/sensitivity-patients-v1.1/
   tables/                 13변형 × 3코호트 결과·환자별 효용 격차
 reports/cohort-replication-v1.2/
   tables/                 겹치지 않는 두 코호트·합산·아형 표준화
+reports/endocrine-effect-v1.3/
+  tables/                 결정별 효과·음성대조·공변량 균형·트리밍 수렴
 reports/*-v0.5env/        v0.3·v0.4를 수정 환경에서 재실행한 결과
 configs/dynamic_v0_5.json 현재 환경 가정 (v0.2는 과거 리포트 재현용으로 보존)
 docs/k-cure-adaptation.md K-CURE 이행 데이터 계약
@@ -181,6 +198,13 @@ npm run dev
   명세한 MCTS vs NCCN 전략 비교가 아닙니다. 그 비교는 치료 시점 정보가 있어야 식별됩니다.
 - **겹침(positivity) 진단은 교란요인 목록에 조건부입니다.** v0.7에서 방사선치료의 넓은
   겹침이 수술 유형 누락의 산물이었음을 확인했습니다. 겹침이 넓다고 안심하면 안 됩니다.
+- **관찰 추정치를 "효과"라고 부르지 않습니다.** v1.3의 음성대조에서, 호르몬치료가 들을
+  수 없는 ER 음성 환자에게 ER 양성과 거의 같은 위험비가 나왔습니다(0.654 대 0.634).
+  교란 보정 후에도 상당한 편의가 남아 있으므로 **"교란 보정 후에도 남는 연관성"** 으로만
+  적습니다. 인과 추정을 낼 때는 **음성대조를 함께 돌립니다.**
+- **트리밍은 고정점까지 반복합니다**(v1.3). 한 번의 trim-then-refit은 자기 조건을
+  만족하지 않습니다. v0.6·v0.7은 한 번만 돌렸고, 그 때문에 v0.7의 "방사선 식별 불가"
+  판정이 철회됐습니다. `analysis/17`은 재현을 위해 옛 동작으로 고정해 두었습니다.
 - METABRIC은 오래된 치료 시기의 데이터이므로 최신 임상진료에 바로 적용할 수
   없습니다.
 - v0.2는 동적으로 움직이지만 반응·독성·치료강도 차이는 합성 학습용 가정입니다.

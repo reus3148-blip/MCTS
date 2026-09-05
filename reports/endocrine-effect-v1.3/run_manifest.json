@@ -1,6 +1,6 @@
 {
-  "run_date": "2026-08-27",
-  "generated_at": "2026-09-05T11:33:35+09:00",
+  "run_date": "2026-09-05",
+  "generated_at": "2026-09-05T11:41:30+09:00",
   "git_commit_before_run": "44fe0d688ad089fd9d50acb747713b02a6baa111",
   "inputs": {
     "data": {
@@ -8,7 +8,6 @@
       "sha256": "23e76e584ebb3a308583e1f278df4b4befba19f7d6175361483149f5b17cab8f"
     }
   },
-  "protocol": "docs/target-trial-protocol.md",
-  "entry_point": "analysis/17_run_doubly_robust.py",
+  "entry_point": "analysis/31_run_endocrine_effect.py",
   "base_seed": 20260720
 }

@@ -44,16 +44,19 @@ from analysis.causal.decisions import (  # noqa: E402
     propensity_and_weights,
     trim_to_overlap,
 )
+from analysis.causal.effects import (  # noqa: E402
+    HORIZON_MONTHS,
+    INTERVAL_EDGES,
+    all_estimators,
+    bootstrap_aipw,
+    censoring_weights,
+    estimator_spread,
+    horizon_status,
+)
 from analysis.causal.ipw import (  # noqa: E402
-    aipw_risk,
-    discrete_time_rows,
     e_value,
     e_value_for_interval,
     effective_sample_size,
-    fit_logistic,
-    sigmoid,
-    survival_probability,
-    weighted_kaplan_meier,
 )
 from analysis.dynamic.cohort import (  # noqa: E402
     BASE_SEED,
@@ -67,160 +70,16 @@ TABLE_DIR = REPORT_DIR / "tables"
 
 RUN_DATE = "2026-08-27"
 PRIMARY_TREATMENT = "chemo"
-HORIZON_MONTHS = 60.0
-INTERVAL_EDGES = np.array([0.0, 12.0, 24.0, 36.0, 48.0, 60.0])
+
 PRIMARY_TRIM = (0.10, 0.90)     # the trim v0.6 selected for this decision
 BOOTSTRAP = 500
 
-
-def horizon_status(cohort: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
-    """``(outcome, observed)`` at the horizon.
-
-    A patient's five-year status is known if they died within the horizon, or if
-    follow-up reached it. Anyone censored earlier contributes no outcome, which
-    is what the censoring weights exist to correct for.
-    """
-    months = cohort["os_months"].to_numpy(dtype=float)
-    died = cohort["os_event"].to_numpy(dtype=float) == 1
-    outcome = ((months <= HORIZON_MONTHS) & died).astype(float)
-    observed = ((months >= HORIZON_MONTHS) | ((months < HORIZON_MONTHS) & died))
-    return outcome, observed.astype(float)
-
-
-def pooled_design(
-    cohort: pd.DataFrame,
-    treatment: str,
-    rows: np.ndarray,
-    intervals: np.ndarray,
-    force_treatment: float | None = None,
-) -> np.ndarray:
-    """Person-interval design: interval dummies, treatment, baseline covariates."""
-    base = design_matrix(cohort)[rows]
-    n_intervals = INTERVAL_EDGES.size - 1
-    dummies = np.zeros((rows.size, n_intervals - 1))
-    for index in range(1, n_intervals):     # interval 0 is the reference
-        dummies[intervals == index, index - 1] = 1.0
-    if force_treatment is None:
-        exposure = cohort[treatment].to_numpy(dtype=float)[rows]
-    else:
-        exposure = np.full(rows.size, float(force_treatment))
-    return np.column_stack([base, dummies, exposure])
-
-
-def censoring_weights(cohort: pd.DataFrame, treatment: str) -> np.ndarray:
-    """Probability of reaching one's horizon status uncensored, given X and A.
-
-    Estimated as a discrete-time censoring hazard (pooled logistic over yearly
-    intervals) rather than assumed constant, so that censoring may depend on the
-    same covariates that drive treatment.
-    """
-    months = cohort["os_months"].to_numpy(dtype=float)
-    died = cohort["os_event"].to_numpy(dtype=float) == 1
-    censored_early = ((months < HORIZON_MONTHS) & ~died).astype(float)
-    rows, intervals, censor_here = discrete_time_rows(
-        months, censored_early, INTERVAL_EDGES)
-    design = pooled_design(cohort, treatment, rows, intervals)
-    hazard = sigmoid(design @ fit_logistic(design, censor_here))
-    return np.clip(survival_probability(hazard, rows, len(cohort)), 1e-3, 1.0)
-
-
-def outcome_predictions(
-    cohort: pd.DataFrame,
-    treatment: str,
-    outcome: np.ndarray,
-    observed: np.ndarray,
-    uncensored: np.ndarray,
-) -> tuple[np.ndarray, np.ndarray]:
-    """IPCW-weighted outcome model, evaluated with treatment set to 1 and to 0.
-
-    Fitting only on patients whose status is known would over-represent those with
-    long follow-up; weighting them by 1/P(uncensored) restores the population they
-    stand in for.
-    """
-    design = np.column_stack([
-        design_matrix(cohort), cohort[treatment].to_numpy(dtype=float)])
-    weights = observed / uncensored
-    beta = fit_logistic(design, outcome, sample_weight=weights)
-
-    def predict(value: float) -> np.ndarray:
-        forced = np.column_stack([
-            design_matrix(cohort), np.full(len(cohort), value)])
-        return sigmoid(forced @ beta)
-
-    return predict(1.0), predict(0.0)
-
-
-def ipw_risks(cohort: pd.DataFrame, treatment: str, weights: np.ndarray) -> dict:
-    """v0.6's estimator: IPT-weighted Kaplan-Meier risk at the horizon."""
-    def arm(value: int) -> float:
-        mask = (cohort[treatment] == value).to_numpy()
-        curve = weighted_kaplan_meier(
-            cohort.loc[mask, "os_months"].to_numpy(dtype=float),
-            cohort.loc[mask, "os_event"].to_numpy(dtype=float),
-            weights[mask])
-        return 1.0 - curve.at(HORIZON_MONTHS)
-
-    treated_risk, control_risk = arm(1), arm(0)
-    return {
-        "risk_treated": treated_risk,
-        "risk_control": control_risk,
-        "risk_difference": treated_risk - control_risk,
-        "risk_ratio": treated_risk / control_risk if control_risk > 0 else float("nan"),
-    }
-
-
-def all_estimators(cohort: pd.DataFrame, treatment: str, weights: np.ndarray,
-                   propensity: np.ndarray) -> dict[str, dict]:
-    """IPW, g-computation and AIPW over the same population."""
-    outcome, observed = horizon_status(cohort)
-    uncensored = censoring_weights(cohort, treatment)
-    predicted_treated, predicted_control = outcome_predictions(
-        cohort, treatment, outcome, observed, uncensored)
-
-    g_treated = float(predicted_treated.mean())
-    g_control = float(predicted_control.mean())
-    return {
-        "ipw_km": ipw_risks(cohort, treatment, weights),
-        "g_computation": {
-            "risk_treated": g_treated,
-            "risk_control": g_control,
-            "risk_difference": g_treated - g_control,
-            "risk_ratio": g_treated / g_control if g_control > 0 else float("nan"),
-        },
-        "aipw": aipw_risk(
-            cohort[treatment].to_numpy(dtype=float), outcome, observed,
-            propensity, uncensored, predicted_treated, predicted_control),
-        "censoring": {
-            "min_uncensored_probability": float(uncensored.min()),
-            "mean_uncensored_probability": float(uncensored.mean()),
-            "observed_at_horizon_pct": float(observed.mean() * 100),
-        },
-    }
-
-
-def bootstrap_aipw(cohort: pd.DataFrame, treatment: str, seed: int) -> dict:
-    """Percentile CI repeating fit, trim, refit and both nuisance models."""
-    rng = np.random.default_rng(seed)
-    n = len(cohort)
-    differences, ratios = [], []
-    for _ in range(BOOTSTRAP):
-        sample = cohort.iloc[rng.integers(0, n, size=n)].reset_index(drop=True)
-        try:
-            trimmed = trim_to_overlap(sample, treatment, PRIMARY_TRIM)
-            result = all_estimators(
-                trimmed["cohort"], treatment, trimmed["weights"],
-                trimmed["propensity"])["aipw"]
-        except (np.linalg.LinAlgError, ValueError):
-            continue
-        if np.isfinite(result["risk_difference"]):
-            differences.append(result["risk_difference"])
-        if np.isfinite(result["risk_ratio"]) and result["risk_ratio"] > 0:
-            ratios.append(result["risk_ratio"])
-    return {
-        "risk_difference": [float(np.quantile(differences, q)) for q in (0.025, 0.975)],
-        "risk_ratio": [float(np.quantile(ratios, q)) for q in (0.025, 0.975)],
-        "replicates": len(differences),
-    }
+#: v1.3 found that one trim-then-refit pass is not a fixed point: the refitted
+#: propensities can fall back outside the window. This script is pinned to the
+#: single-pass behaviour so the published v0.7 report stays reproducible from its
+#: own manifest - the same reason ``configs/dynamic_poc_v0_2.json`` is kept.
+#: The corrected numbers are in ``reports/endocrine-effect-v1.3``.
+TRIM_ITERATIONS = 1
 
 
 def overlap_diagnostics(
@@ -249,7 +108,8 @@ def overlap_diagnostics(
         "untrimmed_effective_sample_size": effective_sample_size(weights),
     }
     try:
-        trimmed = trim_to_overlap(cohort, treatment, PRIMARY_TRIM, spec)
+        trimmed = trim_to_overlap(cohort, treatment, PRIMARY_TRIM, spec,
+                                  max_iterations=TRIM_ITERATIONS)
         row.update({
             "trimmed_n": trimmed["n"],
             "retained_pct": trimmed["retained_pct"],
@@ -273,7 +133,8 @@ def main() -> None:
 
     # --- Part A: three estimators over the v0.6 overlap population -----------
     cohort = build_cohort(raw, PRIMARY_TREATMENT)
-    trimmed = trim_to_overlap(cohort, PRIMARY_TREATMENT, PRIMARY_TRIM)
+    trimmed = trim_to_overlap(cohort, PRIMARY_TREATMENT, PRIMARY_TRIM,
+                              max_iterations=TRIM_ITERATIONS)
     print(f"primary decision = {PRIMARY_TREATMENT}: "
           f"{trimmed['n']} of {len(cohort)} in overlap", flush=True)
 
@@ -285,17 +146,14 @@ def main() -> None:
         print(f"  {name:14s} RD {result['risk_difference']:+.4f}  "
               f"RR {result['risk_ratio']:.3f}", flush=True)
 
-    intervals = bootstrap_aipw(cohort, PRIMARY_TREATMENT, BASE_SEED)
+    intervals = bootstrap_aipw(cohort, PRIMARY_TREATMENT, BASE_SEED,
+                               max_iterations=TRIM_ITERATIONS)
     ratio_ci = intervals["risk_ratio"]
     print(f"  AIPW 95% CI [{intervals['risk_difference'][0]:+.4f}, "
           f"{intervals['risk_difference'][1]:+.4f}] "
           f"({intervals['replicates']} replicates)", flush=True)
 
-    spread = max(
-        abs(estimators[a]["risk_difference"] - estimators[b]["risk_difference"])
-        for a in ("ipw_km", "g_computation", "aipw")
-        for b in ("ipw_km", "g_computation", "aipw")
-    )
+    spread = estimator_spread(estimators)
 
     # --- Part B: which decisions are answerable at all? ----------------------
     # Run under two confounder sets. Radiotherapy is chosen largely by surgery
