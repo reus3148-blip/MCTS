@@ -1,0 +1,10 @@
+channel,level,death_hazard,recurrence_hazard,declares_any_benefit,acute_toxicity_probability,treatment_burden
+chemo,none,1.0,1.0,False,0.0,0.0
+chemo,standard,1.0,1.0,False,0.15,0.12
+chemo,intensified,0.95,0.9,True,0.3,0.2
+endocrine,none,1.0,1.0,False,0.0,0.0
+endocrine,standard,1.0,1.0,False,0.05,0.03
+endocrine,extended,0.98,0.92,True,0.1,0.06
+radiation,none,1.0,1.0,False,0.0,0.0
+radiation,local,1.0,1.0,False,0.05,0.05
+radiation,regional,1.0,0.95,True,0.12,0.09

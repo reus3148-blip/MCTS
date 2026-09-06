@@ -1,0 +1,429 @@
+{
+  "run_date": "2026-09-07",
+  "analysis_label": "channel-decomposition-v1.5",
+  "question": "After v1.4 removed the reward model's confounded treatment coefficients, what is the remaining MCTS-minus-NCCN gap made of?",
+  "estimand": "MCTS-minus-NCCN utility gap over the same 40 patients and 12 seeds under a 2x2 over the config's declared treatment benefit and declared treatment cost, with the reward model treatment-neutral.",
+  "scope_warning": "Decomposition of our own simulator's declared assumptions. Not a clinical effect.",
+  "prespecified_prediction": {
+    "null_control": "Arm D has |gap| < 0.005. With treatment neither helping nor costing, a searching policy has nothing to find.",
+    "primary": "Arm B is much smaller than arm A - if the remaining advantage is cost-avoidance, removing the cost removes it.",
+    "secondary": "Arm C is larger than arm A: stripping the small benefits that intensified and extended treatment carry leaves even less reason to treat, so MCTS declines more and NCCN keeps paying.",
+    "why": "The config declares zero survival benefit for standard chemotherapy, endocrine therapy and local radiotherapy while charging toxicity and burden for all three. NCCN prescribes them; MCTS may decline."
+  },
+  "design": {
+    "patients": 40,
+    "seeds": 12,
+    "simulations": 1024,
+    "episodes_per_policy": 40,
+    "config": "configs/dynamic_v0_5.json",
+    "reward_model": "treatment-neutral (v1.4)",
+    "benefit_channels_zeroed": [
+      "chemo",
+      "endocrine",
+      "radiation",
+      "timing"
+    ],
+    "response_channel": "left untouched in every arm"
+  },
+  "verdict": {
+    "gap_baseline": 0.01985215277777787,
+    "gap_cost_off": 0.006124999999999954,
+    "gap_benefit_off": 0.018386805555555653,
+    "gap_both_off": 0.0013298611111110432,
+    "null_control_passed": true,
+    "null_control_tolerance": 0.005,
+    "cost_off_vs_baseline": {
+      "difference": -0.013727152777777918,
+      "standard_error": 0.0011533465454843864,
+      "z": -11.90201924263166
+    },
+    "benefit_off_vs_baseline": {
+      "difference": -0.0014653472222222186,
+      "standard_error": 0.0013910846309730873,
+      "z": -1.0533846680465324
+    },
+    "share_of_gap_from_declared_cost": 0.6914692291278272,
+    "primary_prediction_met": true,
+    "secondary_prediction_met": false,
+    "reproduces_v1_4_neutral": true,
+    "v1_4_neutral_gap": 0.01985215277777787,
+    "pure_cost_levels": [
+      "chemo.standard",
+      "endocrine.standard",
+      "radiation.local"
+    ]
+  },
+  "declared_asymmetry": [
+    {
+      "channel": "chemo",
+      "level": "none",
+      "death_hazard": 1.0,
+      "recurrence_hazard": 1.0,
+      "declares_any_benefit": false,
+      "acute_toxicity_probability": 0.0,
+      "treatment_burden": 0.0
+    },
+    {
+      "channel": "chemo",
+      "level": "standard",
+      "death_hazard": 1.0,
+      "recurrence_hazard": 1.0,
+      "declares_any_benefit": false,
+      "acute_toxicity_probability": 0.15,
+      "treatment_burden": 0.12
+    },
+    {
+      "channel": "chemo",
+      "level": "intensified",
+      "death_hazard": 0.95,
+      "recurrence_hazard": 0.9,
+      "declares_any_benefit": true,
+      "acute_toxicity_probability": 0.3,
+      "treatment_burden": 0.2
+    },
+    {
+      "channel": "endocrine",
+      "level": "none",
+      "death_hazard": 1.0,
+      "recurrence_hazard": 1.0,
+      "declares_any_benefit": false,
+      "acute_toxicity_probability": 0.0,
+      "treatment_burden": 0.0
+    },
+    {
+      "channel": "endocrine",
+      "level": "standard",
+      "death_hazard": 1.0,
+      "recurrence_hazard": 1.0,
+      "declares_any_benefit": false,
+      "acute_toxicity_probability": 0.05,
+      "treatment_burden": 0.03
+    },
+    {
+      "channel": "endocrine",
+      "level": "extended",
+      "death_hazard": 0.98,
+      "recurrence_hazard": 0.92,
+      "declares_any_benefit": true,
+      "acute_toxicity_probability": 0.1,
+      "treatment_burden": 0.06
+    },
+    {
+      "channel": "radiation",
+      "level": "none",
+      "death_hazard": 1.0,
+      "recurrence_hazard": 1.0,
+      "declares_any_benefit": false,
+      "acute_toxicity_probability": 0.0,
+      "treatment_burden": 0.0
+    },
+    {
+      "channel": "radiation",
+      "level": "local",
+      "death_hazard": 1.0,
+      "recurrence_hazard": 1.0,
+      "declares_any_benefit": false,
+      "acute_toxicity_probability": 0.05,
+      "treatment_burden": 0.05
+    },
+    {
+      "channel": "radiation",
+      "level": "regional",
+      "death_hazard": 1.0,
+      "recurrence_hazard": 0.95,
+      "declares_any_benefit": true,
+      "acute_toxicity_probability": 0.12,
+      "treatment_burden": 0.09
+    }
+  ],
+  "arms": {
+    "baseline": {
+      "per_seed_gap": [
+        0.011221666666666907,
+        0.02230583333333358,
+        0.018314166666666853,
+        0.022985833333333372,
+        0.022038333333333382,
+        0.021894999999999887,
+        0.023667500000000175,
+        0.01373833333333363,
+        0.02649833333333329,
+        0.01847333333333334,
+        0.02264166666666667,
+        0.01444583333333338
+      ],
+      "utility_gap": 0.01985215277777787,
+      "standard_error": 0.0013389899048387888,
+      "mcts_utility": 0.8241970833333333,
+      "nccn_utility": 0.8043449305555553,
+      "action_mix": {
+        "MCTS": {
+          "timing": {
+            "surgery_first": 79.167,
+            "neoadjuvant": 20.833
+          },
+          "surgery": {
+            "MAST": 52.635,
+            "BCS": 47.365
+          },
+          "chemo": {
+            "none": 68.87,
+            "standard": 18.875,
+            "intensified": 12.255
+          },
+          "endocrine": {
+            "none": 70.391,
+            "standard": 16.542,
+            "extended": 13.068
+          },
+          "radiation": {
+            "none": 72.146,
+            "regional": 15.016,
+            "local": 12.839
+          }
+        },
+        "NCCN": {
+          "timing": {
+            "surgery_first": 100.0
+          },
+          "surgery": {
+            "BCS": 62.5,
+            "MAST": 37.5
+          },
+          "chemo": {
+            "standard": 92.5,
+            "none": 7.5
+          },
+          "endocrine": {
+            "standard": 50.0,
+            "none": 50.0
+          },
+          "radiation": {
+            "local": 62.5,
+            "none": 24.286,
+            "regional": 13.214
+          }
+        }
+      },
+      "label": "A. 선언된 채널 그대로",
+      "cost_off": false,
+      "benefit_off": false
+    },
+    "cost_off": {
+      "per_seed_gap": [
+        -0.010875000000000079,
+        0.006249999999999978,
+        0.0071666666666665435,
+        0.006624999999999992,
+        0.009708333333333319,
+        0.008999999999999897,
+        0.010500000000000065,
+        0.006999999999999784,
+        0.011083333333333223,
+        0.008333333333333415,
+        0.011499999999999955,
+        -0.0027916666666666368
+      ],
+      "utility_gap": 0.006124999999999954,
+      "standard_error": 0.0018853948670540625,
+      "mcts_utility": 0.8477326388888891,
+      "nccn_utility": 0.841607638888889,
+      "action_mix": {
+        "MCTS": {
+          "timing": {
+            "surgery_first": 55.208,
+            "neoadjuvant": 44.792
+          },
+          "surgery": {
+            "MAST": 60.693,
+            "BCS": 39.307
+          },
+          "chemo": {
+            "intensified": 53.401,
+            "standard": 26.995,
+            "none": 19.604
+          },
+          "endocrine": {
+            "none": 64.318,
+            "standard": 19.38,
+            "extended": 16.302
+          },
+          "radiation": {
+            "none": 54.708,
+            "regional": 30.464,
+            "local": 14.828
+          }
+        },
+        "NCCN": {
+          "timing": {
+            "surgery_first": 100.0
+          },
+          "surgery": {
+            "BCS": 62.5,
+            "MAST": 37.5
+          },
+          "chemo": {
+            "standard": 92.5,
+            "none": 7.5
+          },
+          "endocrine": {
+            "standard": 50.0,
+            "none": 50.0
+          },
+          "radiation": {
+            "local": 62.5,
+            "none": 24.286,
+            "regional": 13.214
+          }
+        }
+      },
+      "label": "B. 비용 제거 (독성 페널티·치료 부담 0)",
+      "cost_off": true,
+      "benefit_off": false
+    },
+    "benefit_off": {
+      "per_seed_gap": [
+        0.009588333333333532,
+        0.026443333333333485,
+        0.024190000000000156,
+        0.013544166666666912,
+        0.017213333333333525,
+        0.020018333333333138,
+        0.026788333333333414,
+        0.015072500000000155,
+        0.0182500000000001,
+        0.019294166666666723,
+        0.017311666666666725,
+        0.01292749999999998
+      ],
+      "utility_gap": 0.018386805555555653,
+      "standard_error": 0.0015493403812375137,
+      "mcts_utility": 0.8224852083333335,
+      "nccn_utility": 0.8040984027777779,
+      "action_mix": {
+        "MCTS": {
+          "timing": {
+            "surgery_first": 82.917,
+            "neoadjuvant": 17.083
+          },
+          "surgery": {
+            "MAST": 52.177,
+            "BCS": 47.823
+          },
+          "chemo": {
+            "none": 73.677,
+            "standard": 20.865,
+            "intensified": 5.458
+          },
+          "endocrine": {
+            "none": 69.797,
+            "standard": 17.641,
+            "extended": 12.562
+          },
+          "radiation": {
+            "none": 73.177,
+            "regional": 14.151,
+            "local": 12.672
+          }
+        },
+        "NCCN": {
+          "timing": {
+            "surgery_first": 100.0
+          },
+          "surgery": {
+            "BCS": 62.5,
+            "MAST": 37.5
+          },
+          "chemo": {
+            "standard": 92.5,
+            "none": 7.5
+          },
+          "endocrine": {
+            "standard": 50.0,
+            "none": 50.0
+          },
+          "radiation": {
+            "local": 62.5,
+            "none": 24.286,
+            "regional": 13.214
+          }
+        }
+      },
+      "label": "C. 이득 제거 (치료 위험비 전부 1.0)",
+      "cost_off": false,
+      "benefit_off": true
+    },
+    "both_off": {
+      "per_seed_gap": [
+        -0.0149166666666668,
+        0.002666666666666817,
+        0.0014583333333332282,
+        0.00562499999999988,
+        0.004541666666666555,
+        0.0032916666666664707,
+        0.007958333333333178,
+        4.166666666671759e-05,
+        0.005666666666666487,
+        -0.00158333333333327,
+        0.0044999999999999485,
+        -0.0032916666666666927
+      ],
+      "utility_gap": 0.0013298611111110432,
+      "standard_error": 0.0017465654302425636,
+      "mcts_utility": 0.8426909722222223,
+      "nccn_utility": 0.8413611111111111,
+      "action_mix": {
+        "MCTS": {
+          "timing": {
+            "surgery_first": 59.583,
+            "neoadjuvant": 40.417
+          },
+          "surgery": {
+            "MAST": 59.234,
+            "BCS": 40.766
+          },
+          "chemo": {
+            "intensified": 37.078,
+            "standard": 33.417,
+            "none": 29.505
+          },
+          "endocrine": {
+            "none": 65.307,
+            "standard": 21.568,
+            "extended": 13.125
+          },
+          "radiation": {
+            "none": 54.172,
+            "regional": 29.339,
+            "local": 16.49
+          }
+        },
+        "NCCN": {
+          "timing": {
+            "surgery_first": 100.0
+          },
+          "surgery": {
+            "BCS": 62.5,
+            "MAST": 37.5
+          },
+          "chemo": {
+            "standard": 92.5,
+            "none": 7.5
+          },
+          "endocrine": {
+            "standard": 50.0,
+            "none": 50.0
+          },
+          "radiation": {
+            "local": 62.5,
+            "none": 24.286,
+            "regional": 13.214
+          }
+        }
+      },
+      "label": "D. 둘 다 제거 (영대조)",
+      "cost_off": true,
+      "benefit_off": true
+    }
+  }
+}

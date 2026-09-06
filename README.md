@@ -3,7 +3,7 @@
 공개 유방암 코호트로 치료 의사결정 환경을 만들고, 단순화한 NCCN 정책과
 Monte Carlo Tree Search(MCTS) 정책을 비교하는 학부 연구 프로젝트입니다.
 
-> 현재 단계: **보상모형 교란 진단 v1.4 완료 (2026-09-07)**  
+> 현재 단계: **채널 분해 v1.5 완료 (2026-09-07)**  
 > 연구용 예측 실험이며 실제 환자의 치료 권고 도구가 아닙니다.
 
 ## 지금까지 한 일
@@ -68,6 +68,12 @@ Monte Carlo Tree Search(MCTS) 정책을 비교하는 학부 연구 프로젝트�
     으로 **둘 다 해롭다고** 믿습니다(우리 보정 분석과 부호가 반대). 치료 계수를 중립화하자
     격차가 **+0.0332 → +0.0199**로 줄었고(z = −5.37), **MCTS가 나빠져서가 아니라 NCCN이
     벌점을 그만 받아서**였습니다(NCCN +0.0118, MCTS −0.0016).
+21. **v1.5**: v1.4가 남긴 +0.0199를 **선언된 이득 × 선언된 비용** 2×2로 분해했습니다.
+    영대조(치료가 돕지도 비용도 아닌 환경)가 **+0.0013**으로 통과했고, 비용을 없앤 것만으로
+    격차의 **69%**가 사라졌습니다(z = −11.9). 이유는 config에 있었습니다 — **표준 항암·표준
+    호르몬·국소 방사선은 선언된 생존 이득이 0인데 비용만 있고**, 그 셋이 바로 NCCN이
+    처방하는 것들입니다. **원래 +0.0332의 81%가 두 비대칭에서 나왔습니다**(v1.4 40% +
+    v1.5 41%). 그래서 **현재 환경에서 "MCTS가 NCCN보다 낫다"를 주장하지 않습니다.**
 
 **헤드라인 인용 규칙**(2026-09-05 결정 · 2026-09-07 갱신): 효용 격차는 **아형 균등 표본 ·
 치료 중립 보상모형** 값 **+0.0199**를 쓰되, 아형 표준화까지 한 **+0.0136**과 아형 간 3.7배
@@ -94,6 +100,7 @@ Monte Carlo Tree Search(MCTS) 정책을 비교하는 학부 연구 프로젝트�
 [코호트 복제 v1.2 보고서](reports/cohort-replication-v1.2/README.md),
 [음성대조와 트리밍 수정 v1.3 보고서](reports/endocrine-effect-v1.3/README.md),
 [보상모형 교란 v1.4 보고서](reports/reward-confounding-v1.4/README.md),
+[채널 분해 v1.5 보고서](reports/channel-decomposition-v1.5/README.md),
 [v0.5 환경 재실행](reports/robustness-v0.5env/README.md),
 [Target trial 프로토콜](docs/target-trial-protocol.md),
 날짜별 작업 근거는 [프로젝트 타임라인](PROJECT_TIMELINE.md)에 정리되어 있습니다.
@@ -132,6 +139,8 @@ analysis/
   32_visualize_endocrine_effect.py Figure 36~37
   33_run_reward_model_confounding.py 보상모형 치료 계수 중립화 (v1.4)
   34_visualize_reward_confounding.py Figure 38~39
+  35_run_channel_decomposition.py 선언된 이득·비용 2×2 분해 (v1.5)
+  36_visualize_channel_decomposition.py Figure 40
   causal/ipw.py                   프로펜서티·균형·가중 KM·IPCW·AIPW·E-value (numpy 구현)
   causal/decisions.py             결정별 코호트·교란요인 명세·고정점 트리밍
   causal/effects.py               IPCW·세 추정량·부트스트랩 (17과 31이 공유)
@@ -171,6 +180,8 @@ reports/endocrine-effect-v1.3/
   tables/                 결정별 효과·음성대조·공변량 균형·트리밍 수렴
 reports/reward-confounding-v1.4/
   tables/                 보상모형 계수·모형 대 인과 대조·행동 구성·아형별 격차
+reports/channel-decomposition-v1.5/
+  tables/                 선언된 이득/비용 비대칭·2×2 팔별 격차·행동 구성
 reports/*-v0.5env/        v0.3·v0.4를 수정 환경에서 재실행한 결과
 configs/dynamic_v0_5.json 현재 환경 가정 (v0.2는 과거 리포트 재현용으로 보존)
 docs/k-cure-adaptation.md K-CURE 이행 데이터 계약
@@ -210,6 +221,10 @@ npm run dev
   명세한 MCTS vs NCCN 전략 비교가 아닙니다. 그 비교는 치료 시점 정보가 있어야 식별됩니다.
 - **겹침(positivity) 진단은 교란요인 목록에 조건부입니다.** v0.7에서 방사선치료의 넓은
   겹침이 수술 유형 누락의 산물이었음을 확인했습니다. 겹침이 넓다고 안심하면 안 됩니다.
+- **현재 환경은 "가이드라인이 최적인가"에 답할 수 없습니다**(v1.5). 표준 항암·표준
+  호르몬·국소 방사선의 **선언된 생존 이득이 0**인데 비용만 있어서, 가이드라인대로
+  처방하는 정책이 구조적으로 손해를 봅니다. 남은 격차의 69%가 그 비용을 MCTS가 피한
+  것입니다. **표준치료의 이득을 선언하는 것이 최우선 과제**이며 임상 판단이 필요합니다.
 - **보상모형은 예후만 담당합니다**(v1.4). Cox 모형이 관찰자료에서 학습한 치료 계수는
   **미선언 채널**이었고 NCCN을 깎고 있었습니다(격차의 40%). 새 실험은
   `neutralise_treatment_terms()`를 쓰고, 치료 효과는 config의 선언된 파라미터가
