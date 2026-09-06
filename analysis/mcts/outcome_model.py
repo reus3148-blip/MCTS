@@ -6,6 +6,8 @@ not identify causal treatment effects from the observational METABRIC cohort.
 
 from __future__ import annotations
 
+import copy
+
 from dataclasses import dataclass
 from typing import Iterable, Sequence
 
@@ -275,6 +277,51 @@ class RegularizedCoxRewardModel:
             tuple(plan): float(prediction)
             for plan, prediction in zip(plans, predictions, strict=True)
         }
+
+    def neutralise_treatment_terms(self) -> "RegularizedCoxRewardModel":
+        """A copy whose treatment coefficients are all zero.
+
+        The Cox reward model learns treatment terms from *observational* data, so
+        those coefficients carry confounding by indication, not treatment effects.
+        v1.3 measured how much: this model puts chemotherapy at HR 1.04 and
+        endocrine therapy at HR 1.05 - both nominally harmful - while our own
+        adjusted analyses of the same data put them on the protective side.
+
+        MCTS optimises whatever the reward model says, so those coefficients are
+        an *undeclared* clinical assumption baked into the environment. This is
+        the same defect v0.5 found in the response channel, one level up, and it
+        gets the same treatment: neutralise the undeclared channel and let the
+        declared assumptions in ``configs/dynamic_v0_5.json`` carry the treatment
+        effects, where sensitivity analysis can reach them.
+
+        Zeroing leaves the baseline hazard and every patient-characteristic term
+        untouched, so the model still ranks *patients* by risk exactly as before -
+        it just no longer prefers one plan over another on its own.
+        """
+        neutral = copy.deepcopy(self)
+        treatment = self.treatment_features()
+        # lifelines' CoxPHFitter delegates prediction to an inner fitter, so the
+        # coefficients have to be zeroed there as well - setting them only on the
+        # wrapper leaves predictions untouched, silently.
+        for fitter in (neutral.model, getattr(neutral.model, "_model", None)):
+            if fitter is None or not hasattr(fitter, "params_"):
+                continue
+            params = fitter.params_
+            fitter.params_ = params.where(~params.index.isin(treatment), 0.0)
+        return neutral
+
+    def treatment_features(self) -> list[str]:
+        """Fitted features that depend on a treatment decision.
+
+        Read off the fitted coefficient index rather than hardcoded, so a new
+        interaction term added to the encoder cannot silently escape the
+        neutralisation.
+        """
+        markers = ("chemo", "hormone", "radio", "mast")
+        return [
+            str(name) for name in self.model.params_.index
+            if any(marker in str(name) for marker in markers)
+        ]
 
     def coefficient_table(self) -> pd.DataFrame:
         table = self.model.summary.reset_index().rename(
