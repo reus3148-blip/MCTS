@@ -1,0 +1,569 @@
+{
+  "run_date": "2026-09-07",
+  "analysis_label": "reward-confounding-v1.4",
+  "question": "MCTS optimises a Cox reward model fitted to confounded observational data. How much of the MCTS-minus-NCCN gap comes from that model's treatment coefficients rather than from the declared assumptions?",
+  "estimand": "Difference between the MCTS-minus-NCCN utility gap with the reward model's treatment coefficients as fitted and with them set to zero, over the same 40 patients and the same 12 seeds.",
+  "scope_warning": "Sensitivity of our own simulator to an undeclared channel in its reward model. Not a clinical effect.",
+  "prespecified_prediction": {
+    "primary": "Neutralising the reward model's treatment coefficients makes the MCTS-minus-NCCN utility gap smaller, tested seed-paired.",
+    "secondary_still_positive": "The neutralised gap stays positive - the declared config channels should still favour a searching policy somewhat.",
+    "secondary_action_rates": "MCTS's treatment rates move toward NCCN's once the coefficients that separated them are gone.",
+    "why": "The reward model puts chemotherapy at HR 1.042 and endocrine therapy at HR 1.046 - both nominally harmful - while our own adjusted analyses of the same data put them on the protective side. MCTS optimises the model, so it can win by exploiting that sign error rather than by treating well."
+  },
+  "design": {
+    "patients": 40,
+    "seeds": 12,
+    "simulations": 1024,
+    "episodes_per_policy": 40,
+    "config": "configs/dynamic_v0_5.json",
+    "neutralised_terms": [
+      "surgery_mast",
+      "chemo",
+      "hormone",
+      "radio",
+      "chemo_x_hrpos_her2neg",
+      "chemo_x_her2pos",
+      "chemo_x_tnbc",
+      "hormone_x_hrpos",
+      "radio_x_mast",
+      "radio_x_stage3plus",
+      "mast_x_stage3plus",
+      "mast_x_tumor"
+    ]
+  },
+  "verdict": {
+    "gap_as_fitted": 0.033248680555555576,
+    "gap_treatment_neutral": 0.01985215277777787,
+    "paired_difference": -0.013396527777777703,
+    "paired_standard_error": 0.0024961895578766162,
+    "paired_z": -5.366791049784481,
+    "primary_prediction_met": true,
+    "share_of_gap_from_reward_model": 0.40291907991336084,
+    "neutral_gap_still_positive": true,
+    "concordance_as_fitted": 0.6660375905099368,
+    "concordance_neutral": 0.6560429825912802,
+    "standardised_gap_as_fitted": 0.019775075187969948,
+    "standardised_gap_treatment_neutral": 0.013564275271512135,
+    "both_corrections_applied": 0.013564275271512135,
+    "v1_2_pooled_gap": 0.0332486805555556,
+    "reproduces_v1_2": true
+  },
+  "subtype_standardisation": {
+    "as_fitted": {
+      "balanced_mean": 0.03324868055555559,
+      "prevalence_standardised_mean": 0.019775075187969948,
+      "prevalence_standardised_standard_error": 0.0039511208528112945,
+      "by_subtype": [
+        {
+          "subtype": "HR+/HER2+",
+          "mean": 0.03875250000000004,
+          "std": 0.016769552417663154,
+          "count": 10,
+          "share": 0.05263157894736842,
+          "standard_error": 0.005302998098139882
+        },
+        {
+          "subtype": "HR+/HER2-",
+          "mean": 0.013640555555555572,
+          "std": 0.01623310344519115,
+          "count": 10,
+          "share": 0.7443609022556391,
+          "standard_error": 0.0051333580379930325
+        },
+        {
+          "subtype": "HR-/HER2+",
+          "mean": 0.050265833333333385,
+          "std": 0.025342281458258644,
+          "count": 10,
+          "share": 0.07142857142857142,
+          "standard_error": 0.008013933051315064
+        },
+        {
+          "subtype": "TNBC",
+          "mean": 0.030335833333333374,
+          "std": 0.018696672883250928,
+          "count": 10,
+          "share": 0.13157894736842105,
+          "standard_error": 0.005912407097818033
+        }
+      ]
+    },
+    "treatment_neutral": {
+      "balanced_mean": 0.01985215277777781,
+      "prevalence_standardised_mean": 0.013564275271512135,
+      "prevalence_standardised_standard_error": 0.0028574876410549445,
+      "by_subtype": [
+        {
+          "subtype": "HR+/HER2+",
+          "mean": 0.0213977777777778,
+          "std": 0.013262768183537735,
+          "count": 10,
+          "share": 0.05263157894736842,
+          "standard_error": 0.004194055553879333
+        },
+        {
+          "subtype": "HR+/HER2-",
+          "mean": 0.009969722222222237,
+          "std": 0.011847309274859979,
+          "count": 10,
+          "share": 0.7443609022556391,
+          "standard_error": 0.003746448145299535
+        },
+        {
+          "subtype": "HR-/HER2+",
+          "mean": 0.02168222222222228,
+          "std": 0.009728759988768708,
+          "count": 10,
+          "share": 0.07142857142857142,
+          "standard_error": 0.0030765040373623253
+        },
+        {
+          "subtype": "TNBC",
+          "mean": 0.02635888888888892,
+          "std": 0.012971723745941192,
+          "count": 10,
+          "share": 0.13157894736842105,
+          "standard_error": 0.004102019221566552
+        }
+      ]
+    }
+  },
+  "reward_model_vs_causal": [
+    {
+      "decision": "chemo",
+      "population": "항암 (겹침 구간)",
+      "n": 420,
+      "reward_model_risk_difference": 0.009944615749557035,
+      "causal_risk_difference": -0.02334028930757248,
+      "sign_disagrees": true,
+      "gap": 0.03328490505712951
+    },
+    {
+      "decision": "hormone",
+      "population": "호르몬 (ER 양성)",
+      "n": 564,
+      "reward_model_risk_difference": 0.008992268759352696,
+      "causal_risk_difference": -0.04842607465368577,
+      "sign_disagrees": true,
+      "gap": 0.05741834341303847
+    },
+    {
+      "decision": "hormone",
+      "population": "호르몬 (ER 음성)",
+      "n": 270,
+      "reward_model_risk_difference": 0.009058117275249624,
+      "causal_risk_difference": -0.13908400266932291,
+      "sign_disagrees": true,
+      "gap": 0.14814211994457255
+    },
+    {
+      "decision": "radio",
+      "population": "방사선 (전절제 후)",
+      "n": 584,
+      "reward_model_risk_difference": -0.0017836874133537032,
+      "causal_risk_difference": -0.05316358302947094,
+      "sign_disagrees": false,
+      "gap": 0.051379895616117235
+    }
+  ],
+  "arms": {
+    "as_fitted": {
+      "per_seed_gap": [
+        0.025572499999999998,
+        0.03329000000000004,
+        0.03397500000000009,
+        0.03179333333333345,
+        0.037149166666666567,
+        0.029961666666666664,
+        0.03672833333333325,
+        0.03897499999999998,
+        0.02062833333333358,
+        0.03594750000000013,
+        0.03239583333333318,
+        0.04256749999999998
+      ],
+      "per_patient_gap": [
+        0.04010555555555559,
+        0.027694444444444476,
+        0.026133333333333397,
+        0.027280555555555502,
+        0.0231944444444445,
+        0.0200861111111111,
+        0.001999999999999974,
+        0.0009250000000000091,
+        0.039375,
+        0.018316666666666714,
+        0.03444444444444451,
+        0.03896111111111125,
+        0.041919444444444565,
+        0.030061111111111205,
+        0.08089444444444442,
+        0.004683333333333456,
+        0.06001388888888887,
+        0.025677777777777883,
+        0.0660194444444444,
+        0.018255555555555608,
+        0.03805833333333344,
+        0.04298611111111114,
+        0.04636388888888892,
+        0.034747222222222256,
+        0.08096111111111118,
+        0.01708055555555556,
+        0.03917222222222224,
+        -0.008372222222222189,
+        0.0015472222222223015,
+        0.006275000000000021,
+        0.01981944444444454,
+        0.045555555555555516,
+        0.08195277777777779,
+        0.03601111111111116,
+        0.09303888888888885,
+        0.026475000000000064,
+        0.02625277777777778,
+        0.020325000000000065,
+        0.031138888888888893,
+        0.024516666666666704
+      ],
+      "patient_ids": [
+        "MB-2994",
+        "MB-3028",
+        "MB-3104",
+        "MB-4276",
+        "MB-5331",
+        "MB-0469",
+        "MB-3614",
+        "MB-3711",
+        "MB-4686",
+        "MB-4750",
+        "MB-0113",
+        "MB-2513",
+        "MB-4350",
+        "MB-4763",
+        "MB-6100",
+        "MB-0294",
+        "MB-3383",
+        "MB-4931",
+        "MB-5008",
+        "MB-5058",
+        "MB-0120",
+        "MB-2786",
+        "MB-5062",
+        "MB-5332",
+        "MB-5558",
+        "MB-5020",
+        "MB-5124",
+        "MB-5144",
+        "MB-5171",
+        "MB-5485",
+        "MB-0378",
+        "MB-3470",
+        "MB-4127",
+        "MB-4952",
+        "MB-5312",
+        "MB-0502",
+        "MB-2753",
+        "MB-4769",
+        "MB-5135",
+        "MB-5258"
+      ],
+      "subtypes": [
+        "HR+/HER2+",
+        "HR+/HER2+",
+        "HR+/HER2+",
+        "HR+/HER2+",
+        "HR+/HER2+",
+        "HR+/HER2-",
+        "HR+/HER2-",
+        "HR+/HER2-",
+        "HR+/HER2-",
+        "HR+/HER2-",
+        "HR-/HER2+",
+        "HR-/HER2+",
+        "HR-/HER2+",
+        "HR-/HER2+",
+        "HR-/HER2+",
+        "TNBC",
+        "TNBC",
+        "TNBC",
+        "TNBC",
+        "TNBC",
+        "HR+/HER2+",
+        "HR+/HER2+",
+        "HR+/HER2+",
+        "HR+/HER2+",
+        "HR+/HER2+",
+        "HR+/HER2-",
+        "HR+/HER2-",
+        "HR+/HER2-",
+        "HR+/HER2-",
+        "HR+/HER2-",
+        "HR-/HER2+",
+        "HR-/HER2+",
+        "HR-/HER2+",
+        "HR-/HER2+",
+        "HR-/HER2+",
+        "TNBC",
+        "TNBC",
+        "TNBC",
+        "TNBC",
+        "TNBC"
+      ],
+      "utility_gap": 0.033248680555555576,
+      "utility_gap_sd": 0.005928456301899025,
+      "standard_error": 0.0017113979208901679,
+      "mcts_utility": 0.8258401388888887,
+      "nccn_utility": 0.7925914583333332,
+      "action_mix": {
+        "MCTS": {
+          "timing": {
+            "surgery_first": 83.542,
+            "neoadjuvant": 16.458
+          },
+          "surgery": {
+            "BCS": 58.49,
+            "MAST": 41.51
+          },
+          "chemo": {
+            "none": 76.328,
+            "standard": 14.036,
+            "intensified": 9.635
+          },
+          "endocrine": {
+            "none": 76.594,
+            "standard": 14.094,
+            "extended": 9.312
+          },
+          "radiation": {
+            "none": 59.927,
+            "local": 24.635,
+            "regional": 15.438
+          }
+        },
+        "NCCN": {
+          "timing": {
+            "surgery_first": 100.0
+          },
+          "surgery": {
+            "BCS": 62.5,
+            "MAST": 37.5
+          },
+          "chemo": {
+            "standard": 92.5,
+            "none": 7.5
+          },
+          "endocrine": {
+            "standard": 50.0,
+            "none": 50.0
+          },
+          "radiation": {
+            "local": 62.5,
+            "none": 24.286,
+            "regional": 13.214
+          }
+        }
+      },
+      "label": "보상모형 그대로 (v0.2~v1.2)",
+      "neutralised": false,
+      "concordance": 0.6660375905099368
+    },
+    "treatment_neutral": {
+      "per_seed_gap": [
+        0.011221666666666907,
+        0.02230583333333358,
+        0.018314166666666853,
+        0.022985833333333372,
+        0.022038333333333382,
+        0.021894999999999887,
+        0.023667500000000175,
+        0.01373833333333363,
+        0.02649833333333329,
+        0.01847333333333334,
+        0.02264166666666667,
+        0.01444583333333338
+      ],
+      "per_patient_gap": [
+        0.02245277777777784,
+        0.03355555555555558,
+        0.02956666666666663,
+        0.0031499999999999675,
+        0.023608333333333353,
+        0.007633333333333316,
+        0.019061111111111074,
+        0.0021555555555555863,
+        0.020916666666666656,
+        0.0031055555555556205,
+        0.023688888888888943,
+        0.030805555555555652,
+        0.007213888888888974,
+        0.020250000000000046,
+        0.03750833333333337,
+        0.026194444444444576,
+        0.03336111111111109,
+        0.0191111111111112,
+        0.054563888888888856,
+        0.02045277777777778,
+        0.00655000000000001,
+        0.009727777777777844,
+        0.021202777777777765,
+        0.017172222222222273,
+        0.046991666666666716,
+        0.013830555555555587,
+        0.03230833333333333,
+        -0.00045277777777777417,
+        -0.008027777777777708,
+        0.009166666666666693,
+        0.015180555555555688,
+        0.015772222222222243,
+        0.01948888888888889,
+        0.013102777777777871,
+        0.03381111111111112,
+        0.01871944444444452,
+        0.00888611111111115,
+        0.02452222222222224,
+        0.01882499999999999,
+        0.038952777777777815
+      ],
+      "patient_ids": [
+        "MB-2994",
+        "MB-3028",
+        "MB-3104",
+        "MB-4276",
+        "MB-5331",
+        "MB-0469",
+        "MB-3614",
+        "MB-3711",
+        "MB-4686",
+        "MB-4750",
+        "MB-0113",
+        "MB-2513",
+        "MB-4350",
+        "MB-4763",
+        "MB-6100",
+        "MB-0294",
+        "MB-3383",
+        "MB-4931",
+        "MB-5008",
+        "MB-5058",
+        "MB-0120",
+        "MB-2786",
+        "MB-5062",
+        "MB-5332",
+        "MB-5558",
+        "MB-5020",
+        "MB-5124",
+        "MB-5144",
+        "MB-5171",
+        "MB-5485",
+        "MB-0378",
+        "MB-3470",
+        "MB-4127",
+        "MB-4952",
+        "MB-5312",
+        "MB-0502",
+        "MB-2753",
+        "MB-4769",
+        "MB-5135",
+        "MB-5258"
+      ],
+      "subtypes": [
+        "HR+/HER2+",
+        "HR+/HER2+",
+        "HR+/HER2+",
+        "HR+/HER2+",
+        "HR+/HER2+",
+        "HR+/HER2-",
+        "HR+/HER2-",
+        "HR+/HER2-",
+        "HR+/HER2-",
+        "HR+/HER2-",
+        "HR-/HER2+",
+        "HR-/HER2+",
+        "HR-/HER2+",
+        "HR-/HER2+",
+        "HR-/HER2+",
+        "TNBC",
+        "TNBC",
+        "TNBC",
+        "TNBC",
+        "TNBC",
+        "HR+/HER2+",
+        "HR+/HER2+",
+        "HR+/HER2+",
+        "HR+/HER2+",
+        "HR+/HER2+",
+        "HR+/HER2-",
+        "HR+/HER2-",
+        "HR+/HER2-",
+        "HR+/HER2-",
+        "HR+/HER2-",
+        "HR-/HER2+",
+        "HR-/HER2+",
+        "HR-/HER2+",
+        "HR-/HER2+",
+        "HR-/HER2+",
+        "TNBC",
+        "TNBC",
+        "TNBC",
+        "TNBC",
+        "TNBC"
+      ],
+      "utility_gap": 0.01985215277777787,
+      "utility_gap_sd": 0.004638397092005197,
+      "standard_error": 0.0013389899048387888,
+      "mcts_utility": 0.8241970833333333,
+      "nccn_utility": 0.8043449305555553,
+      "action_mix": {
+        "MCTS": {
+          "timing": {
+            "surgery_first": 79.167,
+            "neoadjuvant": 20.833
+          },
+          "surgery": {
+            "MAST": 52.635,
+            "BCS": 47.365
+          },
+          "chemo": {
+            "none": 68.87,
+            "standard": 18.875,
+            "intensified": 12.255
+          },
+          "endocrine": {
+            "none": 70.391,
+            "standard": 16.542,
+            "extended": 13.068
+          },
+          "radiation": {
+            "none": 72.146,
+            "regional": 15.016,
+            "local": 12.839
+          }
+        },
+        "NCCN": {
+          "timing": {
+            "surgery_first": 100.0
+          },
+          "surgery": {
+            "BCS": 62.5,
+            "MAST": 37.5
+          },
+          "chemo": {
+            "standard": 92.5,
+            "none": 7.5
+          },
+          "endocrine": {
+            "standard": 50.0,
+            "none": 50.0
+          },
+          "radiation": {
+            "local": 62.5,
+            "none": 24.286,
+            "regional": 13.214
+          }
+        }
+      },
+      "label": "치료 계수 중립화",
+      "neutralised": true,
+      "concordance": 0.6560429825912802
+    }
+  }
+}

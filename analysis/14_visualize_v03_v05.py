@@ -321,6 +321,7 @@ def fig23_results_reconciliation() -> None:
     standardised = json.loads(
         (ROOT / "reports" / "cohort-replication-v1.2"
          / "metrics_posthoc_subtype.json").read_text(encoding="utf-8"))
+    confounding = load(ROOT / "reports" / "reward-confounding-v1.4")["verdict"]
 
     rows = [
         (f"v0.2 단일 시드\n(256 · {dynamic['cohort']['dynamic_test_patients']}명 · 1시드)",
@@ -363,6 +364,10 @@ def fig23_results_reconciliation() -> None:
          - 1.96 * standardised["prevalence_standardised_standard_error"],
          standardised["prevalence_standardised_mean"]
          + 1.96 * standardised["prevalence_standardised_standard_error"], RED),
+        ("v1.4 치료 계수 중립화\n(현재 인용값)",
+         confounding["gap_treatment_neutral"], None, None, GREEN),
+        ("v1.4 중립화 + 아형 표준화\n(가장 보수적인 값)",
+         confounding["both_corrections_applied"], None, None, RED),
     ]
     labels = [row[0] for row in rows]
     positions = np.arange(len(rows))
@@ -381,7 +386,7 @@ def fig23_results_reconciliation() -> None:
     ax.set_ylim(len(rows) - 0.35, -0.7)
     ax.set_xlabel("효용 격차 (MCTS - NCCN), 가로선은 95% CI")
     ax.set_title("헤드라인 수치가 달라질 때마다 무엇이 바뀌었나\n"
-                 "— 예산·표본/시드·환경, 그리고 마지막엔 표집 설계",
+                 "— 예산·표본/시드·환경·표집 설계, 그리고 우리 보상모형의 교란",
                  fontsize=12.5, pad=12)
     ax.annotate("예산 256 → 1024\n(행동 순서를 분해할 해상도)",
                 xy=(by_budget[1024]["utility_gap_mean"], 4),
@@ -403,6 +408,11 @@ def fig23_results_reconciliation() -> None:
                 xytext=(standardised["prevalence_standardised_mean"] - 0.0205, 8.35),
                 fontsize=8.8, color=RED,
                 arrowprops=dict(arrowstyle="->", color=RED, linewidth=1.1))
+    ax.annotate("보상모형의 미선언 치료 계수를 빼면\n격차의 40%가 사라진다",
+                xy=(confounding["gap_treatment_neutral"], 10),
+                xytext=(confounding["gap_treatment_neutral"] + 0.0060, 10.7),
+                fontsize=8.8, color=GREEN,
+                arrowprops=dict(arrowstyle="->", color=GREEN, linewidth=1.1))
     save(fig, ENVFIX, "fig23_results_reconciliation.png")
 
     print("  reconciliation:", {row[0].splitlines()[0]: round(row[1], 4)

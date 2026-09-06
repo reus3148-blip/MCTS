@@ -149,6 +149,7 @@ def evaluate(sample, os_model, rfs_model, config) -> dict:
     """Per-seed MCTS and NCCN utilities, plus the action mix each policy chose."""
     gaps, mcts_means, nccn_means = [], [], []
     actions = {"MCTS": [], "NCCN": []}
+    per_patient = np.zeros((N_SEEDS, len(sample)), dtype=float)
     for seed_index in range(N_SEEDS):
         seed = BASE_SEED + seed_index * 1_000
         mcts_util, nccn_util = [], []
@@ -169,6 +170,8 @@ def evaluate(sample, os_model, rfs_model, config) -> dict:
                 EPISODES_PER_POLICY, patient_seed + 10_000))
             mcts_util.append(md["utility"].mean())
             nccn_util.append(nd["utility"].mean())
+            per_patient[seed_index, len(mcts_util) - 1] = (
+                md["utility"].mean() - nd["utility"].mean())
             actions["MCTS"].append(md)
             actions["NCCN"].append(nd)
         gaps.append(float(np.mean(mcts_util) - np.mean(nccn_util)))
@@ -185,6 +188,9 @@ def evaluate(sample, os_model, rfs_model, config) -> dict:
         }
     return {
         "per_seed_gap": gaps,
+        "per_patient_gap": per_patient.mean(axis=0).tolist(),
+        "patient_ids": [str(value) for value in sample["patient_id"]],
+        "subtypes": [str(value) for value in sample["subtype"]],
         "utility_gap": float(np.mean(gaps)),
         "utility_gap_sd": float(np.std(gaps, ddof=1)),
         "standard_error": float(np.std(gaps, ddof=1) / math.sqrt(N_SEEDS)),
@@ -312,6 +318,44 @@ def main() -> None:
         "concordance_neutral": results["treatment_neutral"]["concordance"],
     }
 
+    # Subtype standardisation, the other correction on this same headline (v1.2).
+    # Reported jointly so the two are not mistaken for alternatives: they are
+    # independent and they compound.
+    population = json.loads(
+        (ROOT / "reports" / "cohort-replication-v1.2"
+         / "metrics_posthoc_subtype.json").read_text(encoding="utf-8"))
+    shares = population["population_reference"]["subtype_share"]
+    standardised = {}
+    for key, result in results.items():
+        frame = pd.DataFrame({
+            "patient_id": result["patient_ids"],
+            "subtype": result["subtypes"],
+            "gap": result["per_patient_gap"],
+        })
+        by_subtype = frame.groupby("subtype")["gap"].agg(["mean", "std", "count"])
+        by_subtype["share"] = [shares.get(name, 0.0) for name in by_subtype.index]
+        by_subtype["standard_error"] = (
+            by_subtype["std"] / np.sqrt(by_subtype["count"]))
+        standardised[key] = {
+            "balanced_mean": float(by_subtype["mean"].mean()),
+            "prevalence_standardised_mean": float(
+                (by_subtype["share"] * by_subtype["mean"]).sum()),
+            "prevalence_standardised_standard_error": float(np.sqrt(
+                ((by_subtype["share"] * by_subtype["standard_error"]) ** 2).sum())),
+            "by_subtype": by_subtype.reset_index().to_dict(orient="records"),
+        }
+    pd.DataFrame([
+        {"arm": key, **row}
+        for key, value in standardised.items()
+        for row in value["by_subtype"]
+    ]).to_csv(TABLE_DIR / "subtype_gaps.csv", index=False)
+    verdict["standardised_gap_as_fitted"] = (
+        standardised["as_fitted"]["prevalence_standardised_mean"])
+    verdict["standardised_gap_treatment_neutral"] = (
+        standardised["treatment_neutral"]["prevalence_standardised_mean"])
+    verdict["both_corrections_applied"] = (
+        standardised["treatment_neutral"]["prevalence_standardised_mean"])
+
     replication = json.loads(REPLICATION_METRICS.read_text(encoding="utf-8"))
     pooled = next(row for row in replication["by_cohort"]
                   if row["cohort"] == "pooled")
@@ -346,6 +390,7 @@ def main() -> None:
             "neutralised_terms": treatment_terms,
         },
         "verdict": verdict,
+        "subtype_standardisation": standardised,
         "reward_model_vs_causal": implied.to_dict(orient="records"),
         "arms": results,
     }

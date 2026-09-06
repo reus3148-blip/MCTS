@@ -3,7 +3,7 @@
 공개 유방암 코호트로 치료 의사결정 환경을 만들고, 단순화한 NCCN 정책과
 Monte Carlo Tree Search(MCTS) 정책을 비교하는 학부 연구 프로젝트입니다.
 
-> 현재 단계: **음성대조와 트리밍 수정 v1.3 완료 (2026-09-05)**  
+> 현재 단계: **보상모형 교란 진단 v1.4 완료 (2026-09-07)**  
 > 연구용 예측 실험이며 실제 환자의 치료 권고 도구가 아닙니다.
 
 ## 지금까지 한 일
@@ -63,10 +63,17 @@ Monte Carlo Tree Search(MCTS) 정책을 비교하는 학부 연구 프로젝트�
     그리고 **트리밍이 v0.6부터 고정점에 도달하지 않고 있었습니다**(10칸 전부, 5칸은
     균형까지 실패). 고치자 v0.7의 **"방사선은 식별 불가" 판정이 철회**됐습니다
     (최악 |SMD| 0.234 → 0.030).
+20. **v1.4**: 인과 갈래와 시뮬레이터 갈래를 처음으로 붙였습니다. Cox 보상모형은 **같은
+    관찰자료**로 학습되므로 같은 교란을 안고 있고, 실제로 항암 HR 1.042 · 호르몬 HR 1.046
+    으로 **둘 다 해롭다고** 믿습니다(우리 보정 분석과 부호가 반대). 치료 계수를 중립화하자
+    격차가 **+0.0332 → +0.0199**로 줄었고(z = −5.37), **MCTS가 나빠져서가 아니라 NCCN이
+    벌점을 그만 받아서**였습니다(NCCN +0.0118, MCTS −0.0016).
 
-**헤드라인 인용 규칙**(2026-09-05 결정): 효용 격차는 **아형 균등 표본** 값 +0.0332를
-쓰되, 실제 아형 구성으로 표준화한 **+0.0198**과 아형 간 3.7배 차이를 **항상 함께** 적습니다.
-근거와 되돌릴 조건은 `src/minutes/2026-09-05-headline-sampling-decision.md`에 있습니다.
+**헤드라인 인용 규칙**(2026-09-05 결정 · 2026-09-07 갱신): 효용 격차는 **아형 균등 표본 ·
+치료 중립 보상모형** 값 **+0.0199**를 쓰되, 아형 표준화까지 한 **+0.0136**과 아형 간 3.7배
+차이를 **항상 함께** 적습니다. 두 정정은 서로 다른 것을 고치므로 겹칩니다.
+근거와 되돌릴 조건은 `src/minutes/2026-09-05-headline-sampling-decision.md`와
+`src/minutes/2026-09-07-reward-model-confounding.md`에 있습니다.
 
 전체 줄기를 한 번에 읽으려면 [연구 이야기](docs/research-story.md),
 숫자가 왜 달라졌는지는 [숫자 화해](docs/results-reconciliation.md),
@@ -86,6 +93,7 @@ Monte Carlo Tree Search(MCTS) 정책을 비교하는 학부 연구 프로젝트�
 [환자 수 민감도 v1.1 보고서](reports/sensitivity-patients-v1.1/README.md),
 [코호트 복제 v1.2 보고서](reports/cohort-replication-v1.2/README.md),
 [음성대조와 트리밍 수정 v1.3 보고서](reports/endocrine-effect-v1.3/README.md),
+[보상모형 교란 v1.4 보고서](reports/reward-confounding-v1.4/README.md),
 [v0.5 환경 재실행](reports/robustness-v0.5env/README.md),
 [Target trial 프로토콜](docs/target-trial-protocol.md),
 날짜별 작업 근거는 [프로젝트 타임라인](PROJECT_TIMELINE.md)에 정리되어 있습니다.
@@ -122,6 +130,8 @@ analysis/
   30_run_subtype_standardisation.py 아형 표준화 (v1.2 사후)
   31_run_endocrine_effect.py      호르몬치료 효과·음성대조·트리밍 수정 (v1.3)
   32_visualize_endocrine_effect.py Figure 36~37
+  33_run_reward_model_confounding.py 보상모형 치료 계수 중립화 (v1.4)
+  34_visualize_reward_confounding.py Figure 38~39
   causal/ipw.py                   프로펜서티·균형·가중 KM·IPCW·AIPW·E-value (numpy 구현)
   causal/decisions.py             결정별 코호트·교란요인 명세·고정점 트리밍
   causal/effects.py               IPCW·세 추정량·부트스트랩 (17과 31이 공유)
@@ -159,6 +169,8 @@ reports/cohort-replication-v1.2/
   tables/                 겹치지 않는 두 코호트·합산·아형 표준화
 reports/endocrine-effect-v1.3/
   tables/                 결정별 효과·음성대조·공변량 균형·트리밍 수렴
+reports/reward-confounding-v1.4/
+  tables/                 보상모형 계수·모형 대 인과 대조·행동 구성·아형별 격차
 reports/*-v0.5env/        v0.3·v0.4를 수정 환경에서 재실행한 결과
 configs/dynamic_v0_5.json 현재 환경 가정 (v0.2는 과거 리포트 재현용으로 보존)
 docs/k-cure-adaptation.md K-CURE 이행 데이터 계약
@@ -198,6 +210,10 @@ npm run dev
   명세한 MCTS vs NCCN 전략 비교가 아닙니다. 그 비교는 치료 시점 정보가 있어야 식별됩니다.
 - **겹침(positivity) 진단은 교란요인 목록에 조건부입니다.** v0.7에서 방사선치료의 넓은
   겹침이 수술 유형 누락의 산물이었음을 확인했습니다. 겹침이 넓다고 안심하면 안 됩니다.
+- **보상모형은 예후만 담당합니다**(v1.4). Cox 모형이 관찰자료에서 학습한 치료 계수는
+  **미선언 채널**이었고 NCCN을 깎고 있었습니다(격차의 40%). 새 실험은
+  `neutralise_treatment_terms()`를 쓰고, 치료 효과는 config의 선언된 파라미터가
+  담당합니다. v0.2~v1.2의 수치는 옛 환경의 기록입니다.
 - **관찰 추정치를 "효과"라고 부르지 않습니다.** v1.3의 음성대조에서, 호르몬치료가 들을
   수 없는 ER 음성 환자에게 ER 양성과 거의 같은 위험비가 나왔습니다(0.654 대 0.634).
   교란 보정 후에도 상당한 편의가 남아 있으므로 **"교란 보정 후에도 남는 연관성"** 으로만
